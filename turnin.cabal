@@ -1,0 +1,27 @@
+name:           turnin
+version:        0.1
+cabal-version:  >=1.2
+build-type:     Simple
+author:         antoine
+
+executable turnin
+  hs-source-dirs:  src
+  main-is:         Main.hs
+  build-depends:   
+                   base >= 4,
+                   optparse-applicative >=0.7.0 && <0.8
+  ghc-options:     -Wall
+
+test-suite turnin-tests
+  type:            exitcode-stdio-1.0
+  main-is:         MainTest.hs
+  ghc-options:     -Wall -rtsopts
+  build-depends:   
+                   base >= 4, HTF > 0.9,
+                   optparse-applicative >=0.7.0 && <0.8
+  hs-source-dirs:  
+                   src, 
+                   src/Interface, 
+                   test
+  other-modules:   Interface.CommandLineParserTest
+
