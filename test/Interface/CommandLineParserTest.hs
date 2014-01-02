@@ -1,13 +1,15 @@
 {-# OPTIONS_GHC -F -pgmF htfpp -fno-warn-incomplete-patterns#-}
 module Interface.CommandLineParserTest where
 import Test.Framework
-
-import Interface.CommandLineLexicon
 import Interface.CommandLineParserTestUtils
+
+import Interface.Lexicon
 import Interface.CommandLineParser
+import Interface.CommandLineParser.Config
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
- 
+
+-- Config
 prop_configThresholdSetSuccess cu ch =
  validArgs [cu, ch] ==>
   testSuccess (cu,ch) h [configSub, thresholdSub, setSub] ([configThresholdSetCurrentOpt, configThresholdSetChooseOpt], [cu, ch]) noVariadics
@@ -15,7 +17,7 @@ prop_configThresholdSetSuccess cu ch =
             Config(ConfigOpts(
              ConfigThreshold(ConfigThresholdOpts(
               ConfigThresholdSet(ConfigThresholdSetOpts a b))))))) = (a, b)
-              
+
 prop_configThresholdListSuccess =
   testSuccess noOptsToGet h [configSub, thresholdSub, listSub] noOpts noVariadics
    where h (Global(
@@ -54,7 +56,7 @@ prop_configProjectDateListSuccess =
              ConfigProjectDate(ConfigProjectDateOpts(
               ConfigProjectDateList ConfigProjectDateListOpts)))))) = noOptsToGet
 
-prop_configAcceptExecSetSuccess v = 
+prop_configAcceptExecSetSuccess v =
  let val = ["yYnN" !! (v `mod` 4)]
  in testSuccess val h [configSub, acceptExecSub, setSub, val] noOpts noVariadics
      where h (Global(
@@ -69,7 +71,7 @@ prop_configAcceptExecListSuccess =
              ConfigAcceptExec(ConfigAcceptExecOpts(
               ConfigAcceptExecList ConfigAcceptExecListOpts)))))) = noOptsToGet
 
-prop_configTimeLimitSetSuccess v = 
+prop_configTimeLimitSetSuccess v =
  let val = show $ abs (v :: Double)
  in  testSuccess val h [configSub, timeLimitSub, setSub, val] noOpts noVariadics
       where h (Global(
@@ -84,7 +86,7 @@ prop_configTimeLimitListSuccess =
              ConfigTimeLimit(ConfigTimeLimitOpts(
               ConfigTimeLimitList ConfigTimeLimitListOpts)))))) = noOptsToGet
 
-prop_configSpaceLimitSetSuccess v = 
+prop_configSpaceLimitSetSuccess v =
  let val = show $ abs (v :: Integer)
  in  testSuccess val h [configSub, spaceLimitSub, setSub, val] noOpts noVariadics
       where h (Global(
@@ -99,7 +101,7 @@ prop_configSpaceLimitListSuccess =
              ConfigSpaceLimit(ConfigSpaceLimitOpts(
               ConfigSpaceLimitList ConfigSpaceLimitListOpts)))))) = noOptsToGet
 
-prop_configAdminGroupsSetSuccess gs = 
+prop_configAdminGroupsSetSuccess gs =
  gs /= [] ==>
   let groups = map noLeadingHyphens gs
   in  testSuccess groups h [configSub, adminGroupsSub, setSub] noOpts groups
@@ -114,12 +116,12 @@ prop_configAdminGroupsListSuccess =
             Config(ConfigOpts(
              ConfigAdminGroups(ConfigAdminGroupsOpts(
               ConfigAdminGroupsList ConfigAdminGroupsListOpts)))))) = noOptsToGet
- 
-prop_configTeacherGroupsSetSuccess gs = 
+
+prop_configTeacherGroupsSetSuccess gs =
  let groups = map noLeadingHyphens gs
  in  testSuccess groups h [configSub, teacherGroupsSub, setSub] noOpts groups
       where h (Global(
-               Config(ConfigOpts( 
+               Config(ConfigOpts(
                 ConfigTeacherGroups(ConfigTeacherGroupsOpts(
                  ConfigTeacherGroupsSet(ConfigTeacherGroupsSetOpts a))))))) = a
 
@@ -129,5 +131,30 @@ prop_configTeacherGroupsListSuccess =
             Config(ConfigOpts(
              ConfigTeacherGroups(ConfigTeacherGroupsOpts(
               ConfigTeacherGroupsList ConfigTeacherGroupsListOpts)))))) = noOptsToGet
+
+prop_configCorrectorIsSuccess n =
+ let name = noLeadingHyphens n
+ in  testSuccess name h [configSub, correctorSub, isSub, name] noOpts noVariadics
+      where h (Global(
+               Config(ConfigOpts(
+                ConfigCorrector(ConfigCorrectorOpts(
+                 ConfigCorrectorIs(ConfigCorrectorIsOpts a))))))) = a
+
+prop_configCorrectorAddSuccess n =
+ let name = noLeadingHyphens n
+ in  testSuccess name h [configSub, correctorSub, addSub, name] noOpts noVariadics
+      where h (Global(
+               Config(ConfigOpts(
+                ConfigCorrector(ConfigCorrectorOpts(
+                 ConfigCorrectorAdd(ConfigCorrectorAddOpts a))))))) = a
+
+prop_configCorrectorRemoveSuccess n =
+ let name = noLeadingHyphens n
+ in  testSuccess name h [configSub, correctorSub, removeSub, name] noOpts noVariadics
+      where h (Global(
+               Config(ConfigOpts(
+                ConfigCorrector(ConfigCorrectorOpts(
+                 ConfigCorrectorRemove(ConfigCorrectorRemoveOpts a))))))) = a
+
 
 

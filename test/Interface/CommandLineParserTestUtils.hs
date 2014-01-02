@@ -5,12 +5,12 @@ import Test.Framework
 import Options.Applicative
 import Data.List
 import Data.Maybe
- 
+
 import Interface.CommandLineParser
-import Interface.CommandLineLexicon
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
+type Opt = (Char, String)
 type Opts = ([Opt],[Maybe String])
 
 noOptsToGet = ()
@@ -18,7 +18,7 @@ noOpts = ([],[])
 noVariadics = []
 
 validArgs :: [Maybe String] -> Bool
-validArgs = notElem (Just "") 
+validArgs = notElem (Just "")
 
 noLeadingHyphens ('-':s) = noLeadingHyphens s
 noLeadingHyphens s       = s
@@ -44,8 +44,7 @@ buildOpts = concatMap (map concat.f)
        f (o:os) = [s:ss  | s <- buildOpt o, ss <- f os]
 
 buildOpt :: (Opt, String) -> [[String]]
-buildOpt (O s l, v) = [['-':s:v],
+buildOpt ((s, l), v) = [['-':s:v],
                        ['-':[s],v],
                        ["--" ++ l, v]]
 
-                       

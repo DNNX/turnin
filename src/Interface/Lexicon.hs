@@ -1,6 +1,4 @@
-module Interface.CommandLineLexicon where
-
-data Opt = O Char String
+module Interface.Lexicon where
 
 -- Commands
 configSub = "config"
@@ -12,18 +10,22 @@ timeLimitSub = "timeLimit"
 spaceLimitSub = "spaceLimit"
 adminGroupsSub = "adminGroups"
 teacherGroupsSub = "teacherGroups"
+correctorSub = "correctorSub"
 setSub = "set"
 listSub = "list"
+isSub = "is"
+addSub = "add"
+removeSub = "remove"
 
 -- Options
-helpOpt = O '?' "help"
-configThresholdSetCurrentOpt = O 'u' "current"
-configThresholdSetChooseOpt = O 'h' "choose"
-configTermDateSetTerm1Opt = O '1' "term1"
-configTermDateSetTerm2Opt = O '2' "term2"
-configTermDateSetTerm3Opt = O '3' "term3"
-configProjectDateSetEndOpt = O 'e' "end"
-configProjectDateSetLateOpt = O 'l' "late"
+helpOpt = ('?', "help")
+configThresholdSetCurrentOpt = ('u', "current")
+configThresholdSetChooseOpt = ( 'h', "choose")
+configTermDateSetTerm1Opt = ('1', "term1")
+configTermDateSetTerm2Opt = ('2', "term2")
+configTermDateSetTerm3Opt = ('3', "term3")
+configProjectDateSetEndOpt = ('e', "end")
+configProjectDateSetLateOpt = ('l', "late")
 
 -- Descriptions
 globalDesc = "Global desc"
@@ -54,6 +56,10 @@ configAdminGroupsListDesc = "Config admin groups list desc"
 configTeacherGroupsDesc = "Config teacher groups desc"
 configTeacherGroupsSetDesc = "Config teacher groups set desc"
 configTeacherGroupsListDesc = "Config teacher groups list desc"
+configCorrectorDesc = "Config corrector desc"
+configCorrectorIsDesc = "Config corrector is desc"
+configCorrectorAddDesc = "Config corrector add desc"
+configCorrectorRemoveDesc = "Config corrector remove desc"
 
 -- Metavars
 configThresholdSetCurrentMeta = "CURRENT"
@@ -63,11 +69,14 @@ configTermDateSetTerm2Meta = "TERM2"
 configTermDateSetTerm3Meta = "TERM3"
 configProjectDateSetEndMeta = "END"
 configProjectDateSetLateMeta = "LATE"
-configAcceptExecSetMeta = "ACCEPT_EXEC"
-configTimeLimitSetMeta = "TIME_LIMIT"
-configSpaceLimitSetMeta = "SPACE_LIMIT"
-configAdminGroupsSetMeta = "ADMIN_GROUPS"
-configTeacherGroupsSetMeta = "TEACHER_GROUPS"
+configAcceptExecSetWhetherMeta = "ACCEPT_EXEC"
+configTimeLimitSetSecondsMeta = "TIME_LIMIT"
+configSpaceLimitSetBytesMeta = "SPACE_LIMIT"
+configAdminGroupsSetGroupsMeta = "ADMIN_GROUPS"
+configTeacherGroupsSetGroupsMeta = "TEACHER_GROUPS"
+configCorrectorIsNameMeta = "CORR_NAME"
+configCorrectorAddNameMeta = "CORR_NAME"
+configCorrectorRemoveNameMeta = "CORR_NAME"
 
 -- Help messages
 helpHelp = "Show this help text"
@@ -84,4 +93,7 @@ configTimeLimitSetSecondsHelp = "Config time limit set seconds help"
 configSpaceLimitSetBytesHelp = "Config space limit set bytes help"
 configAdminGroupsSetGroupsHelp = "Config admin groups set groups help"
 configTeacherGroupsSetGroupsHelp = "Config teacher groups set groups help"
+configCorrectorIsNameHelp = "Config corrector is name help"
+configCorrectorAddNameHelp = "Config corrector add name help"
+configCorrectorRemoveNameHelp = "Config corrector remove name help"
 
