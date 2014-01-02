@@ -1,186 +1,119 @@
 module Interface.CommandLineParser where
 
---import Options.Applicative 
+import Options.Applicative
+import Data.Monoid
+import Interface.CommandLineLexicon
 
-data GlobalOpts = Global GlobalCmd
-data GlobalCmd  = Config    ConfigOpts
-                | Repo      RepoOpts
-                | Term      TermOpts
-                | Course    CourseOpts
---                | Group     GroupOpts
---                | Project   ProjectOpts
---                | Submit    SubmitOpts
---                | Worktrain WorktrainOpts
-
-data ConfigOpts = ConfigOpts ConfigCmd
-data ConfigCmd  = ConfigThreshold     ConfigThresholdOpts
-                | ConfigTermDate      ConfigTermDateOpts
-                | ConfigProjectDate   ConfigProjectDateOpts
-                | ConfigAcceptExec    ConfigAcceptExecOpts
-                | ConfigTimeLimit     ConfigTimeLimitOpts
-                | ConfigSpaceLimit    ConfigSpaceLimitOpts
-                | ConfigAdminGroups   ConfigAdminGroupsOpts
-                | ConfigTeacherGroups ConfigTeacherGroupsOpts
-                | ConfigCorrector     ConfigCorrectorOpts
-
--- Config threshold
-data ConfigThresholdOpts = ConfigThresholdOpts ConfigThresholdCmd
+data Global = Global Cmd                                                         deriving (Show)
+data Cmd  = Config    ConfigOpts
+--          | Repo      RepoOpts                                                   
+          deriving (Show)
+   
+-- config
+data ConfigOpts = ConfigOpts        ConfigCmd                                    deriving (Show)
+data ConfigCmd  = ConfigThreshold   ConfigThresholdOpts
+--                | ConfigTermDate    ConfigTermDateOpts                           
+                deriving (Show)
+   
+data ConfigThresholdOpts = ConfigThresholdOpts ConfigThresholdCmd                deriving (Show)
 data ConfigThresholdCmd  = ConfigThresholdSet  ConfigThresholdSetOpts
-                         | ConfigThresholdList ConfigThresholdListOpts
-
+--                         | ConfigThresholdList ConfigThresholdListOpts           
+                         deriving (Show)
+   
 data ConfigThresholdSetOpts = ConfigThresholdSetOpts
  { configThresholdSetCurrent :: Maybe String
- , configThresholdSetChoose  :: Maybe String }
-data ConfigThresholdListOpts = ConfigThresholdListOpts
+ , configThresholdSetChoose  :: Maybe String }                                   deriving (Show)
+--data ConfigThresholdListOpts = ConfigThresholdListOpts                           deriving (Show)
+--   
+--data ConfigTermDateOpts = ConfigTermDateOpts ConfigTermDateCmd                   deriving (Show)
+--data ConfigTermDateCmd  = ConfigTermDateSet  ConfigTermDateSetOpts
+--                        | ConfigTermDateList ConfigTermDateListOpts              deriving (Show)
+--   
+--data ConfigTermDateSetOpts = ConfigTermDateSetOpts
+-- { configTermDateSetTerm1 :: Maybe String
+-- , configTermDateSetTerm2 :: Maybe String
+-- , configTermDateSetTerm3 :: Maybe String }                                      deriving (Show)
+--data ConfigTermDateListOpts = ConfigTermDateListOpts                             deriving (Show)
+--   
+---- repo
+--data RepoOpts = RepoOpts   RepoCmd                                               deriving (Show)
+--data RepoCmd  = RepoAdd    RepoAddOpts
+--              | RepoRemove RepoRemoveOpts
+--              | RepoList   RepoListOpts                                          deriving (Show)
+--   
+--data RepoAddOpts = RepoAddOpts
+-- { repoAddName :: String }                                                       deriving (Show)
+--data RepoRemoveOpts = RepoRemoveOpts
+-- { repoRemoveRepoNode :: Maybe String }                                          deriving (Show)
+--data RepoListOpts = RepoListOpts                                                 deriving (Show)
 
--- Config term date
-data ConfigTermDateOpts = ConfigTermDateOpts  ConfigTermDateCmd
-data ConfigTermDateCmd  = ConfigTermDateSet   ConfigTermDateSetOpts
-                        | ConfigTermDateList  ConfigTermDateListOpts
+-- parser info
+globalInfo =              info (myHelper <*> global)              (progDesc globalDesc <> header globalHeader)
 
-data ConfigTermDateSetOpts = ConfigTermDateSetOpts
- { configTermDateSetTerm1 :: Maybe String
- , configTermDateSetTerm2 :: Maybe String
- , configTermDateSetTerm3 :: Maybe String }
-data ConfigTermDateListOpts = ConfigTermDateListOpts
+configInfo =              info (myHelper <*> config)              (progDesc configDesc)
+configThresholdInfo =     info (myHelper <*> configThreshold)     (progDesc configThresholdDesc)
+configThresholdSetInfo =  info (myHelper <*> configThresholdSet)  (progDesc configThresholdSetDesc)
+--configThresholdListInfo = info (myHelper <*> configThresholdList) (progDesc "Config threshold list desc")
+--configTermDateInfo =      info (myHelper <*> configTermDate)      (progDesc "Config term date desc")
+--configTermDateSetInfo =   info (myHelper <*> configTermDateSet)   (progDesc "Config term date set desc")
+--configTermDateListInfo =  info (myHelper <*> configTermDateList)  (progDesc "Config term date list desc")
+--
+--repoInfo =                info (myHelper <*> repo)                (progDesc "Repo desc")
+--repoAddInfo =             info (myHelper <*> repoAdd)             (progDesc "Repo add desc")
+--repoRemoveInfo =          info (myHelper <*> repoRemove)          (progDesc "Repo remove desc")
+--repoListInfo =            info (myHelper <*> repoList)            (progDesc "Repo list desc")
 
--- Config project date
-data ConfigProjectDateOpts = ConfigProjectDateOpts ConfigProjectDateCmd
-data ConfigProjectDateCmd  = ConfigProjectDateSet  ConfigProjectDateSetOpts
-                           | ConfigProjectDateList ConfigProjectDateListOpts
+-- Change the -h for a -?
+myHelper ::  Parser (a -> a)
+myHelper = abortOption ShowHelpText $ mconcat
+  [ long "help"
+  , short '?'
+  , help "Show this help text" ]
 
-data ConfigProjectDateSetOpts = ConfigProjectDateSetOpts
- { configProjectDateSetEnd  :: Maybe String
- , configProjectDateSetLate :: Maybe String }
-data ConfigProjectDateListOpts = ConfigProjectDateListOpts
+-- parsers
+global = Global <$> subparser (
+ command configSub configInfo -- <>
+-- command "repo"   repoInfo
+ )
+ 
+config = Config <$> ConfigOpts  <$> subparser (
+ command thresholdSub configThresholdInfo -- <>
+-- command "termDate"  configTermDateInfo
+ )
 
--- Config accept exec
-data ConfigAcceptExecOpts = ConfigAcceptExecOpts ConfigAcceptExecCmd
-data ConfigAcceptExecCmd  = ConfigAcceptExecSet  ConfigAcceptExecSetOpts
-                          | ConfigAcceptExecList ConfigAcceptExecListOpts
+configThreshold = ConfigThreshold <$> ConfigThresholdOpts <$> subparser (
+ command setSub  configThresholdSetInfo -- <>
+-- command "list" configThresholdListInfo
+ )
 
-data ConfigAcceptExecSetOpts = ConfigAcceptExecSetOpts
- { configAcceptExecSetFlag :: Bool }
-data ConfigAcceptExecListOpts = ConfigAcceptExecListOpts
+configThresholdSet = ConfigThresholdSet <$> (ConfigThresholdSetOpts
+  <$> optional (strOption $ short 'u' <> long "cu" <> long "current" <> metavar "CURRENT" <> help "Config threshold set current help")
+  <*> optional (strOption $ short 'o' <> long "ch" <> long "choose"  <> metavar "CHOOSE"  <> help "Config threshold set choose help"))
 
--- Config time limit
-data ConfigTimeLimitOpts = ConfigTimeLimitOpts ConfigTimeLimitCmd
-data ConfigTimeLimitCmd  = ConfigTimeLimitSet  ConfigTimeLimitSetOpts
-                         | ConfigTimeLimitList ConfigTimeLimitListOpts
+--configThresholdList = ConfigThresholdList <$> pure ConfigThresholdListOpts
+--
+--configTermDate = ConfigTermDate <$> ConfigTermDateOpts <$> subparser (
+-- command "set"  configTermDateSetInfo <>
+-- command "list" configTermDateListInfo)
+--
+--configTermDateSet = ConfigTermDateSet <$> (ConfigTermDateSetOpts
+--  <$> optional (strOption $ short '1' <> long "term1" <> metavar "TERM1" <> help "Config term date set term1 help")
+--  <*> optional (strOption $ short '2' <> long "term2" <> metavar "TERM2" <> help "Config term date set term2 help")
+--  <*> optional (strOption $ short '3' <> long "term3" <> metavar "TERM3" <> help "Config term date set term3 help"))
+--
+--configTermDateList = ConfigTermDateList <$> pure ConfigTermDateListOpts
+--
+--repo = Repo <$> RepoOpts <$> subparser (
+-- command "add"    repoAddInfo <>
+-- command "remove" repoRemoveInfo <>
+-- command "list"   repoListInfo)
+--
+--repoAdd    = RepoAdd    <$> RepoAddOpts    <$>
+-- argument str (metavar "NAME")
+--
+--repoRemove = RepoRemove <$> RepoRemoveOpts <$>
+-- optional (strOption $ short 'r' <> long "repo" <> metavar "REPO" <> help "Repo node help")
+--
+--repoList   = RepoList   <$> pure RepoListOpts
 
-data ConfigTimeLimitSetOpts = ConfigTimeLimitSetOpts
- { configTimeLimitSetSeconds :: Double }
-data ConfigTimeLimitListOpts = ConfigTimeLimitListOpts
-
--- Config space limit
-data ConfigSpaceLimitOpts = ConfigSpaceLimitOpts ConfigSpaceLimitCmd
-data ConfigSpaceLimitCmd  = ConfigSpaceLimitSet  ConfigSpaceLimitSetOpts
-                          | ConfigSpaceLimitList ConfigSpaceLimitListOpts
-
-data ConfigSpaceLimitSetOpts = ConfigSpaceLimitSetOpts
- { configSpaceLimitSetBytes :: Integer }
-data ConfigSpaceLimitListOpts = ConfigSpaceLimitListOpts
-
--- Config admin groups
-data ConfigAdminGroupsOpts = ConfigAdminGroupsOpts ConfigAdminGroupsCmd
-data ConfigAdminGroupsCmd  = CongigAdminGroupsSet  ConfigAdminGroupsSetOpts
-                           | CongigAdminGroupsList ConfigAdminGroupsListOpts
-
-data ConfigAdminGroupsSetOpts = ConfigAdminGroupsSetOpts
- { configAdminGroupsSetNames :: [String] }
-data ConfigAdminGroupsListOpts = ConfigAdminGroupsListOpts
-
--- Config teacher groups
-data ConfigTeacherGroupsOpts = ConfigTeacherGroupsOpts ConfigTeacherGroupsCmd
-data ConfigTeacherGroupsCmd  = CongigTeacherGroupsSet  ConfigTeacherGroupsSetOpts
-                             | CongigTeacherGroupsList ConfigTeacherGroupsListOpts
-
-data ConfigTeacherGroupsSetOpts = ConfigTeachereGroupsSetOpts
- { configTeacherGroupsSetNames :: [String] }
-data ConfigTeacherGroupsListOpts = ConfigTeacherGroupsListOpts
-
--- Config corrector
-data ConfigCorrectorOpts = ConfigCorrectorOpts ConfigCorrectorCmd
-data ConfigCorrectorCmd  = ConfigCorrectorIs ConfigCorrectorIsOpts
-                         | ConfigCorrectorAdd ConfigCorrectorAddOpts
-                         | ConfigCorrectorRemove ConfigCorrectorRemoveOpts   
-                         
-data ConfigCorrectorIsOpts = ConfigCorrectorIsOpts
- { configCorrectorIsName :: String }
-data ConfigCorrectorAddOpts = ConfigCorrectorAddOpts
- { configCorrectorAddName :: String }
-data ConfigCorrectorRemoveOpts = ConfigCorrectorRemoveOpts
- { configCorrectorRemoveName :: String }
-
--- Repo
-data RepoOpts = RepoOpts RepoCmd
-data RepoCmd  = RepoAdd    RepoAddOpts
-              | RepoRemove RepoRemoveOpts
-              | RepoList   RepoListOpts
               
-data RepoAddOpts = RepoAddOpts
- { repoAddRepoName :: String }
-data RepoRemoveOpts = RepoRemoveOpts
- { repoRemoveRepoName :: Maybe String }
-data RepoListOpts = RepoListOpts
-
--- Term
-data TermOpts = TermOpts TermCmd
-data TermCmd  = TermAdd    TermAddOpts
-              | TermRemove TermRemoveOpts   
-              | TermList   TermListOpts
-              | TermDate   TermDateOpts
-              
-data TermAddOpts = TermAddOpts
- { termAddRepoName :: Maybe String 
- , termAddTermName :: String }
- 
-data TermRemoveOpts = TermRemoveOpts
- { termRemoveRepoName :: Maybe String
- , termRemoveTermName :: Maybe String }
- 
-data TermListOpts = TermListOpts
- { termListRepoName :: Maybe String }
- 
-data TermDateOpts = TermDateOpts TermDateCmd
-data TermDateCmd  = TermDateSet  TermDateSetOpts 
-                  | TermDateList TermDateListOpts
- 
-data TermDateSetOpts = TermDateSetOpts
- { termDateSetRepoName :: Maybe String
- , termDateSetTermName :: Maybe String
- , termDateSetStart    :: Maybe String
- , termDateSetEnd      :: Maybe String }
- 
-data TermDateListOpts = TermDateListOpts
- { termDateListRepoName :: Maybe String
- , termDateListTermName :: Maybe String }
-
--- Course
-data CourseOpts = CourseOpts CourseCmd
-data CourseCmd  = CourseAdd CourseAddOpts
-                | CourseRemove CourseRemoveOpts
---                | CourseList CourseListOpts
---                | CourseTeacher CourseTeacherOpts
---                | CourseCorrector CourseCorrectorOpts
-
-data CourseAddOpts = CourseAddOpts
- { courseAddRepoName   :: Maybe String
- , courseAddTermName   :: Maybe String
- , courseAddCourseName :: String }
-
-data CourseRemoveOpts = CourseRemoveOpts
- { courseRemoveRepoName   :: Maybe String
- , courseRemoveTermName   :: Maybe String
- , courseRemoveCourseName :: Maybe String }
- 
- 
-myReverse :: [a] -> [a]
-myReverse [] = [] 
-myReverse [x] = [x]
-myReverse (_:xs) = myReverse xs
-
-
-
-
-

@@ -1,4 +1,8 @@
 module Main where
 
+import Options.Applicative
+import Interface.CommandLineParser
+
 main :: IO ()
-main = putStrLn "Hello World!"
+--main = print "Hello World!"
+main = execParser globalInfo >>= print
