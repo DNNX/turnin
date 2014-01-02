@@ -4,5 +4,5 @@ import Test.Framework
 
 import {-@ HTF_TESTS @-} Interface.CommandLineParserTest
 
-main :: IO()
+main :: IO ()
 main = htfMain htf_importedTests

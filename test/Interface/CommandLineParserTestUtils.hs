@@ -15,18 +15,22 @@ type Opts = ([Opt],[Maybe String])
 
 noOptsToGet = ()
 noOpts = ([],[])
+noVariadics = []
 
 validArgs :: [Maybe String] -> Bool
 validArgs = notElem (Just "") 
 
-testSuccess :: (Eq a) => a -> (Global -> a) -> [String] -> Opts -> Bool
-testSuccess expected f cmd opts = all ((expected ==).g) $ makeCmd cmd $ uncurry makeOpts opts
+noLeadingHyphens ('-':s) = noLeadingHyphens s
+noLeadingHyphens s       = s
+
+testSuccess :: (Eq a) => a -> (Global -> a) -> [String] -> Opts -> [String] -> Bool
+testSuccess expected f cmd opts variadics = all ((expected ==).g) $ makeCmd cmd (uncurry makeOpts opts) variadics
  where g = f . h . execParserMaybe globalInfo
        h (Just x) = x
        h _ = error "Unexpectedly Nothing in testSuccess"
 
-makeCmd :: [String] -> [[String]] -> [[String]]
-makeCmd cmd opts = [cmd ++ o | o <- opts]
+makeCmd :: [String] -> [[String]] -> [String] -> [[String]]
+makeCmd cmd opts vars = [cmd ++ o ++ vars | o <- opts]
 
 makeOpts :: [Opt] -> [Maybe String] -> [[String]]
 makeOpts os = buildOpts . permutations . map f . filter (isJust.snd) . zip os
