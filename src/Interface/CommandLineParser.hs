@@ -15,7 +15,7 @@ data ConfigCmd  = ConfigThreshold   ConfigThresholdOpts
 data ConfigThresholdOpts = ConfigThresholdOpts ConfigThresholdCmd                deriving (Show)
 data ConfigThresholdCmd  = ConfigThresholdSet  ConfigThresholdSetOpts
                          | ConfigThresholdList ConfigThresholdListOpts           deriving (Show)
- 
+
 data ConfigThresholdSetOpts = ConfigThresholdSetOpts
  { configThresholdSetCurrent :: Maybe String
  , configThresholdSetChoose  :: Maybe String }                                   deriving (Show)

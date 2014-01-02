@@ -54,10 +54,8 @@ prop_configProjectDateListSuccess =
             Config(ConfigOpts(
              ConfigProjectDate(ConfigProjectDateOpts(
               ConfigProjectDateList ConfigProjectDateListOpts)))))) = noOptsToGet
-              
+       
               
 
-
- 
 
  
