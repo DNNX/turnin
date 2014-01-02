@@ -7,6 +7,7 @@ configSub = "config"
 thresholdSub = "threshold"
 termDateSub = "termDate"
 projectDateSub = "projectDate"
+acceptExecSub = "acceptExec"
 setSub = "set"
 listSub = "list"
 
@@ -34,6 +35,9 @@ configTermDateListDesc = "Config term date list desc"
 configProjectDateDesc = "Config project date desc"
 configProjectDateSetDesc = "Config project date set desc"
 configProjectDateListDesc = "Config project date list desc"
+configAcceptExecDesc = "Config accept exec desc"
+configAcceptExecSetDesc = "Config accept exec set desc"
+configAcceptExecListDesc = "Config accept exec list desc"
 
 -- Metavars
 configThresholdSetCurrentMeta = "CURRENT"
@@ -43,6 +47,7 @@ configTermDateSetTerm2Meta = "TERM2"
 configTermDateSetTerm3Meta = "TERM3"
 configProjectDateSetEndMeta = "END"
 configProjectDateSetLateMeta = "LATE"
+configAcceptExecSetMeta = "ACCEPT_EXEC"
 
 -- Help messages
 helpHelp = "Show this help text"
@@ -54,5 +59,6 @@ configTermDateSetTerm2Help = "Config term date set term2 help"
 configTermDateSetTerm3Help = "Config term date set term3 help"
 configProjectDateSetEndHelp = "Config project date set end help"
 configProjectDateSetLateHelp = "Config project date set late help"
+configAcceptExecSetFlagHelp = "Config accept exec set flag help"
                                                          
 

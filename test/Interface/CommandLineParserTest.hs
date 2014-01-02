@@ -9,53 +9,67 @@ import Interface.CommandLineParser
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 prop_configThresholdSetSuccess cu ch =
- validArgs [cu, ch] ==> 
+ validArgs [cu, ch] ==>
   testSuccess (cu,ch) h [configSub, thresholdSub, setSub] ([configThresholdSetCurrentOpt, configThresholdSetChooseOpt], [cu, ch])
    where h (Global(
             Config(ConfigOpts(
              ConfigThreshold(ConfigThresholdOpts(
               ConfigThresholdSet(ConfigThresholdSetOpts a b))))))) = (a, b)
 
-prop_configThresholdListSuccess = 
+prop_configThresholdListSuccess =
   testSuccess noOptsToGet h [configSub, thresholdSub, listSub] noOpts
-   where h (Global( 
+   where h (Global(
             Config(ConfigOpts(
              ConfigThreshold(ConfigThresholdOpts(
               ConfigThresholdList ConfigThresholdListOpts)))))) = noOptsToGet
- 
-prop_configTermDateSetSuccess t1 t2 t3 = 
+
+prop_configTermDateSetSuccess t1 t2 t3 =
  validArgs [t1, t2, t3] ==>
-  testSuccess (t1,t2,t3) h [configSub, termDateSub, setSub] ([configTermDateSetTerm1Opt, configTermDateSetTerm2Opt, configTermDateSetTerm3Opt], 
+  testSuccess (t1,t2,t3) h [configSub, termDateSub, setSub] ([configTermDateSetTerm1Opt, configTermDateSetTerm2Opt, configTermDateSetTerm3Opt],
                                                              [t1,t2,t3])
    where h (Global(
-            Config(ConfigOpts( 
+            Config(ConfigOpts(
              ConfigTermDate(ConfigTermDateOpts(
               ConfigTermDateSet(ConfigTermDateSetOpts a b c))))))) = (a, b, c)
 
 prop_configTermDateListSuccess =
   testSuccess noOptsToGet h [configSub, termDateSub, listSub] noOpts
-   where h (Global( 
+   where h (Global(
             Config(ConfigOpts(
              ConfigTermDate(ConfigTermDateOpts(
               ConfigTermDateList ConfigTermDateListOpts)))))) = noOptsToGet
- 
-prop_configProjectDateSetSuccess end late = 
+
+prop_configProjectDateSetSuccess end late =
  validArgs [end, late] ==>
-  testSuccess (end, late) h [configSub, projectDateSub, setSub] ([configProjectDateSetEndOpt, configProjectDateSetLateOpt], 
-                                                              [end, late])
+  testSuccess (end, late) h [configSub, projectDateSub, setSub] ([configProjectDateSetEndOpt, configProjectDateSetLateOpt], [end, late])
    where h (Global(
-            Config(ConfigOpts( 
+            Config(ConfigOpts(
              ConfigProjectDate(ConfigProjectDateOpts(
               ConfigProjectDateSet(ConfigProjectDateSetOpts a b))))))) = (a, b)
 
 prop_configProjectDateListSuccess =
   testSuccess noOptsToGet h [configSub, projectDateSub, listSub] noOpts
-   where h (Global( 
+   where h (Global(
             Config(ConfigOpts(
              ConfigProjectDate(ConfigProjectDateOpts(
               ConfigProjectDateList ConfigProjectDateListOpts)))))) = noOptsToGet
-       
-              
+
+prop_configAcceptExecSetSuccess val = 
+ let v = ["yYnN" !! (val `mod` 4)] 
+ in testSuccess v h [configSub, acceptExecSub, setSub, v] noOpts
+     where h (Global(
+              Config(ConfigOpts(
+               ConfigAcceptExec(ConfigAcceptExecOpts(
+                ConfigAcceptExecSet(ConfigAcceptExecSetOpts a))))))) = a
+
+prop_configAcceptExecListSuccess =
+  testSuccess noOptsToGet h [configSub, acceptExecSub, listSub] noOpts
+   where h (Global(
+            Config(ConfigOpts(
+             ConfigAcceptExec(ConfigAcceptExecOpts(
+              ConfigAcceptExecList ConfigAcceptExecListOpts)))))) = noOptsToGet
 
 
- 
+
+
+

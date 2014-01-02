@@ -10,7 +10,8 @@ data Cmd  = Config    ConfigOpts                                                
 data ConfigOpts = ConfigOpts        ConfigCmd                                    deriving (Show)
 data ConfigCmd  = ConfigThreshold   ConfigThresholdOpts
                 | ConfigTermDate    ConfigTermDateOpts
-                | ConfigProjectDate ConfigProjectDateOpts                        deriving (Show)
+                | ConfigProjectDate ConfigProjectDateOpts
+                | ConfigAcceptExec  ConfigAcceptExecOpts                         deriving (Show)
  
 data ConfigThresholdOpts = ConfigThresholdOpts ConfigThresholdCmd                deriving (Show)
 data ConfigThresholdCmd  = ConfigThresholdSet  ConfigThresholdSetOpts
@@ -40,21 +41,32 @@ data ConfigProjectDateSetOpts = ConfigProjectDateSetOpts
  , configProjectDateSetLate :: Maybe String }                                    deriving (Show)
 data ConfigProjectDateListOpts = ConfigProjectDateListOpts                       deriving (Show)
  
--- parser info
-globalInfo =                info (myHelper <*> global)              (progDesc globalDesc <> header globalHeader)
+data ConfigAcceptExecOpts = ConfigAcceptExecOpts ConfigAcceptExecCmd             deriving (Show)
+data ConfigAcceptExecCmd  = ConfigAcceptExecSet  ConfigAcceptExecSetOpts
+                          | ConfigAcceptExecList ConfigAcceptExecListOpts        deriving (Show)
  
-configInfo =                info (myHelper <*> config)              (progDesc configDesc)
-configThresholdInfo =       info (myHelper <*> configThreshold)     (progDesc configThresholdDesc)
-configThresholdSetInfo =    info (myHelper <*> configThresholdSet)  (progDesc configThresholdSetDesc)
-configThresholdListInfo =   info (myHelper <*> configThresholdList) (progDesc configThresholdListDesc) 
-configTermDateInfo =        info (myHelper <*> configTermDate)      (progDesc configTermDateDesc)
-configTermDateSetInfo =     info (myHelper <*> configTermDateSet)   (progDesc configTermDateSetDesc)
-configTermDateListInfo =    info (myHelper <*> configTermDateList)  (progDesc configTermDateListDesc)
-configProjectDateInfo =     info (myHelper <*> configProjectDate)      (progDesc configProjectDateDesc)
-configProjectDateSetInfo =  info (myHelper <*> configProjectDateSet)   (progDesc configProjectDateSetDesc)
-configProjectDateListInfo = info (myHelper <*> configProjectDateList)  (progDesc configProjectDateListDesc)
+data ConfigAcceptExecSetOpts = ConfigAcceptExecSetOpts
+ { configAcceptExecSetVal  :: String }                                         deriving (Show)
+data ConfigAcceptExecListOpts = ConfigAcceptExecListOpts                       deriving (Show)
+ 
+-- parser info
+globalInfo =                info (myHelper <*> global)                (progDesc globalDesc <> header globalHeader)
+ 
+configInfo =                info (myHelper <*> config)                (progDesc configDesc)
+configThresholdInfo =       info (myHelper <*> configThreshold)       (progDesc configThresholdDesc)
+configThresholdSetInfo =    info (myHelper <*> configThresholdSet)    (progDesc configThresholdSetDesc)
+configThresholdListInfo =   info (myHelper <*> configThresholdList)   (progDesc configThresholdListDesc) 
+configTermDateInfo =        info (myHelper <*> configTermDate)        (progDesc configTermDateDesc)
+configTermDateSetInfo =     info (myHelper <*> configTermDateSet)     (progDesc configTermDateSetDesc)
+configTermDateListInfo =    info (myHelper <*> configTermDateList)    (progDesc configTermDateListDesc)
+configProjectDateInfo =     info (myHelper <*> configProjectDate)     (progDesc configProjectDateDesc)
+configProjectDateSetInfo =  info (myHelper <*> configProjectDateSet)  (progDesc configProjectDateSetDesc)
+configProjectDateListInfo = info (myHelper <*> configProjectDateList) (progDesc configProjectDateListDesc)
+configAcceptExecInfo =      info (myHelper <*> configAcceptExec)      (progDesc configAcceptExecDesc)
+configAcceptExecSetInfo =   info (myHelper <*> configAcceptExecSet)   (progDesc configAcceptExecSetDesc) 
+configAcceptExecListInfo =  info (myHelper <*> configAcceptExecList)  (progDesc configAcceptExecListDesc)
 
--- Custom help command 
+-- Custom help command  
 myHelper ::  Parser (a -> a)
 myHelper = abortOption ShowHelpText $ toMod helpOpt <> help helpHelp 
 
@@ -65,7 +77,8 @@ global = Global <$> subparser (
 config = Config <$> ConfigOpts  <$> subparser (
  command thresholdSub   configThresholdInfo <>
  command termDateSub    configTermDateInfo <>
- command projectDateSub configProjectDateInfo)
+ command projectDateSub configProjectDateInfo <>
+ command acceptExecSub  configAcceptExecInfo)
 
 configThreshold = ConfigThreshold <$> ConfigThresholdOpts <$> subparser (
  command setSub  configThresholdSetInfo <>
@@ -97,5 +110,14 @@ configProjectDateSet = ConfigProjectDateSet <$> (ConfigProjectDateSetOpts
   <*> optional (strOption $ toMod configProjectDateSetLateOpt <> metavar configProjectDateSetLateMeta <> help configProjectDateSetLateHelp))
 
 configProjectDateList = ConfigProjectDateList <$> pure ConfigProjectDateListOpts 
+
+configAcceptExec = ConfigAcceptExec <$> ConfigAcceptExecOpts <$> subparser (
+ command setSub  configAcceptExecSetInfo <>
+ command listSub configAcceptExecListInfo)
+ 
+configAcceptExecSet = ConfigAcceptExecSet <$> (ConfigAcceptExecSetOpts
+  <$> argument str (metavar configAcceptExecSetMeta  <> help configAcceptExecSetFlagHelp))
+
+configAcceptExecList = ConfigAcceptExecList <$> pure ConfigAcceptExecListOpts 
 
 toMod (O s l) = short s <> long l              
