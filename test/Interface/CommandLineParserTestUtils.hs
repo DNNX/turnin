@@ -13,14 +13,17 @@ import Interface.CommandLineLexicon
 
 type Opts = ([Opt],[Maybe String])
 
+noOptsToGet = ()
+noOpts = ([],[])
+
 validArgs :: [Maybe String] -> Bool
 validArgs = notElem (Just "") 
 
-testCmd :: (Eq a) => a -> (Global -> a) -> [String] -> Opts -> Bool
-testCmd expected f cmd opts = all ((expected ==).g) $ makeCmd cmd $ uncurry makeOpts opts
+testSuccess :: (Eq a) => a -> (Global -> a) -> [String] -> Opts -> Bool
+testSuccess expected f cmd opts = all ((expected ==).g) $ makeCmd cmd $ uncurry makeOpts opts
  where g = f . h . execParserMaybe globalInfo
        h (Just x) = x
-       h _ = error "Unexpectedly Nothing"
+       h _ = error "Unexpectedly Nothing in testSuccess"
 
 makeCmd :: [String] -> [[String]] -> [[String]]
 makeCmd cmd opts = [cmd ++ o | o <- opts]
