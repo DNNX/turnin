@@ -13,7 +13,7 @@ data RepoAddOpts = RepoAddOpts
  { repoAddName :: String }                deriving (Show)
  
 data RepoRemoveOpts = RepoRemoveOpts
- { repoNode :: Maybe String }             deriving (Show)
+ { repoRemoveRepoNN :: Maybe String }             deriving (Show)
  
 data RepoListOpts = RepoListOpts          deriving (Show) 
  
