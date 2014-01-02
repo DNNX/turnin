@@ -2,6 +2,8 @@ module Interface.Lexicon where
 
 -- Commands
 configSub = "config"
+repoSub = "repo"
+
 thresholdSub = "threshold"
 termDateSub = "termDate"
 projectDateSub = "projectDate"
@@ -11,14 +13,19 @@ spaceLimitSub = "spaceLimit"
 adminGroupsSub = "adminGroups"
 teacherGroupsSub = "teacherGroups"
 correctorSub = "correctorSub"
-setSub = "set"
-listSub = "list"
-isSub = "is"
+
 addSub = "add"
 removeSub = "remove"
+listSub = "list"
+
+setSub = "set"
+isSub = "is"
 
 -- Options
 helpOpt = ('?', "help")
+
+repoNodeOpt = ('r', "repo")
+
 configThresholdSetCurrentOpt = ('u', "current")
 configThresholdSetChooseOpt = ( 'h', "choose")
 configTermDateSetTerm1Opt = ('1', "term1")
@@ -32,6 +39,8 @@ globalDesc = "Global desc"
 globalHeader = "Global header"
 
 configDesc = "Config desc"
+repoDesc = "Repo desc"
+
 configThresholdDesc = "Config threshold desc"
 configThresholdSetDesc = "Config threshold set desc"
 configThresholdListDesc = "Config threshold list desc"
@@ -61,7 +70,13 @@ configCorrectorIsDesc = "Config corrector is desc"
 configCorrectorAddDesc = "Config corrector add desc"
 configCorrectorRemoveDesc = "Config corrector remove desc"
 
+repoAddDesc = "Repo add desc"
+repoRemoveDesc = "Repo remove desc"
+repoListDesc = "Repo list desc"
+
 -- Metavars
+repoNodeMeta = "REPO_NAME"
+
 configThresholdSetCurrentMeta = "CURRENT"
 configThresholdSetChooseMeta = "CHOOSE"
 configTermDateSetTerm1Meta = "TERM1"
@@ -78,8 +93,12 @@ configCorrectorIsNameMeta = "CORR_NAME"
 configCorrectorAddNameMeta = "CORR_NAME"
 configCorrectorRemoveNameMeta = "CORR_NAME"
 
+repoAddNameMeta = "REPO_NAME"
+
 -- Help messages
 helpHelp = "Show this help text"
+
+repoNodeHelp = "Repo node help"
 
 configThresholdSetCurrentHelp = "Config threshold set current help"
 configThresholdSetChooseHelp = "Config threshold set choose help"
@@ -96,4 +115,6 @@ configTeacherGroupsSetGroupsHelp = "Config teacher groups set groups help"
 configCorrectorIsNameHelp = "Config corrector is name help"
 configCorrectorAddNameHelp = "Config corrector add name help"
 configCorrectorRemoveNameHelp = "Config corrector remove name help"
+
+repoAddNameHelp = "Repo add name help"
 

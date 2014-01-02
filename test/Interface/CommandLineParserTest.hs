@@ -6,6 +6,7 @@ import Interface.CommandLineParserTestUtils
 import Interface.Lexicon
 import Interface.CommandLineParser
 import Interface.CommandLineParser.Config
+import Interface.CommandLineParser.Repo
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
@@ -155,6 +156,26 @@ prop_configCorrectorRemoveSuccess n =
                Config(ConfigOpts(
                 ConfigCorrector(ConfigCorrectorOpts(
                  ConfigCorrectorRemove(ConfigCorrectorRemoveOpts a))))))) = a
-
+                 
+-- Repo                
+prop_repoAddSuccess n =
+ let name = noLeadingHyphens n
+ in  testSuccess name h [repoSub, addSub, name] noOpts noVariadics
+      where h (Global(
+               Repo(RepoOpts(
+                RepoAdd(RepoAddOpts a))))) = a
+                
+prop_repoRemoveSuccess repoNodeName =
+ validArgs [repoNodeName] ==>
+  testSuccess repoNodeName h [repoSub, removeSub] ([repoNodeOpt],[repoNodeName]) noVariadics
+   where h (Global(
+            Repo(RepoOpts(
+             RepoRemove(RepoRemoveOpts a))))) = a
+            
+prop_repoListSuccess =
+ testSuccess noOptsToGet h [repoSub, listSub] noOpts noVariadics
+  where h (Global(
+           Repo(RepoOpts(
+            RepoList RepoListOpts)))) = noOptsToGet
 
 

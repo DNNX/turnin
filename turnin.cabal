@@ -14,7 +14,8 @@ executable turnin
   other-modules:   
                    Interface.Lexicon,
                    Interface.CommandLineParser.Config,
-                   Interface.CommandLineParser.Utils
+                   Interface.CommandLineParser.Utils,
+                   Interface.CommandLineParser.Repo
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -31,5 +32,6 @@ test-suite turnin-tests
                    Interface.CommandLineParserTestUtils,
                    Interface.Lexicon,
                    Interface.CommandLineParser.Config,
-                   Interface.CommandLineParser.Utils
+                   Interface.CommandLineParser.Utils,
+                   Interface.CommandLineParser.Repo
 
