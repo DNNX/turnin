@@ -218,13 +218,13 @@ configCorrector = ConfigCorrector <$> ConfigCorrectorOpts <$> subparser (
  command isSub     configCorrectorIsInfo <>
  command addSub    configCorrectorAddInfo <>
  command removeSub configCorrectorRemoveInfo)
- 
+
 configCorrectorIs = ConfigCorrectorIs <$> (ConfigCorrectorIsOpts
  <$> argument str (metavar configCorrectorIsMeta <> help configCorrectorIsHelp))
- 
+
 configCorrectorAdd = ConfigCorrectorAdd <$> (ConfigCorrectorAddOpts
  <$> argument str (metavar configCorrectorAddMeta <> help configCorrectorAddHelp))
- 
+
 configCorrectorRemove = ConfigCorrectorRemove <$> (ConfigCorrectorRemoveOpts
  <$> argument str (metavar configCorrectorRemoveMeta <> help configCorrectorRemoveHelp))
 

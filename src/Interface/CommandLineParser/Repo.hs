@@ -11,15 +11,15 @@ data RepoCmd  = RepoAdd    RepoAddOpts
 
 data RepoAddOpts = RepoAddOpts
  { repoAddName :: String }                deriving (Show, Eq)
- 
+
 data RepoRemoveOpts = RepoRemoveOpts
  { repoRemoveRepoNN :: Maybe String }     deriving (Show, Eq)
- 
-data RepoListOpts = RepoListOpts          deriving (Show, Eq) 
- 
+
+data RepoListOpts = RepoListOpts          deriving (Show, Eq)
+
 repoInfo =        info (myHelper <*> repo)       (progDesc repoDesc)
 repoAddInfo =     info (myHelper <*> repoAdd)    (progDesc repoAddDesc)
-repoRemoveInfo =  info (myHelper <*> repoRemove) (progDesc repoRemoveDesc)  
+repoRemoveInfo =  info (myHelper <*> repoRemove) (progDesc repoRemoveDesc)
 repoListInfo =    info (myHelper <*> repoList)   (progDesc repoListDesc)
 
 repo = RepoOpts <$> subparser (
@@ -32,6 +32,6 @@ repoAdd = RepoAdd <$> (RepoAddOpts
 
 repoRemove = RepoRemove <$> (RepoRemoveOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp))
- 
+
 repoList = RepoList <$> pure RepoListOpts
  

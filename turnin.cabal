@@ -7,11 +7,11 @@ author:         antoine
 executable turnin
   hs-source-dirs:  src
   main-is:         Main.hs
-  build-depends:  
+  build-depends:
                    base >= 4,
                    optparse-applicative >=0.7.0 && <0.8
   ghc-options:     -Wall -fno-warn-missing-signatures
-  other-modules:   
+  other-modules:
                    Interface.Lexicon,
                    Interface.CommandLineParser.Config,
                    Interface.CommandLineParser.Utils,
@@ -23,13 +23,13 @@ test-suite turnin-tests
   type:            exitcode-stdio-1.0
   main-is:         MainTest.hs
   ghc-options:     -Wall -rtsopts -fno-warn-missing-signatures
-  build-depends:  
+  build-depends:
                    base >= 4, HTF > 0.9,
                    optparse-applicative >=0.7.0 && <0.8
-  hs-source-dirs: 
+  hs-source-dirs:
                    src,
                    test
-  other-modules:  
+  other-modules:
                    Interface.CommandLineParserTest,
                    Interface.Lexicon,
                    Interface.CommandLineParser.Config,

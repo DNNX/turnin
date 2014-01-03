@@ -9,117 +9,117 @@ data ProjectValidateCmd  = ProjectValidateAcceptExec ProjectValidateAcceptExecOp
                          | ProjectValidateName       ProjectValidateNameOpts
                          | ProjectValidateCommand    ProjectValidateCommandOpts
                          | ProjectValidateScript     ProjectValidateScriptOpts                       deriving (Show, Eq)
-                         
+
 data ProjectValidateAcceptExecOpts = ProjectValidateAcceptExecOpts ProjectValidateAcceptExecCmd      deriving (Show, Eq)
 data ProjectValidateAcceptExecCmd  = ProjectValidateAcceptExecSet  ProjectValidateAcceptExecSetOpts
                                    | ProjectValidateAcceptExecList ProjectValidateAcceptExecListOpts deriving (Show, Eq)
-                         
+
 data ProjectValidateAcceptExecSetOpts = ProjectValidateAcceptExecSetOpts
- { projectValidateAcceptExecSetRepoNN    :: Maybe String                    
- , projectValidateAcceptExecSetTermNN    :: Maybe String                    
- , projectValidateAcceptExecSetCourseNN  :: Maybe String                    
- , projectValidateAcceptExecSetGroupNN   :: Maybe String                    
+ { projectValidateAcceptExecSetRepoNN    :: Maybe String
+ , projectValidateAcceptExecSetTermNN    :: Maybe String
+ , projectValidateAcceptExecSetCourseNN  :: Maybe String
+ , projectValidateAcceptExecSetGroupNN   :: Maybe String
  , projectValidateAcceptExecSetProjectNN :: Maybe String
- , projectValidateAcceptExecSetWhether   :: String       }                                           deriving (Show, Eq)                   
-  
+ , projectValidateAcceptExecSetWhether   :: String       }                                           deriving (Show, Eq)
+
 data ProjectValidateAcceptExecListOpts = ProjectValidateAcceptExecListOpts
- { projectValidateAcceptExecListRepoNN    :: Maybe String                    
- , projectValidateAcceptExecListTermNN    :: Maybe String                    
- , projectValidateAcceptExecListCourseNN  :: Maybe String                    
- , projectValidateAcceptExecListGroupNN   :: Maybe String                    
- , projectValidateAcceptExecListProjectNN :: Maybe String }                                          deriving (Show, Eq)                   
-                         
+ { projectValidateAcceptExecListRepoNN    :: Maybe String
+ , projectValidateAcceptExecListTermNN    :: Maybe String
+ , projectValidateAcceptExecListCourseNN  :: Maybe String
+ , projectValidateAcceptExecListGroupNN   :: Maybe String
+ , projectValidateAcceptExecListProjectNN :: Maybe String }                                          deriving (Show, Eq)
+
 data ProjectValidateNameOpts = ProjectValidateNameOpts   ProjectValidateNameCmd                      deriving (Show, Eq)
 data ProjectValidateNameCmd  = ProjectValidateNameAdd    ProjectValidateNameAddOpts
-                             | ProjectValidateNameRemove ProjectValidateNameRemoveOpts 
-                             | ProjectValidateNameList   ProjectValidateNameListOpts                 deriving (Show, Eq)                     
-                                     
+                             | ProjectValidateNameRemove ProjectValidateNameRemoveOpts
+                             | ProjectValidateNameList   ProjectValidateNameListOpts                 deriving (Show, Eq)
+
 data ProjectValidateNameAddOpts = ProjectValidateNameAddOpts
- { projectValidateNameAddRepoNN    :: Maybe String                    
- , projectValidateNameAddTermNN    :: Maybe String                    
- , projectValidateNameAddCourseNN  :: Maybe String                    
- , projectValidateNameAddGroupNN   :: Maybe String                    
+ { projectValidateNameAddRepoNN    :: Maybe String
+ , projectValidateNameAddTermNN    :: Maybe String
+ , projectValidateNameAddCourseNN  :: Maybe String
+ , projectValidateNameAddGroupNN   :: Maybe String
  , projectValidateNameAddProjectNN :: Maybe String
- , projectValidateNameAddNames     :: [String]     }                                                 deriving (Show, Eq)                   
-  
+ , projectValidateNameAddNames     :: [String]     }                                                 deriving (Show, Eq)
+
 data ProjectValidateNameRemoveOpts = ProjectValidateNameRemoveOpts
- { projectValidateNameRemoveRepoNN    :: Maybe String                    
- , projectValidateNameRemoveTermNN    :: Maybe String                    
- , projectValidateNameRemoveCourseNN  :: Maybe String                    
- , projectValidateNameRemoveGroupNN   :: Maybe String                    
+ { projectValidateNameRemoveRepoNN    :: Maybe String
+ , projectValidateNameRemoveTermNN    :: Maybe String
+ , projectValidateNameRemoveCourseNN  :: Maybe String
+ , projectValidateNameRemoveGroupNN   :: Maybe String
  , projectValidateNameRemoveProjectNN :: Maybe String
- , projectValidateNameRemoveNames     :: [String]     }                                              deriving (Show, Eq)                   
-                   
+ , projectValidateNameRemoveNames     :: [String]     }                                              deriving (Show, Eq)
+
 data ProjectValidateNameListOpts = ProjectValidateNameListOpts
- { projectValidateNameListRepoNN    :: Maybe String                    
- , projectValidateNameListTermNN    :: Maybe String                    
- , projectValidateNameListCourseNN  :: Maybe String                    
- , projectValidateNameListGroupNN   :: Maybe String                    
- , projectValidateNameListProjectNN :: Maybe String }                                                deriving (Show, Eq)                   
-                                  
+ { projectValidateNameListRepoNN    :: Maybe String
+ , projectValidateNameListTermNN    :: Maybe String
+ , projectValidateNameListCourseNN  :: Maybe String
+ , projectValidateNameListGroupNN   :: Maybe String
+ , projectValidateNameListProjectNN :: Maybe String }                                                deriving (Show, Eq)
+
 data ProjectValidateCommandOpts = ProjectValidateCommandOpts  ProjectValidateCommandCmd              deriving (Show, Eq)
 data ProjectValidateCommandCmd  = ProjectValidateCommandSet   ProjectValidateCommandSetOpts
-                                | ProjectValidateCommandUnset ProjectValidateCommandUnsetOpts 
-                                | ProjectValidateCommandList  ProjectValidateCommandListOpts         deriving (Show, Eq)                     
-                                       
+                                | ProjectValidateCommandUnset ProjectValidateCommandUnsetOpts
+                                | ProjectValidateCommandList  ProjectValidateCommandListOpts         deriving (Show, Eq)
+
 data ProjectValidateCommandSetOpts = ProjectValidateCommandSetOpts
- { projectValidateCommandSetRepoNN    :: Maybe String                    
- , projectValidateCommandSetTermNN    :: Maybe String                    
- , projectValidateCommandSetCourseNN  :: Maybe String                    
- , projectValidateCommandSetGroupNN   :: Maybe String                    
+ { projectValidateCommandSetRepoNN    :: Maybe String
+ , projectValidateCommandSetTermNN    :: Maybe String
+ , projectValidateCommandSetCourseNN  :: Maybe String
+ , projectValidateCommandSetGroupNN   :: Maybe String
  , projectValidateCommandSetProjectNN :: Maybe String
- , projectValidateCommandSetCommand   :: String     }                                              deriving (Show, Eq)                   
-  
+ , projectValidateCommandSetCommand   :: String     }                                              deriving (Show, Eq)
+
 data ProjectValidateCommandUnsetOpts = ProjectValidateCommandUnsetOpts
- { projectValidateCommandUnsetRepoNN    :: Maybe String                    
- , projectValidateCommandUnsetTermNN    :: Maybe String                    
- , projectValidateCommandUnsetCourseNN  :: Maybe String                    
- , projectValidateCommandUnsetGroupNN   :: Maybe String                    
- , projectValidateCommandUnsetProjectNN :: Maybe String }                                            deriving (Show, Eq)                   
-                   
+ { projectValidateCommandUnsetRepoNN    :: Maybe String
+ , projectValidateCommandUnsetTermNN    :: Maybe String
+ , projectValidateCommandUnsetCourseNN  :: Maybe String
+ , projectValidateCommandUnsetGroupNN   :: Maybe String
+ , projectValidateCommandUnsetProjectNN :: Maybe String }                                            deriving (Show, Eq)
+
 data ProjectValidateCommandListOpts = ProjectValidateCommandListOpts
- { projectValidateCommandListRepoNN    :: Maybe String                    
- , projectValidateCommandListTermNN    :: Maybe String                    
- , projectValidateCommandListCourseNN  :: Maybe String                    
- , projectValidateCommandListGroupNN   :: Maybe String                    
- , projectValidateCommandListProjectNN :: Maybe String }                                             deriving (Show, Eq)                   
-                                 
+ { projectValidateCommandListRepoNN    :: Maybe String
+ , projectValidateCommandListTermNN    :: Maybe String
+ , projectValidateCommandListCourseNN  :: Maybe String
+ , projectValidateCommandListGroupNN   :: Maybe String
+ , projectValidateCommandListProjectNN :: Maybe String }                                             deriving (Show, Eq)
+
 data ProjectValidateScriptOpts = ProjectValidateScriptOpts    ProjectValidateScriptCmd               deriving (Show, Eq)
 data ProjectValidateScriptCmd  = ProjectValidateScriptSet     ProjectValidateScriptSetOpts
-                               | ProjectValidateScriptUnset   ProjectValidateScriptUnsetOpts 
+                               | ProjectValidateScriptUnset   ProjectValidateScriptUnsetOpts
                                | ProjectValidateScriptList    ProjectValidateScriptListOpts
-                               | ProjectValidateScriptExtract ProjectValidateScriptExtractOpts       deriving (Show, Eq)                     
+                               | ProjectValidateScriptExtract ProjectValidateScriptExtractOpts       deriving (Show, Eq)
 
 data ProjectValidateScriptSetOpts = ProjectValidateScriptSetOpts
- { projectValidateScriptSetRepoNN     :: Maybe String                    
- , projectValidateScriptSetTermNN     :: Maybe String                    
- , projectValidateScriptSetCourseNN   :: Maybe String                    
- , projectValidateScriptSetGroupNN    :: Maybe String                    
+ { projectValidateScriptSetRepoNN     :: Maybe String
+ , projectValidateScriptSetTermNN     :: Maybe String
+ , projectValidateScriptSetCourseNN   :: Maybe String
+ , projectValidateScriptSetGroupNN    :: Maybe String
  , projectValidateScriptSetProjectNN  :: Maybe String
- , projectValidateScriptSetScriptName :: String       }                                              deriving (Show, Eq)                   
-  
+ , projectValidateScriptSetScriptName :: String       }                                              deriving (Show, Eq)
+
 data ProjectValidateScriptUnsetOpts = ProjectValidateScriptUnsetOpts
- { projectValidateScriptUnsetRepoNN    :: Maybe String                    
- , projectValidateScriptUnsetTermNN    :: Maybe String                    
- , projectValidateScriptUnsetCourseNN  :: Maybe String                    
- , projectValidateScriptUnsetGroupNN   :: Maybe String                    
- , projectValidateScriptUnsetProjectNN :: Maybe String }                                             deriving (Show, Eq)                   
-                   
+ { projectValidateScriptUnsetRepoNN    :: Maybe String
+ , projectValidateScriptUnsetTermNN    :: Maybe String
+ , projectValidateScriptUnsetCourseNN  :: Maybe String
+ , projectValidateScriptUnsetGroupNN   :: Maybe String
+ , projectValidateScriptUnsetProjectNN :: Maybe String }                                             deriving (Show, Eq)
+
 data ProjectValidateScriptListOpts = ProjectValidateScriptListOpts
- { projectValidateScriptListRepoNN    :: Maybe String                    
- , projectValidateScriptListTermNN    :: Maybe String                    
- , projectValidateScriptListCourseNN  :: Maybe String                    
- , projectValidateScriptListGroupNN   :: Maybe String                    
- , projectValidateScriptListProjectNN :: Maybe String }                                              deriving (Show, Eq)                   
-                            
+ { projectValidateScriptListRepoNN    :: Maybe String
+ , projectValidateScriptListTermNN    :: Maybe String
+ , projectValidateScriptListCourseNN  :: Maybe String
+ , projectValidateScriptListGroupNN   :: Maybe String
+ , projectValidateScriptListProjectNN :: Maybe String }                                              deriving (Show, Eq)
+
 data ProjectValidateScriptExtractOpts = ProjectValidateScriptExtractOpts
- { projectValidateScriptExtractRepoNN     :: Maybe String                    
- , projectValidateScriptExtractTermNN     :: Maybe String                    
- , projectValidateScriptExtractCourseNN   :: Maybe String                    
- , projectValidateScriptExtractGroupNN    :: Maybe String                    
+ { projectValidateScriptExtractRepoNN     :: Maybe String
+ , projectValidateScriptExtractTermNN     :: Maybe String
+ , projectValidateScriptExtractCourseNN   :: Maybe String
+ , projectValidateScriptExtractGroupNN    :: Maybe String
  , projectValidateScriptExtractProjectNN  :: Maybe String
- , projectValidateScriptExtractScriptName :: String       }                                          deriving (Show, Eq)                   
-                   
+ , projectValidateScriptExtractScriptName :: String       }                                          deriving (Show, Eq)
+
 projectValidateInfo =               info (myHelper <*> projectValidate)               (progDesc projectValidateDesc)
 projectValidateAcceptExecInfo =     info (myHelper <*> projectValidateAcceptExec)     (progDesc projectValidateAcceptExecDesc)
 projectValidateAcceptExecSetInfo =  info (myHelper <*> projectValidateAcceptExecSet)  (progDesc projectValidateAcceptExecSetDesc)
@@ -140,10 +140,10 @@ projectValidateScriptExtractInfo =  info (myHelper <*> projectValidateScriptExtr
 
 projectValidate = ProjectValidateOpts <$> subparser (
  command acceptExecSub projectValidateAcceptExecInfo <>
- command nameSub       projectValidateNameInfo <> 
+ command nameSub       projectValidateNameInfo <>
  command commandSub    projectValidateCommandInfo <>
  command scriptSub     projectValidateScriptInfo)
- 
+
 projectValidateAcceptExec = ProjectValidateAcceptExec <$> ProjectValidateAcceptExecOpts <$> subparser (
  command setSub  projectValidateAcceptExecSetInfo <>
  command listSub projectValidateAcceptExecListInfo)
@@ -155,7 +155,7 @@ projectValidateAcceptExecSet = ProjectValidateAcceptExecSet <$> (ProjectValidate
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp)
  <*> optional (strOption $ toMod projectNodeOpt <> metavar projectNodeMeta <> help projectNodeHelp)
  <*> argument str (metavar projectValidateAcceptExecSetMeta <> help projectValidateAcceptExecSetHelp) )
-  
+
 projectValidateAcceptExecList = ProjectValidateAcceptExecList <$> (ProjectValidateAcceptExecListOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
@@ -255,7 +255,7 @@ projectValidateScriptExtract = ProjectValidateScriptExtract <$> (ProjectValidate
  <*> argument str (metavar projectValidateScriptExtractMeta <> help projectValidateScriptExtractHelp))
 
 
- 
+
 
 
 

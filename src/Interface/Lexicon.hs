@@ -271,7 +271,7 @@ projectAddEndHelp = "Project add end help"
 projectAddLateHelp = "Project add late help"
 projectDateSetStartHelp = "Project date set start help"
 projectDateSetEndHelp = "Project date set end help"
-projectDateSetLateHelp = "Project date set late help" 
+projectDateSetLateHelp = "Project date set late help"
 
 projectValidateAcceptExecSetHelp = "Project validate accept exec set help"
 projectValidateNameAddHelp = "Project validate name add help"

@@ -15,7 +15,7 @@ sampleSize = 7 -- Keep this many random option permutations, tests runtime is ex
 
 type Opt = (Char, String)
 type Opts = ([Opt],[Maybe String])
- 
+
 noArgsToGet = ()
 noOpts = ([],[])
 noArgs = []
@@ -31,7 +31,7 @@ configTermDateOpts t1 t2 t3 = ([configTermDateSetTerm1Opt, configTermDateSetTerm
 configProjectDateOpts end late = ([configProjectDateSetEndOpt, configProjectDateSetLateOpt], [end, late])
 
 termDateOpts r t s e = let (xs,ys) = termOpts r t
-                       in  (xs ++ [termDateSetStartOpt, termDateSetEndOpt], ys ++ [s,e]) 
+                       in  (xs ++ [termDateSetStartOpt, termDateSetEndOpt], ys ++ [s,e])
 
 projectAddOpts r t c g s e l = let (xs,ys) = groupOpts r t c g
                                in  (xs ++ [projectAddStartOpt, projectAddEndOpt, projectAddLateOpt], ys ++ [s,e,l])
