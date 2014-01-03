@@ -28,7 +28,7 @@ repo = RepoOpts <$> subparser (
  command listSub   repoListInfo)
 
 repoAdd = RepoAdd <$> (RepoAddOpts
- <$> argument str (metavar repoAddNameMeta <> help repoAddNameHelp))
+ <$> argument str (metavar repoAddMeta <> help repoAddHelp))
 
 repoRemove = RepoRemove <$> (RepoRemoveOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp))

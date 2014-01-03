@@ -3,12 +3,14 @@ module Interface.CommandLineParser.Project where
 import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
+import Interface.CommandLineParser.Project.Validate
 
-data ProjectOpts = ProjectOpts   ProjectCmd                deriving (Show, Eq)
-data ProjectCmd  = ProjectAdd    ProjectAddOpts            
-                 | ProjectRemove ProjectRemoveOpts         
-                 | ProjectList   ProjectListOpts           
-                 | ProjectDate   ProjectDateOpts           deriving (Show, Eq)
+data ProjectOpts = ProjectOpts     ProjectCmd                deriving (Show, Eq)
+data ProjectCmd  = ProjectAdd      ProjectAddOpts            
+                 | ProjectRemove   ProjectRemoveOpts         
+                 | ProjectList     ProjectListOpts           
+                 | ProjectDate     ProjectDateOpts
+                 | ProjectValidate ProjectValidateOpts       deriving (Show, Eq)
                                                   
 data ProjectAddOpts = ProjectAddOpts                    
  { projectAddRepoNN   :: Maybe String                    
@@ -21,11 +23,11 @@ data ProjectAddOpts = ProjectAddOpts
  , projectAddName     :: String       }                    deriving (Show, Eq)
                                                   
 data ProjectRemoveOpts = ProjectRemoveOpts              
- { projectRemoveRepoNN   :: Maybe String                    
- , projectRemoveTermNN   :: Maybe String                    
- , projectRemoveCourseNN :: Maybe String                    
- , projectRemoveGroupNN  :: Maybe String                    
- , projectAddProjectNN   :: Maybe String }                 deriving (Show, Eq)
+ { projectRemoveRepoNN    :: Maybe String                    
+ , projectRemoveTermNN    :: Maybe String                    
+ , projectRemoveCourseNN  :: Maybe String                    
+ , projectRemoveGroupNN   :: Maybe String                    
+ , projectRemoveProjectNN :: Maybe String }                 deriving (Show, Eq)
                                                   
 data ProjectListOpts = ProjectListOpts
  { projectListRepoNN   :: Maybe String                    
@@ -52,7 +54,7 @@ data ProjectDateListOpts = ProjectDateListOpts
  , projectDateListTermNN    :: Maybe String                    
  , projectDateListCourseNN  :: Maybe String                    
  , projectDateListGroupNN   :: Maybe String
- , projectDateListProjectNN :: Maybe String }              deriving (Show, Eq)        
+ , projectDateListProjectNN :: Maybe String }              deriving (Show, Eq)   
  
 projectInfo =         info (myHelper <*> project)         (progDesc projectDesc)
 projectAddInfo =      info (myHelper <*> projectAdd)      (progDesc projectAddDesc)
@@ -63,10 +65,11 @@ projectDateSetInfo =  info (myHelper <*> projectDateSet)  (progDesc projectDateS
 projectDateListInfo = info (myHelper <*> projectDateList) (progDesc projectDateListDesc)
  
 project = ProjectOpts <$> subparser (
- command addSub    projectAddInfo <>
- command removeSub projectRemoveInfo <>
- command listSub   projectListInfo <>
- command dateSub   projectDateInfo)
+ command addSub      projectAddInfo <>
+ command removeSub   projectRemoveInfo <>
+ command listSub     projectListInfo <>
+ command dateSub     projectDateInfo <>
+ command validateSub (ProjectValidate <$> projectValidateInfo))
 
 projectAdd = ProjectAdd <$> (ProjectAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -92,7 +95,7 @@ projectList = ProjectList <$> (ProjectListOpts
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp))
   
 projectDate = ProjectDate <$> ProjectDateOpts <$> subparser (
- command setSub  projectDateSetInfo <>
+ command setSub  projectDateSetInfo <> 
  command listSub projectDateListInfo) 
    
 projectDateSet = ProjectDateSet <$> (ProjectDateSetOpts

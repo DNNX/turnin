@@ -92,7 +92,7 @@ course = CourseOpts <$> subparser (
 courseAdd = CourseAdd <$> (CourseAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
- <*> argument str (metavar courseAddNameMeta <> help courseAddNameHelp))
+ <*> argument str (metavar courseAddMeta <> help courseAddHelp))
  
 courseRemove = CourseRemove <$> (CourseRemoveOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -112,13 +112,13 @@ courseTeacherAdd = CourseTeacherAdd <$> (CourseTeacherAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp)
- <*> some (argument str (metavar courseTeacherAddNamesMeta <> help courseTeacherAddNamesHelp)))
+ <*> some (argument str (metavar courseTeacherAddMeta <> help courseTeacherAddHelp)))
  
 courseTeacherRemove = CourseTeacherRemove <$> (CourseTeacherRemoveOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp)
- <*> some (argument str (metavar courseTeacherRemoveNamesMeta <> help courseTeacherRemoveNamesHelp)))
+ <*> some (argument str (metavar courseTeacherRemoveMeta <> help courseTeacherRemoveHelp)))
 
 courseTeacherList = CourseTeacherList <$> (CourseTeacherListOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -134,13 +134,13 @@ courseCorrectorAdd = CourseCorrectorAdd <$> (CourseCorrectorAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp)
- <*> some (argument str (metavar courseCorrectorAddNamesMeta <> help courseCorrectorAddNamesHelp)))
+ <*> some (argument str (metavar courseCorrectorAddMeta <> help courseCorrectorAddHelp)))
   
 courseCorrectorRemove = CourseCorrectorRemove <$> (CourseCorrectorRemoveOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp)
- <*> some (argument str (metavar courseCorrectorRemoveNamesMeta <> help courseCorrectorRemoveNamesHelp)))
+ <*> some (argument str (metavar courseCorrectorRemoveMeta <> help courseCorrectorRemoveHelp)))
 
 courseCorrectorList = CourseCorrectorList <$> (CourseCorrectorListOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)

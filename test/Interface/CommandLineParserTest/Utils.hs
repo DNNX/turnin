@@ -11,7 +11,7 @@ import Interface.CommandLineParser
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-sampleSize = 5 -- Keep this many random option permutations, runtime is exponential in this number
+sampleSize = 7 -- Keep this many random option permutations, tests runtime is exponential in this number
 
 type Opt = (Char, String)
 type Opts = ([Opt],[Maybe String])

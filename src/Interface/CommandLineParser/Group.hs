@@ -102,7 +102,7 @@ groupAdd = GroupAdd <$> (GroupAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp)
- <*> argument str (metavar groupAddNameMeta <> help groupAddNameHelp))
+ <*> argument str (metavar groupAddMeta <> help groupAddHelp))
  
 groupRemove = GroupRemove <$> (GroupRemoveOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -125,14 +125,14 @@ groupTeacherAdd = GroupTeacherAdd <$> (GroupTeacherAddOpts
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp)
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp)
- <*> many (argument str (metavar groupTeacherAddNamesMeta <> help groupTeacherAddNamesHelp)))
+ <*> some (argument str (metavar groupTeacherAddMeta <> help groupTeacherAddHelp)))
  
 groupTeacherRemove = GroupTeacherRemove <$> (GroupTeacherRemoveOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp)
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp)
- <*> many (argument str (metavar groupTeacherRemoveNamesMeta <> help groupTeacherRemoveNamesHelp)))
+ <*> some (argument str (metavar groupTeacherRemoveMeta <> help groupTeacherRemoveHelp)))
 
 groupTeacherList = GroupTeacherList <$> (GroupTeacherListOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -150,14 +150,14 @@ groupCorrectorAdd = GroupCorrectorAdd <$> (GroupCorrectorAddOpts
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp)
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp)
- <*> many (argument str (metavar groupCorrectorAddNamesMeta <> help groupCorrectorAddNamesHelp)))
+ <*> some (argument str (metavar groupCorrectorAddMeta <> help groupCorrectorAddHelp)))
   
 groupCorrectorRemove = GroupCorrectorRemove <$> (GroupCorrectorRemoveOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp)
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp)
- <*> many (argument str (metavar groupCorrectorRemoveNamesMeta <> help groupCorrectorRemoveNamesHelp)))
+ <*> some (argument str (metavar groupCorrectorRemoveMeta <> help groupCorrectorRemoveHelp)))
 
 groupCorrectorList = GroupCorrectorList <$> (GroupCorrectorListOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)

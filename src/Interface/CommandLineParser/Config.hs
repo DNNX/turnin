@@ -174,7 +174,7 @@ configAcceptExec = ConfigAcceptExec <$> ConfigAcceptExecOpts <$> subparser (
  command listSub configAcceptExecListInfo)
 
 configAcceptExecSet = ConfigAcceptExecSet <$> (ConfigAcceptExecSetOpts
-  <$> argument str (metavar configAcceptExecSetWhetherMeta <> help configAcceptExecSetWhetherHelp))
+  <$> argument str (metavar configAcceptExecSetMeta <> help configAcceptExecSetHelp))
 
 configAcceptExecList = ConfigAcceptExecList <$> pure ConfigAcceptExecListOpts
 
@@ -183,7 +183,7 @@ configTimeLimit = ConfigTimeLimit <$> ConfigTimeLimitOpts <$> subparser (
  command listSub configTimeLimitListInfo)
 
 configTimeLimitSet = ConfigTimeLimitSet <$> (ConfigTimeLimitSetOpts
-  <$> argument str (metavar configTimeLimitSetSecondsMeta <> help configTimeLimitSetSecondsHelp))
+  <$> argument str (metavar configTimeLimitSetMeta <> help configTimeLimitSetHelp))
 
 configTimeLimitList = ConfigTimeLimitList <$> pure ConfigTimeLimitListOpts
 
@@ -192,7 +192,7 @@ configSpaceLimit = ConfigSpaceLimit <$> ConfigSpaceLimitOpts <$> subparser (
  command listSub configSpaceLimitListInfo)
 
 configSpaceLimitSet = ConfigSpaceLimitSet <$> (ConfigSpaceLimitSetOpts
-  <$> argument str (metavar configSpaceLimitSetBytesMeta <> help configSpaceLimitSetBytesHelp))
+  <$> argument str (metavar configSpaceLimitSetMeta <> help configSpaceLimitSetHelp))
 
 configSpaceLimitList = ConfigSpaceLimitList <$> pure ConfigSpaceLimitListOpts
 
@@ -201,7 +201,7 @@ configAdminGroups = ConfigAdminGroups <$> ConfigAdminGroupsOpts <$> subparser (
  command listSub configAdminGroupsListInfo)
 
 configAdminGroupsSet = ConfigAdminGroupsSet <$> (ConfigAdminGroupsSetOpts
-  <$> some (argument str (metavar configAdminGroupsSetGroupsMeta <> help configAdminGroupsSetGroupsHelp)))
+  <$> some (argument str (metavar configAdminGroupsSetMeta <> help configAdminGroupsSetHelp)))
 
 configAdminGroupsList = ConfigAdminGroupsList <$> pure ConfigAdminGroupsListOpts
 
@@ -210,7 +210,7 @@ configTeacherGroups = ConfigTeacherGroups <$> ConfigTeacherGroupsOpts <$> subpar
  command listSub configTeacherGroupsListInfo)
 
 configTeacherGroupsSet = ConfigTeacherGroupsSet <$> (ConfigTeacherGroupsSetOpts
-  <$> many (argument str (metavar configTeacherGroupsSetGroupsMeta <> help configTeacherGroupsSetGroupsHelp)))
+  <$> many (argument str (metavar configTeacherGroupsSetMeta <> help configTeacherGroupsSetHelp)))
 
 configTeacherGroupsList = ConfigTeacherGroupsList <$> pure ConfigTeacherGroupsListOpts
 
@@ -220,12 +220,12 @@ configCorrector = ConfigCorrector <$> ConfigCorrectorOpts <$> subparser (
  command removeSub configCorrectorRemoveInfo)
  
 configCorrectorIs = ConfigCorrectorIs <$> (ConfigCorrectorIsOpts
- <$> argument str (metavar configCorrectorIsNameMeta <> help configCorrectorIsNameHelp))
+ <$> argument str (metavar configCorrectorIsMeta <> help configCorrectorIsHelp))
  
 configCorrectorAdd = ConfigCorrectorAdd <$> (ConfigCorrectorAddOpts
- <$> argument str (metavar configCorrectorAddNameMeta <> help configCorrectorAddNameHelp))
+ <$> argument str (metavar configCorrectorAddMeta <> help configCorrectorAddHelp))
  
 configCorrectorRemove = ConfigCorrectorRemove <$> (ConfigCorrectorRemoveOpts
- <$> argument str (metavar configCorrectorRemoveNameMeta <> help configCorrectorRemoveNameHelp))
+ <$> argument str (metavar configCorrectorRemoveMeta <> help configCorrectorRemoveHelp))
 
  
