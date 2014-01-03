@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -F -pgmF htfpp #-}
-module Interface.CommandLineParserTest.Utils where
+module Interface.CommandLineParser.ParserTestUtils where
 
 import Test.Framework
 import Options.Applicative

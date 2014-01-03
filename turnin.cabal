@@ -30,12 +30,10 @@ test-suite turnin-tests
                    src,
                    test
   other-modules:
-                   Interface.CommandLineParserTest,
                    Interface.Lexicon,
                    Interface.CommandLineParser.Config,
-                   Interface.CommandLineParser.Utils,
                    Interface.CommandLineParser.Repo,
                    Interface.CommandLineParser.Term,
-                   Interface.CommandLineParserTest.Utils,
-                   Interface.CommandLineParser.Project.Validate
+                   Interface.CommandLineParser.Project.Validate,
+                   Interface.CommandLineParser.ParserTestUtils
 
