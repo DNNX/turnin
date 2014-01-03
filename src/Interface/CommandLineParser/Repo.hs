@@ -4,18 +4,18 @@ import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
 
-data RepoOpts = RepoOpts   RepoCmd        deriving (Show)
+data RepoOpts = RepoOpts   RepoCmd        deriving (Show, Eq)
 data RepoCmd  = RepoAdd    RepoAddOpts
               | RepoRemove RepoRemoveOpts
-              | RepoList   RepoListOpts   deriving (Show)
+              | RepoList   RepoListOpts   deriving (Show, Eq)
 
 data RepoAddOpts = RepoAddOpts
- { repoAddName :: String }                deriving (Show)
+ { repoAddName :: String }                deriving (Show, Eq)
  
 data RepoRemoveOpts = RepoRemoveOpts
- { repoRemoveRepoNN :: Maybe String }             deriving (Show)
+ { repoRemoveRepoNN :: Maybe String }     deriving (Show, Eq)
  
-data RepoListOpts = RepoListOpts          deriving (Show) 
+data RepoListOpts = RepoListOpts          deriving (Show, Eq) 
  
 repoInfo =        info (myHelper <*> repo)       (progDesc repoDesc)
 repoAddInfo =     info (myHelper <*> repoAdd)    (progDesc repoAddDesc)

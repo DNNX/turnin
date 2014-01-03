@@ -4,7 +4,7 @@ import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
 
-data ConfigOpts = ConfigOpts          ConfigCmd                                    deriving (Show)
+data ConfigOpts = ConfigOpts          ConfigCmd                                    deriving (Show, Eq)
 data ConfigCmd  = ConfigThreshold     ConfigThresholdOpts
                 | ConfigTermDate      ConfigTermDateOpts
                 | ConfigProjectDate   ConfigProjectDateOpts
@@ -13,87 +13,87 @@ data ConfigCmd  = ConfigThreshold     ConfigThresholdOpts
                 | ConfigSpaceLimit    ConfigSpaceLimitOpts
                 | ConfigAdminGroups   ConfigAdminGroupsOpts
                 | ConfigTeacherGroups ConfigTeacherGroupsOpts
-                | ConfigCorrector     ConfigCorrectorOpts                          deriving (Show)
+                | ConfigCorrector     ConfigCorrectorOpts                          deriving (Show, Eq)
 
-data ConfigThresholdOpts = ConfigThresholdOpts ConfigThresholdCmd                  deriving (Show)
+data ConfigThresholdOpts = ConfigThresholdOpts ConfigThresholdCmd                  deriving (Show, Eq)
 data ConfigThresholdCmd  = ConfigThresholdSet  ConfigThresholdSetOpts
-                         | ConfigThresholdList ConfigThresholdListOpts             deriving (Show)
+                         | ConfigThresholdList ConfigThresholdListOpts             deriving (Show, Eq)
 
 data ConfigThresholdSetOpts = ConfigThresholdSetOpts
  { configThresholdSetCurrent :: Maybe String
- , configThresholdSetChoose  :: Maybe String }                                     deriving (Show)
-data ConfigThresholdListOpts = ConfigThresholdListOpts                             deriving (Show)
+ , configThresholdSetChoose  :: Maybe String }                                     deriving (Show, Eq)
+data ConfigThresholdListOpts = ConfigThresholdListOpts                             deriving (Show, Eq)
 
-data ConfigTermDateOpts = ConfigTermDateOpts ConfigTermDateCmd                     deriving (Show)
+data ConfigTermDateOpts = ConfigTermDateOpts ConfigTermDateCmd                     deriving (Show, Eq)
 data ConfigTermDateCmd  = ConfigTermDateSet  ConfigTermDateSetOpts
-                        | ConfigTermDateList ConfigTermDateListOpts                deriving (Show)
+                        | ConfigTermDateList ConfigTermDateListOpts                deriving (Show, Eq)
 
 data ConfigTermDateSetOpts = ConfigTermDateSetOpts
  { configTermDateSetTerm1 :: Maybe String
  , configTermDateSetTerm2 :: Maybe String
- , configTermDateSetTerm3 :: Maybe String }                                        deriving (Show)
-data ConfigTermDateListOpts = ConfigTermDateListOpts                               deriving (Show)
+ , configTermDateSetTerm3 :: Maybe String }                                        deriving (Show, Eq)
+data ConfigTermDateListOpts = ConfigTermDateListOpts                               deriving (Show, Eq)
 
-data ConfigProjectDateOpts = ConfigProjectDateOpts ConfigProjectDateCmd            deriving (Show)
+data ConfigProjectDateOpts = ConfigProjectDateOpts ConfigProjectDateCmd            deriving (Show, Eq)
 data ConfigProjectDateCmd  = ConfigProjectDateSet  ConfigProjectDateSetOpts
-                           | ConfigProjectDateList ConfigProjectDateListOpts       deriving (Show)
+                           | ConfigProjectDateList ConfigProjectDateListOpts       deriving (Show, Eq)
 
 data ConfigProjectDateSetOpts = ConfigProjectDateSetOpts
  { configProjectDateSetEnd  :: Maybe String
- , configProjectDateSetLate :: Maybe String }                                      deriving (Show)
-data ConfigProjectDateListOpts = ConfigProjectDateListOpts                         deriving (Show)
+ , configProjectDateSetLate :: Maybe String }                                      deriving (Show, Eq)
+data ConfigProjectDateListOpts = ConfigProjectDateListOpts                         deriving (Show, Eq)
 
-data ConfigAcceptExecOpts = ConfigAcceptExecOpts ConfigAcceptExecCmd               deriving (Show)
+data ConfigAcceptExecOpts = ConfigAcceptExecOpts ConfigAcceptExecCmd               deriving (Show, Eq)
 data ConfigAcceptExecCmd  = ConfigAcceptExecSet  ConfigAcceptExecSetOpts
-                          | ConfigAcceptExecList ConfigAcceptExecListOpts          deriving (Show)
+                          | ConfigAcceptExecList ConfigAcceptExecListOpts          deriving (Show, Eq)
 
 data ConfigAcceptExecSetOpts = ConfigAcceptExecSetOpts
- { configAcceptExecSetVal  :: String }                                             deriving (Show)
-data ConfigAcceptExecListOpts = ConfigAcceptExecListOpts                           deriving (Show)
+ { configAcceptExecSetVal :: String }                                              deriving (Show, Eq)
+data ConfigAcceptExecListOpts = ConfigAcceptExecListOpts                           deriving (Show, Eq)
 
-data ConfigTimeLimitOpts = ConfigTimeLimitOpts ConfigTimeLimitCmd                  deriving (Show)
+data ConfigTimeLimitOpts = ConfigTimeLimitOpts ConfigTimeLimitCmd                  deriving (Show, Eq)
 data ConfigTimeLimitCmd  = ConfigTimeLimitSet  ConfigTimeLimitSetOpts
-                         | ConfigTimeLimitList ConfigTimeLimitListOpts             deriving (Show)
+                         | ConfigTimeLimitList ConfigTimeLimitListOpts             deriving (Show, Eq)
 
 data ConfigTimeLimitSetOpts = ConfigTimeLimitSetOpts
- { configTimeLimitSetVal  :: String }                                              deriving (Show)
-data ConfigTimeLimitListOpts = ConfigTimeLimitListOpts                             deriving (Show)
+ { configTimeLimitSetVal :: String }                                               deriving (Show, Eq)
+data ConfigTimeLimitListOpts = ConfigTimeLimitListOpts                             deriving (Show, Eq)
 
-data ConfigSpaceLimitOpts = ConfigSpaceLimitOpts ConfigSpaceLimitCmd               deriving (Show)
+data ConfigSpaceLimitOpts = ConfigSpaceLimitOpts ConfigSpaceLimitCmd               deriving (Show, Eq)
 data ConfigSpaceLimitCmd  = ConfigSpaceLimitSet  ConfigSpaceLimitSetOpts
-                          | ConfigSpaceLimitList ConfigSpaceLimitListOpts          deriving (Show)
+                          | ConfigSpaceLimitList ConfigSpaceLimitListOpts          deriving (Show, Eq)
 
 data ConfigSpaceLimitSetOpts = ConfigSpaceLimitSetOpts
- { configSpaceLimitSetVal  :: String }                                             deriving (Show)
-data ConfigSpaceLimitListOpts = ConfigSpaceLimitListOpts                           deriving (Show)
+ { configSpaceLimitSetVal :: String }                                              deriving (Show, Eq)
+data ConfigSpaceLimitListOpts = ConfigSpaceLimitListOpts                           deriving (Show, Eq)
 
-data ConfigAdminGroupsOpts = ConfigAdminGroupsOpts ConfigAdminGroupsCmd            deriving (Show)
+data ConfigAdminGroupsOpts = ConfigAdminGroupsOpts ConfigAdminGroupsCmd            deriving (Show, Eq)
 data ConfigAdminGroupsCmd  = ConfigAdminGroupsSet  ConfigAdminGroupsSetOpts
-                           | ConfigAdminGroupsList ConfigAdminGroupsListOpts       deriving (Show)
+                           | ConfigAdminGroupsList ConfigAdminGroupsListOpts       deriving (Show, Eq)
 
 data ConfigAdminGroupsSetOpts = ConfigAdminGroupsSetOpts
- { configAdminGroupsSetGroups  :: [String] }                                       deriving (Show)
-data ConfigAdminGroupsListOpts = ConfigAdminGroupsListOpts                         deriving (Show)
+ { configAdminGroupsSetGroups :: [String] }                                        deriving (Show, Eq)
+data ConfigAdminGroupsListOpts = ConfigAdminGroupsListOpts                         deriving (Show, Eq)
 
-data ConfigTeacherGroupsOpts = ConfigTeacherGroupsOpts ConfigTeacherGroupsCmd      deriving (Show)
+data ConfigTeacherGroupsOpts = ConfigTeacherGroupsOpts ConfigTeacherGroupsCmd      deriving (Show, Eq)
 data ConfigTeacherGroupsCmd  = ConfigTeacherGroupsSet  ConfigTeacherGroupsSetOpts
-                             | ConfigTeacherGroupsList ConfigTeacherGroupsListOpts deriving (Show)
+                             | ConfigTeacherGroupsList ConfigTeacherGroupsListOpts deriving (Show, Eq)
 
 data ConfigTeacherGroupsSetOpts = ConfigTeacherGroupsSetOpts
- { configTeacherGroupsSetGroups  :: [String] }                                     deriving (Show)
-data ConfigTeacherGroupsListOpts = ConfigTeacherGroupsListOpts                     deriving (Show)
+ { configTeacherGroupsSetGroups :: [String] }                                      deriving (Show, Eq)
+data ConfigTeacherGroupsListOpts = ConfigTeacherGroupsListOpts                     deriving (Show, Eq)
 
-data ConfigCorrectorOpts = ConfigCorrectorOpts ConfigCorrectorCmd                  deriving (Show)
-data ConfigCorrectorCmd  = ConfigCorrectorIs  ConfigCorrectorIsOpts
-                         | ConfigCorrectorAdd  ConfigCorrectorAddOpts
-                         | ConfigCorrectorRemove ConfigCorrectorRemoveOpts         deriving (Show)
+data ConfigCorrectorOpts = ConfigCorrectorOpts   ConfigCorrectorCmd                deriving (Show, Eq)
+data ConfigCorrectorCmd  = ConfigCorrectorIs     ConfigCorrectorIsOpts
+                         | ConfigCorrectorAdd    ConfigCorrectorAddOpts
+                         | ConfigCorrectorRemove ConfigCorrectorRemoveOpts         deriving (Show, Eq)
 
 data ConfigCorrectorIsOpts = ConfigCorrectorIsOpts
- { configCorrectorIsName  :: String }                                              deriving (Show)
+ { configCorrectorIsName :: String }                                               deriving (Show, Eq)
 data ConfigCorrectorAddOpts = ConfigCorrectorAddOpts
- { configCorrectorAddName  :: String }                                             deriving (Show)
+ { configCorrectorAddName :: String }                                              deriving (Show, Eq)
 data ConfigCorrectorRemoveOpts = ConfigCorrectorRemoveOpts
- { configCorrectorRemoveName  :: String }                                          deriving (Show)
+ { configCorrectorRemoveName :: String }                                           deriving (Show, Eq)
 
 
 configInfo =                  info (myHelper <*> config)                  (progDesc configDesc)

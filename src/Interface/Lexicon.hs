@@ -4,6 +4,8 @@ module Interface.Lexicon where
 configSub = "config"
 repoSub = "repo"
 termSub = "term"
+courseSub = "course"
+groupSub = "group"
 
 thresholdSub = "threshold"
 termDateSub = "termDate"
@@ -13,7 +15,9 @@ timeLimitSub = "timeLimit"
 spaceLimitSub = "spaceLimit"
 adminGroupsSub = "adminGroups"
 teacherGroupsSub = "teacherGroups"
-correctorSub = "correctorSub"
+
+teacherSub = "teacher"
+correctorSub = "corrector"
 
 addSub = "add"
 removeSub = "remove"
@@ -28,6 +32,8 @@ helpOpt = ('?', "help")
 
 repoNodeOpt = ('r', "repo")
 termNodeOpt = ('t', "term")
+courseNodeOpt = ('c', "course")
+groupNodeOpt = ('g', "group")
 
 configThresholdSetCurrentOpt = ('u', "current")
 configThresholdSetChooseOpt = ( 'h', "choose")
@@ -47,6 +53,8 @@ globalHeader = "Global header"
 configDesc = "Config desc"
 repoDesc = "Repo desc"
 termDesc = "Term desc"
+courseDesc = "Course desc"
+groupDesc = "Group desc"
 
 configThresholdDesc = "Config threshold desc"
 configThresholdSetDesc = "Config threshold set desc"
@@ -85,13 +93,38 @@ termAddDesc = "Term add desc"
 termRemoveDesc = "Term remove desc"
 termListDesc = "Term list desc"
 termDateDesc = "Term date desc"
-
 termDateSetDesc = "Term date set desc"
 termDateListDesc = "Term date list desc"
+
+courseAddDesc = "Course add desc"
+courseRemoveDesc = "Course remove desc"
+courseListDesc = "Course list desc"
+courseTeacherDesc = "Course teacher desc"
+courseTeacherAddDesc = "Course teacher add desc"
+courseTeacherRemoveDesc = "Course teacher remove desc"
+courseTeacherListDesc = "Course teacher list desc"
+courseCorrectorDesc = "Course corrector desc"
+courseCorrectorAddDesc = "Course corrector add desc"
+courseCorrectorRemoveDesc = "Course corrector remove desc"
+courseCorrectorListDesc = "Course corrector list desc"
+
+groupAddDesc = "Group add desc"
+groupRemoveDesc = "Group remove desc"
+groupListDesc = "Group list desc"
+groupTeacherDesc = "Group teacher desc"
+groupTeacherAddDesc = "Group teacher add desc"
+groupTeacherRemoveDesc = "Group teacher remove desc"
+groupTeacherListDesc = "Group teacher list desc"
+groupCorrectorDesc = "Group corrector desc"
+groupCorrectorAddDesc = "Group corrector add desc"
+groupCorrectorRemoveDesc = "Group corrector remove desc"
+groupCorrectorListDesc = "Group corrector list desc"
 
 -- Metavars
 repoNodeMeta = "REPO_NAME"
 termNodeMeta = "TERM_NAME"
+courseNodeMeta = "COURSE_NAME"
+groupNodeMeta = "GROUP_NAME"
 
 configThresholdSetCurrentMeta = "CURRENT"
 configThresholdSetChooseMeta = "CHOOSE"
@@ -114,15 +147,28 @@ repoAddNameMeta = "REPO_NAME"
 termAddNameMeta = "TERM_NAME"
 termAddStartMeta = "START"
 termAddEndMeta = "END"
-
 termDateSetStartMeta = "START_DATE"
 termDateSetEndMeta = "END_META"
 
+courseAddNameMeta = "COURSE_NAME"
+courseTeacherAddNamesMeta = "TEACHER_NAMES"
+courseTeacherRemoveNamesMeta = "TEACHER_NAMES"
+courseCorrectorAddNamesMeta = "CORRECTOR_NAMES"
+courseCorrectorRemoveNamesMeta = "CORRECTOR_NAMES"
+
+groupAddNameMeta = "COURSE_NAME"
+groupTeacherAddNamesMeta = "TEACHER_NAMES"
+groupTeacherRemoveNamesMeta = "TEACHER_NAMES"
+groupCorrectorAddNamesMeta = "CORRECTOR_NAMES"
+groupCorrectorRemoveNamesMeta = "CORRECTOR_NAMES"
+
 -- Help messages
-helpHelp = "Show this help text"
+helpHelp = "(Show, Eq) this help text"
 
 repoNodeHelp = "Repo node help"
 termNodeHelp = "Term node help"
+courseNodeHelp = "Course node help"
+groupNodeHelp = "Group node help"
 
 configThresholdSetCurrentHelp = "Config threshold set current help"
 configThresholdSetChooseHelp = "Config threshold set choose help"
@@ -145,7 +191,19 @@ repoAddNameHelp = "Repo add name help"
 termAddNameHelp = "Term add name help"
 termAddStartHelp = "Term add start help"
 termAddEndHelp = "Term add end help"
-
 termDateSetStartHelp = "Term date set start help"
 termDateSetEndHelp = "Term date set end help"
+
+courseAddNameHelp = "Course add name help"
+courseTeacherAddNamesHelp = "Course teacher add names help"
+courseTeacherRemoveNamesHelp = "Course teacher remove names help"
+courseCorrectorAddNamesHelp = "Course teacher add names help"
+courseCorrectorRemoveNamesHelp = "Course teacher remove names help"
+
+groupAddNameHelp = "Group add name help"
+groupTeacherAddNamesHelp = "Group teacher add names help"
+groupTeacherRemoveNamesHelp = "Group teacher remove names help"
+groupCorrectorAddNamesHelp = "Group teacher add names help"
+groupCorrectorRemoveNamesHelp = "Group teacher remove names help"
+
 

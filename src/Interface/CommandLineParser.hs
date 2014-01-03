@@ -6,16 +6,23 @@ import Interface.CommandLineParser.Utils
 import Interface.CommandLineParser.Config
 import Interface.CommandLineParser.Repo
 import Interface.CommandLineParser.Term
+import Interface.CommandLineParser.Course
+import Interface.CommandLineParser.Group
 
-data Global = Global Cmd     deriving (Show)
+data Global = Global Cmd     deriving (Show, Eq)
 data Cmd = Config ConfigOpts 
          | Repo   RepoOpts
-         | Term   TermOpts   deriving (Show)
+         | Term   TermOpts   
+         | Course CourseOpts
+         | Group  GroupOpts  
+         deriving (Show, Eq)
  
 globalInfo = info (myHelper <*> global) (progDesc globalDesc <> header globalHeader)
  
 global = Global <$> subparser (
  command configSub (Config <$> configInfo) <>
  command repoSub   (Repo   <$> repoInfo) <>
- command termSub   (Term   <$> termInfo))
+ command termSub   (Term   <$> termInfo) <>
+ command courseSub (Course <$> courseInfo) <>
+ command groupSub  (Group  <$> groupInfo))
   

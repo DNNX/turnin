@@ -4,38 +4,38 @@ import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
 
-data TermOpts = TermOpts   TermCmd                deriving (Show)
+data TermOpts = TermOpts   TermCmd                deriving (Show, Eq)
 data TermCmd  = TermAdd    TermAddOpts            
               | TermRemove TermRemoveOpts         
               | TermList   TermListOpts           
-              | TermDate   TermDateOpts           deriving (Show)
+              | TermDate   TermDateOpts           deriving (Show, Eq)
                                                   
 data TermAddOpts = TermAddOpts                    
  { termAddRepoNN :: Maybe String                    
  , termAddName   :: String 
  , termAddStart  :: String
- , termAddEnd    :: String }                      deriving (Show)
+ , termAddEnd    :: String }                      deriving (Show, Eq)
                                                   
 data TermRemoveOpts = TermRemoveOpts              
  { termRemoveRepoNN :: Maybe String                               
- , termRemoveTermNN :: Maybe String }             deriving (Show)
+ , termRemoveTermNN :: Maybe String }             deriving (Show, Eq)
                                                   
 data TermListOpts = TermListOpts
- { termListRepoNN :: Maybe String }               deriving (Show)
+ { termListRepoNN :: Maybe String }               deriving (Show, Eq)
                                                   
-data TermDateOpts = TermDateOpts TermDateCmd      deriving (Show)
+data TermDateOpts = TermDateOpts TermDateCmd      deriving (Show, Eq)
 data TermDateCmd  = TermDateSet  TermDateSetOpts 
-                  | TermDateList TermDateListOpts deriving (Show)
+                  | TermDateList TermDateListOpts deriving (Show, Eq)
                   
 data TermDateSetOpts = TermDateSetOpts
- { dateSetRepoNN :: Maybe String
- , dateSetTermNN :: Maybe String
- , dateSetStart  :: Maybe String
- , dateSetEnd    :: Maybe String }                deriving (Show)    
+ { termDateSetRepoNN :: Maybe String
+ , termDateSetTermNN :: Maybe String
+ , termDateSetStart  :: Maybe String
+ , termDateSetEnd    :: Maybe String }            deriving (Show, Eq)    
  
 data TermDateListOpts = TermDateListOpts
- { dateListRepoNN :: Maybe String
- , dateListTermNN :: Maybe String }               deriving (Show)        
+ { termDateListRepoNN :: Maybe String
+ , termDateListTermNN :: Maybe String }           deriving (Show, Eq)        
  
 termInfo =         info (myHelper <*> term)         (progDesc termDesc)
 termAddInfo =      info (myHelper <*> termAdd)      (progDesc termAddDesc)
@@ -54,8 +54,8 @@ term = TermOpts <$> subparser (
 termAdd = TermAdd <$> (TermAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> argument str (metavar termAddNameMeta <> help termAddNameHelp)
- <*> argument str (metavar termAddStartMeta <> help termAddNameHelp)
- <*> argument str (metavar termAddEndMeta <> help termAddNameHelp))
+ <*> argument str (metavar termAddStartMeta <> help termAddStartHelp)
+ <*> argument str (metavar termAddEndMeta <> help termAddStartHelp))
  
 termRemove = TermRemove <$> (TermRemoveOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -77,6 +77,5 @@ termDateSet = TermDateSet <$> (TermDateSetOpts
 termDateList = TermDateList <$> (TermDateListOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp))
-  
  
  
