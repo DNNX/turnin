@@ -55,7 +55,7 @@ termAdd = TermAdd <$> (TermAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> argument str (metavar termAddNameMeta <> help termAddNameHelp)
  <*> argument str (metavar termAddStartMeta <> help termAddStartHelp)
- <*> argument str (metavar termAddEndMeta <> help termAddStartHelp))
+ <*> argument str (metavar termAddEndMeta <> help termAddEndHelp))
  
 termRemove = TermRemove <$> (TermRemoveOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)

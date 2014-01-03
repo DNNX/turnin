@@ -6,6 +6,7 @@ repoSub = "repo"
 termSub = "term"
 courseSub = "course"
 groupSub = "group"
+projectSub = "project"
 
 thresholdSub = "threshold"
 termDateSub = "termDate"
@@ -34,6 +35,7 @@ repoNodeOpt = ('r', "repo")
 termNodeOpt = ('t', "term")
 courseNodeOpt = ('c', "course")
 groupNodeOpt = ('g', "group")
+projectNodeOpt = ('p', "project")
 
 configThresholdSetCurrentOpt = ('u', "current")
 configThresholdSetChooseOpt = ( 'h', "choose")
@@ -46,6 +48,13 @@ configProjectDateSetLateOpt = ('l', "late")
 termDateSetStartOpt = ('s', "start")
 termDateSetEndOpt = ('e', "end")
 
+projectAddStartOpt = ('s', "start")
+projectAddEndOpt = ('e', "end")
+projectAddLateOpt = ('l', "late")
+projectDateSetStartOpt = ('s', "start")
+projectDateSetEndOpt = ('e', "end")
+projectDateSetLateOpt = ('l', "late")
+
 -- Descriptions
 globalDesc = "Global desc"
 globalHeader = "Global header"
@@ -55,6 +64,7 @@ repoDesc = "Repo desc"
 termDesc = "Term desc"
 courseDesc = "Course desc"
 groupDesc = "Group desc"
+projectDesc = "Project desc"
 
 configThresholdDesc = "Config threshold desc"
 configThresholdSetDesc = "Config threshold set desc"
@@ -120,11 +130,19 @@ groupCorrectorAddDesc = "Group corrector add desc"
 groupCorrectorRemoveDesc = "Group corrector remove desc"
 groupCorrectorListDesc = "Group corrector list desc"
 
+projectAddDesc = "Project add desc"
+projectRemoveDesc = "Project remove desc"
+projectListDesc = "Project list desc"
+projectDateDesc = "Project date desc"
+projectDateSetDesc = "Project date set desc"
+projectDateListDesc = "Project date list desc"
+
 -- Metavars
 repoNodeMeta = "REPO_NAME"
 termNodeMeta = "TERM_NAME"
 courseNodeMeta = "COURSE_NAME"
 groupNodeMeta = "GROUP_NAME"
+projectNodeMeta = "PROJECT_NAME"
 
 configThresholdSetCurrentMeta = "CURRENT"
 configThresholdSetChooseMeta = "CHOOSE"
@@ -162,6 +180,14 @@ groupTeacherRemoveNamesMeta = "TEACHER_NAMES"
 groupCorrectorAddNamesMeta = "CORRECTOR_NAMES"
 groupCorrectorRemoveNamesMeta = "CORRECTOR_NAMES"
 
+projectAddNameMeta = "PROJECT_NAME"
+projectAddStartMeta = "START_META"
+projectAddEndMeta = "END_META"
+projectAddLateMeta = "LATE_META"
+projectDateSetStartMeta = "START_META"
+projectDateSetEndMeta = "END_META"
+projectDateSetLateMeta = "LATE_META"
+
 -- Help messages
 helpHelp = "(Show, Eq) this help text"
 
@@ -169,6 +195,7 @@ repoNodeHelp = "Repo node help"
 termNodeHelp = "Term node help"
 courseNodeHelp = "Course node help"
 groupNodeHelp = "Group node help"
+projectNodeHelp = "Project node help"
 
 configThresholdSetCurrentHelp = "Config threshold set current help"
 configThresholdSetChooseHelp = "Config threshold set choose help"
@@ -205,5 +232,13 @@ groupTeacherAddNamesHelp = "Group teacher add names help"
 groupTeacherRemoveNamesHelp = "Group teacher remove names help"
 groupCorrectorAddNamesHelp = "Group teacher add names help"
 groupCorrectorRemoveNamesHelp = "Group teacher remove names help"
+
+projectAddNameHelp = "Project add name help"
+projectAddStartHelp = "Project add start help"
+projectAddEndHelp = "Project add end help"
+projectAddLateHelp = "Project add late help"
+projectDateSetStartHelp = "Project date set start help"
+projectDateSetEndHelp = "Project date set end help"
+projectDateSetLateHelp = "Project date set late help" 
 
 

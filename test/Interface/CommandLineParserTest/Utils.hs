@@ -11,7 +11,7 @@ import Interface.CommandLineParser
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-sampleSize = 5 -- Keep this many option possibilities
+sampleSize = 5 -- Keep this many random option permutations, runtime is exponential in this number
 
 type Opt = (Char, String)
 type Opts = ([Opt],[Maybe String])
@@ -24,6 +24,7 @@ repoOpts r = ([repoNodeOpt], [r])
 termOpts r t = ([repoNodeOpt, termNodeOpt], [r, t])
 courseOpts r t c = ([repoNodeOpt, termNodeOpt, courseNodeOpt], [r, t, c])
 groupOpts r t c g = ([repoNodeOpt, termNodeOpt, courseNodeOpt, groupNodeOpt], [r, t, c, g])
+projectOpts r t c g p = ([repoNodeOpt, termNodeOpt, courseNodeOpt, groupNodeOpt, projectNodeOpt], [r, t, c, g, p])
 
 thresholdOpts cu ch = ([configThresholdSetCurrentOpt, configThresholdSetChooseOpt], [cu, ch])
 configTermDateOpts t1 t2 t3 = ([configTermDateSetTerm1Opt, configTermDateSetTerm2Opt, configTermDateSetTerm3Opt], [t1,t2,t3])
@@ -31,6 +32,11 @@ configProjectDateOpts end late = ([configProjectDateSetEndOpt, configProjectDate
 
 termDateOpts r t s e = let (xs,ys) = termOpts r t
                        in  (xs ++ [termDateSetStartOpt, termDateSetEndOpt], ys ++ [s,e]) 
+
+projectAddOpts r t c g s e l = let (xs,ys) = groupOpts r t c g
+                               in  (xs ++ [projectAddStartOpt, projectAddEndOpt, projectAddLateOpt], ys ++ [s,e,l])
+projectDateOpts r t c g p s e l = let (xs,ys) = projectOpts r t c g p
+                                  in  (xs ++ [projectDateSetStartOpt, projectDateSetEndOpt, projectDateSetLateOpt], ys ++ [s,e,l])
 
 validOpts :: [Maybe String] -> Bool
 validOpts = notElem (Just "")
@@ -51,18 +57,9 @@ makeCmd :: [String] -> [[String]] -> [String] -> [[String]]
 makeCmd cmd opts vars = [cmd ++ o ++ vars | o <- opts]
 
 makeOpts :: [Opt] -> [Maybe String] -> [[String]]
-makeOpts os = subset sampleSize.buildOpts.permutations.map f.filter (isJust.snd).zip os
+makeOpts os = take sampleSize.buildOpts.permutations.map f.filter (isJust.snd).zip os
  where f (a, Just b) = (a,b)
        f _ = error "Unexpectedly Nothing in makeOpts"
-
--- Returns at most n elements, evenly selected from the xs list
-subset n xs = if n >= size then xs else f xs 0 []
- where size = length xs
-       delta = ceiling (fromIntegral size / fromIntegral n :: Double)
-       f :: [a] -> Integer -> [a] -> [a]
-       f []     _ acc = acc 
-       f (x:ys) 0 acc = f ys delta (x:acc)
-       f (_:ys) i acc = f ys (i-1) acc
 
 buildOpts :: [[(Opt,String)]] -> [[String]]
 buildOpts = concatMap (map concat.f)
