@@ -35,5 +35,7 @@ test-suite turnin-tests
                    Interface.CommandLineParser.Repo,
                    Interface.CommandLineParser.Term,
                    Interface.CommandLineParser.Project.Validate,
+                   Interface.CommandLineParser.ProjectWorktrainSubmitTest,
+                   Interface.CommandLineParser.WorktrainSubmitTest,
                    Interface.CommandLineParser.ParserTestUtils
 

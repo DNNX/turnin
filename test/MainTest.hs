@@ -2,10 +2,12 @@
 module Main where
 import Test.Framework
 
-import {-@ HTF_TESTS @-} Interface.CommandLineParser.ConfigParserTest
-import {-@ HTF_TESTS @-} Interface.CommandLineParser.RepoTermParserTest
-import {-@ HTF_TESTS @-} Interface.CommandLineParser.CourseGroupParserTest
-import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectValidateParserTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.ConfigTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.RepoTermTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.CourseGroupTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectValidateTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectWorktrainSubmitTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.WorktrainSubmitTest
 
 main :: IO ()
 main = htfMain htf_importedTests
