@@ -13,30 +13,36 @@ import Interface.CommandLineParser
 
 sampleSize = 7 -- Keep this many random option permutations, tests runtime is exponential in this number
 
-type Opt = (Char, String)
+data Opt = O Char String | B Char String
 type Opts = ([Opt],[Maybe String])
 
 noArgsToGet = ()
 noOpts = ([],[])
 noArgs = []
 
-repoOpts r = ([repoNodeOpt], [r])
-termOpts r t = ([repoNodeOpt, termNodeOpt], [r, t])
-courseOpts r t c = ([repoNodeOpt, termNodeOpt, courseNodeOpt], [r, t, c])
-groupOpts r t c g = ([repoNodeOpt, termNodeOpt, courseNodeOpt, groupNodeOpt], [r, t, c, g])
-projectOpts r t c g p = ([repoNodeOpt, termNodeOpt, courseNodeOpt, groupNodeOpt, projectNodeOpt], [r, t, c, g, p])
+repoOpts r = (map z [repoNodeOpt], [r])
+termOpts r t = (map z [repoNodeOpt, termNodeOpt], [r, t])
+courseOpts r t c = (map z [repoNodeOpt, termNodeOpt, courseNodeOpt], [r, t, c])
+groupOpts r t c g = (map z [repoNodeOpt, termNodeOpt, courseNodeOpt, groupNodeOpt], [r, t, c, g])
+projectOpts r t c g p = (map z [repoNodeOpt, termNodeOpt, courseNodeOpt, groupNodeOpt, projectNodeOpt], [r, t, c, g, p])
+trainRunOpts r t c g p tr = (map z [repoNodeOpt, termNodeOpt, courseNodeOpt, groupNodeOpt, projectNodeOpt, trainRunNodeOpt], [r, t, c, g, p,tr])
+trainRunOutputOpts r t c g p tr m v = let l@(xs, ys) = trainRunOpts r t c g p tr
+                                      in  if m then (xs ++ [z' v], ys ++ [Just ""]) else l 
 
-thresholdOpts cu ch = ([configThresholdSetCurrentOpt, configThresholdSetChooseOpt], [cu, ch])
-configTermDateOpts t1 t2 t3 = ([configTermDateSetTerm1Opt, configTermDateSetTerm2Opt, configTermDateSetTerm3Opt], [t1,t2,t3])
-configProjectDateOpts end late = ([configProjectDateSetEndOpt, configProjectDateSetLateOpt], [end, late])
+thresholdOpts cu ch = (map z [configThresholdSetCurrentOpt, configThresholdSetChooseOpt], [cu, ch])
+configTermDateOpts t1 t2 t3 = (map z [configTermDateSetTerm1Opt, configTermDateSetTerm2Opt, configTermDateSetTerm3Opt], [t1,t2,t3])
+configProjectDateOpts end late = (map z [configProjectDateSetEndOpt, configProjectDateSetLateOpt], [end, late])
+
+z = uncurry O
+z' = uncurry B
 
 termDateOpts r t s e = let (xs,ys) = termOpts r t
-                       in  (xs ++ [termDateSetStartOpt, termDateSetEndOpt], ys ++ [s,e])
+                       in  (xs ++ map z [termDateSetStartOpt, termDateSetEndOpt], ys ++ [s,e])
 
 projectAddOpts r t c g s e l = let (xs,ys) = groupOpts r t c g
-                               in  (xs ++ [projectAddStartOpt, projectAddEndOpt, projectAddLateOpt], ys ++ [s,e,l])
+                               in  (xs ++ map z [projectAddStartOpt, projectAddEndOpt, projectAddLateOpt], ys ++ [s,e,l])
 projectDateOpts r t c g p s e l = let (xs,ys) = projectOpts r t c g p
-                                  in  (xs ++ [projectDateSetStartOpt, projectDateSetEndOpt, projectDateSetLateOpt], ys ++ [s,e,l])
+                                  in  (xs ++ map z [projectDateSetStartOpt, projectDateSetEndOpt, projectDateSetLateOpt], ys ++ [s,e,l])
 
 validOpts :: [Maybe String] -> Bool
 validOpts = notElem (Just "")
@@ -62,13 +68,14 @@ makeOpts os = take sampleSize.buildOpts.permutations.map f.filter (isJust.snd).z
        f _ = error "Unexpectedly Nothing in makeOpts"
 
 buildOpts :: [[(Opt,String)]] -> [[String]]
-buildOpts = concatMap (map concat.f)
+buildOpts = concatMap (filter (not.null).map concat.f)
  where f :: [(Opt, String)] -> [[[String]]]
        f [] = [[]]
        f (o:os) = [s:ss  | s <- buildOpt o, ss <- f os]
 
 buildOpt :: (Opt, String) -> [[String]]
-buildOpt ((s, l), v) = [['-':s:v],
+buildOpt (O s l, v) = [['-':s:v],
                        ['-':[s],v],
                        ["--" ++ l, v]]
+buildOpt (B s l, _)   = [['-':[s]], ["--" ++ l]]
 

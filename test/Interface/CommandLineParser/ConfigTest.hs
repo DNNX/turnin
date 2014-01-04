@@ -28,7 +28,7 @@ prop_configThresholdListSuccess =
 prop_configTermDateSetSuccess t1 t2 t3 =
  validOpts [t1, t2, t3] ==>
   testSuccess (t1,t2,t3) x [configSub, termDateSub, setSub] (configTermDateOpts t1 t2 t3) noArgs
-   where x (Global(
+   where x (Global( 
             Config(ConfigOpts(
              ConfigTermDate(ConfigTermDateOpts(
               ConfigTermDateSet(ConfigTermDateSetOpts a b c))))))) = (a,b,c)

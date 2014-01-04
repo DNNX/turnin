@@ -19,7 +19,8 @@ executable turnin
                    Interface.CommandLineParser.Term,
                    Interface.CommandLineParser.Project.Validate,
                    Interface.CommandLineParser.Project.Worktrain,
-                   Interface.CommandLineParser.Project.Submit
+                   Interface.CommandLineParser.Project.Submit,
+                   Interface.CommandLineParser.SubmitWorktrain
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -38,8 +39,9 @@ test-suite turnin-tests
                    Interface.CommandLineParser.Term,
                    Interface.CommandLineParser.Project.Validate,
                    Interface.CommandLineParser.ProjectWorktrainSubmitTest,
-                   Interface.CommandLineParser.WorktrainSubmitTest,
                    Interface.CommandLineParser.ParserTestUtils,
                    Interface.CommandLineParser.Project.Worktrain,
-                   Interface.CommandLineParser.Project.Submit
+                   Interface.CommandLineParser.Project.Submit,
+                   Interface.CommandLineParser.SubmitWorktrain,
+                   Interface.CommandLineParser.SubmitWorktrainTest
 

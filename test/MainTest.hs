@@ -7,7 +7,7 @@ import {-@ HTF_TESTS @-} Interface.CommandLineParser.RepoTermTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.CourseGroupTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectValidateTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectWorktrainSubmitTest
-import {-@ HTF_TESTS @-} Interface.CommandLineParser.WorktrainSubmitTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.SubmitWorktrainTest
 
 main :: IO ()
 main = htfMain htf_importedTests

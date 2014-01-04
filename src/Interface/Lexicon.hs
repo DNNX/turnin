@@ -27,19 +27,21 @@ scriptSub = "script"
 fileSub = "file"
 extractSub = "extract"
 
+dateSub = "date"
 teacherSub = "teacher"
 correctorSub = "corrector"
 
 addSub = "add"
 removeSub = "remove"
 listSub = "list"
-
 setSub = "set"
 unsetSub = "unset"
-dateSub = "date"
+
+isSub = "is"
+runSub = "run"
 lateSub = "late"
 inspectSub = "inspect"
-isSub = "is"
+outputSub = "output"
 
 -- Options
 helpOpt = ('?', "help")
@@ -49,6 +51,7 @@ termNodeOpt = ('t', "term")
 courseNodeOpt = ('c', "course")
 groupNodeOpt = ('g', "group")
 projectNodeOpt = ('p', "project")
+trainRunNodeOpt = ('d', "date")
 
 configThresholdSetCurrentOpt = ('u', "current")
 configThresholdSetChooseOpt = ( 'h', "choose")
@@ -67,6 +70,8 @@ projectAddLateOpt = ('l', "late")
 projectDateSetStartOpt = ('s', "start")
 projectDateSetEndOpt = ('e', "end")
 projectDateSetLateOpt = ('l', "late")
+
+mergeFlag = ('m', "merge")
 
 -- Descriptions
 globalDesc = "Global desc"
@@ -191,12 +196,23 @@ projectSubmitLateDesc = "Project submit late desc"
 projectSubmitInspectDesc = "Project submit inspect desc"
 projectSubmitExtractDesc = "Project submit extract desc"
 
+submitDesc = "Submit desc"           
+inspectDesc = "Inspect desc"          
+extractDesc = "Extract desc"          
+worktrainDesc = "Worktrain desc"        
+worktrainRunDesc = "Worktrain run desc"     
+worktrainDateDesc = "Worktrain date desc"    
+worktrainListDesc = "Worktrain list desc"    
+worktrainExtractDesc = "Worktrain extract desc" 
+worktrainOutputDesc = "Worktrain output desc"  
+
 -- Metavars
 repoNodeMeta = "REPO_NAME"
 termNodeMeta = "TERM_NAME"
 courseNodeMeta = "COURSE_NAME"
 groupNodeMeta = "GROUP_NAME"
 projectNodeMeta = "PROJECT_NAME"
+trainRunNodeMeta = "TRAIN_RUN_DATE"
 
 configThresholdSetCurrentMeta = "CURRENT"
 configThresholdSetChooseMeta = "CHOOSE"
@@ -262,6 +278,16 @@ projectSubmitInspectMeta = "KEYS"
 projectSubmitExtractDirMeta = "DIRECTORY"
 projectSubmitExtractKeysMeta = "KEYS"
 
+submitMeta = "FILES"
+extractMeta = "DIRECTORY"
+
+worktrainRunMeta = "KEYS"
+worktrainExtractDirMeta = "DIRECTORY"
+worktrainExtractKeysMeta = "KEYS"
+worktrainOutputMergeMeta = "MERGE"
+worktrainOutputDirMeta = "DIRECTORY"
+worktrainOutputKeysMeta = "KEYS"
+
 -- Argument help messages
 helpHelp = "(Show, Eq) this help text"
 
@@ -270,6 +296,7 @@ termNodeHelp = "Term node help"
 courseNodeHelp = "Course node help"
 groupNodeHelp = "Group node help"
 projectNodeHelp = "Project node help"
+trainRunNodeHelp = "Train run node help"
 
 configThresholdSetCurrentHelp = "Config threshold set current help"
 configThresholdSetChooseHelp = "Config threshold set choose help"
@@ -334,3 +361,13 @@ projectWorktrainSpaceLimitSetHelp = "Project worktrain space limit set help"
 projectSubmitInspectHelp = "Project submit inspect help"
 projectSubmitExtractDirHelp = "Project submit extract dir help"
 projectSubmitExtractKeysHelp = "Project submit extract keys help"
+
+submitHelp = "Submit help"
+extractHelp = "Extract help"
+
+worktrainRunHelp = "Worktrain run help"
+worktrainExtractDirHelp = "Worktrain extract dir help"
+worktrainExtractKeysHelp = "Worktrain extract keys help"
+worktrainOutputMergeHelp = "Worktrain output merge help"
+worktrainOutputDirHelp = "Worktrain output dir help"
+worktrainOutputKeysHelp = "Worktrain output keys help"

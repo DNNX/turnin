@@ -15,7 +15,7 @@ prop_projectWorktrainScriptSetSuccess repoNN termNN courseNN groupNN projectNN s
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let scriptName = head ss in
   testSuccess (repoNN, termNN, courseNN, groupNN, projectNN, scriptName) x [projectSub, worktrainSub, scriptSub, setSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) [scriptName]
-    where x (Global( 
+    where x (Global(  
              Project(ProjectOpts(
               ProjectWorktrain(ProjectWorktrainOpts(
                ProjectWorktrainScript(ProjectWorktrainScriptOpts(
