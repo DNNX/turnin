@@ -4,13 +4,17 @@ import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
 import Interface.CommandLineParser.Project.Validate
+import Interface.CommandLineParser.Project.Worktrain
+import Interface.CommandLineParser.Project.Submit
 
-data ProjectOpts = ProjectOpts     ProjectCmd                deriving (Show, Eq)
-data ProjectCmd  = ProjectAdd      ProjectAddOpts
-                 | ProjectRemove   ProjectRemoveOpts
-                 | ProjectList     ProjectListOpts
-                 | ProjectDate     ProjectDateOpts
-                 | ProjectValidate ProjectValidateOpts       deriving (Show, Eq)
+data ProjectOpts = ProjectOpts      ProjectCmd                deriving (Show, Eq)
+data ProjectCmd  = ProjectAdd       ProjectAddOpts
+                 | ProjectRemove    ProjectRemoveOpts
+                 | ProjectList      ProjectListOpts
+                 | ProjectDate      ProjectDateOpts
+                 | ProjectValidate  ProjectValidateOpts
+                 | ProjectWorktrain ProjectWorktrainOpts
+                 | ProjectSubmit    ProjectSubmitOpts        deriving (Show, Eq)
 
 data ProjectAddOpts = ProjectAddOpts
  { projectAddRepoNN   :: Maybe String
@@ -65,12 +69,14 @@ projectDateSetInfo =  info (myHelper <*> projectDateSet)  (progDesc projectDateS
 projectDateListInfo = info (myHelper <*> projectDateList) (progDesc projectDateListDesc)
 
 project = ProjectOpts <$> subparser (
- command addSub      projectAddInfo <>
- command removeSub   projectRemoveInfo <>
- command listSub     projectListInfo <>
- command dateSub     projectDateInfo <>
- command validateSub (ProjectValidate <$> projectValidateInfo))
-
+ command addSub       projectAddInfo <>
+ command removeSub    projectRemoveInfo <>
+ command listSub      projectListInfo <>
+ command dateSub      projectDateInfo <>
+ command validateSub  (ProjectValidate <$> projectValidateInfo) <>
+ command worktrainSub (ProjectWorktrain <$> projectWorktrainInfo) <>
+ command submitSub    (ProjectSubmit <$> projectSubmitInfo)) 
+ 
 projectAdd = ProjectAdd <$> (ProjectAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
