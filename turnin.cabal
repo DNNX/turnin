@@ -9,7 +9,8 @@ executable turnin
   main-is:         Main.hs
   build-depends:
                    base >= 4,
-                   optparse-applicative >=0.7.0 && <0.8
+                   optparse-applicative >=0.7.0 && <0.8,
+                   containers >=0.4.2 && <0.5
   ghc-options:     -Wall -fno-warn-missing-signatures
   other-modules:
                    Interface.Lexicon,
@@ -20,7 +21,9 @@ executable turnin
                    Interface.CommandLineParser.Project.Validate,
                    Interface.CommandLineParser.Project.Worktrain,
                    Interface.CommandLineParser.Project.Submit,
-                   Interface.CommandLineParser.SubmitWorktrain
+                   Interface.CommandLineParser.SubmitWorktrain,
+                   Infrastructure.Node,
+                   Infrastructure.CvsNode
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -28,7 +31,8 @@ test-suite turnin-tests
   ghc-options:     -Wall -rtsopts -fno-warn-missing-signatures
   build-depends:
                    base >= 4, HTF > 0.9,
-                   optparse-applicative >=0.7.0 && <0.8
+                   optparse-applicative >=0.7.0 && <0.8,
+                   containers >=0.4.2 && <0.5
   hs-source-dirs:
                    src,
                    test
@@ -43,5 +47,9 @@ test-suite turnin-tests
                    Interface.CommandLineParser.Project.Worktrain,
                    Interface.CommandLineParser.Project.Submit,
                    Interface.CommandLineParser.SubmitWorktrain,
-                   Interface.CommandLineParser.SubmitWorktrainTest
+                   Interface.CommandLineParser.SubmitWorktrainTest,
+                   Infrastructure.NodeTest,
+                   Infrastructure.Node,
+                   Infrastructure.CvsNode,
+                   Infrastructure.CvsNodeTest
 
