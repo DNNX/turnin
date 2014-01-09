@@ -31,7 +31,7 @@ getName (Node name _ _) = name
 getKeys :: Node -> [(Key, Node)]
 getKeys n@(Node name _ children) = let childrenKeys = concatMap getKeys $ M.elems children
                                        f (k,node) = (name:k,node)
-                                   in  [([name],n)] ++ map f childrenKeys
+                                   in  ([name],n):map f childrenKeys
 
 getConfig :: Node -> String -> String 
 getConfig (Node _ config _) key = fromMaybe "" $ M.lookup key config
