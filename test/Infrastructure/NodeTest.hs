@@ -22,8 +22,8 @@ prop_getSetUnsetConfig name ts = let ts' = nubBy (\(a,_,_)(b,_,_)->a==b) ts
         let n             = buildNodeConfig name rest
             absentAdd     = setConfig n key v1
             presentAdd    = setConfig absentAdd key v2
-            presentRemove = unsetConfig absentAdd key
-            absentRemove  = unsetConfig n key
+            presentRemove = setConfig absentAdd key ""
+            absentRemove  = setConfig n key ""
         in  (presentRemove, absentRemove) == (n,n) &&
             "" == getConfig n key && 
             v1 == getConfig absentAdd key &&

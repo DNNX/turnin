@@ -9,6 +9,7 @@ import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectValidateTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectWorktrainSubmitTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.SubmitWorktrainTest
 import {-@ HTF_TESTS @-} Infrastructure.NodeTest
+import {-@ HTF_TESTS @-} Infrastructure.CsvNodeTest
 
 main :: IO ()
 main = htfMain htf_importedTests

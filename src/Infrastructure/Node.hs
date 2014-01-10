@@ -5,7 +5,6 @@ module Infrastructure.Node
 , getKeys
 , getConfig
 , setConfig
-, unsetConfig
 , getChild
 , setChild
 , unsetChild
@@ -37,11 +36,8 @@ getConfig :: Node -> String -> String
 getConfig (Node _ config _) key = fromMaybe "" $ M.lookup key config
 
 setConfig :: Node -> String -> String -> Node
-setConfig (Node name config children) key value = let config' = M.insert key value config
-                                                  in  Node name config' children
-
-unsetConfig :: Node -> String -> Node
-unsetConfig (Node name config children) key = Node name (M.delete key config) children
+setConfig (Node name config children) key value = let f = if null value then M.delete key else M.insert key value
+                                                  in  Node name (f config) children
 
 getChild :: Node -> String -> Maybe Node
 getChild (Node _ _ children) key = M.lookup key children

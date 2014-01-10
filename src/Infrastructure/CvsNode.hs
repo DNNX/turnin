@@ -1,2 +1,0 @@
-module Infrastructure.CvsNode where
-
