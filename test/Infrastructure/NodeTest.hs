@@ -33,7 +33,7 @@ prop_getSetUnsetChildren parentName ns = let ns' = nub ns
                                              nss = tails ns'
                                              nss' = filter (not.null) nss
                                          in  nss' /= [] ==> all f nss'
- where f (name:rest) =  
+ where f names@(name:rest) =  
         let n             = buildNodeChildren parentName rest
             c1            = makeNode name 
             c2            = setConfig c1 "key" "value"
@@ -46,6 +46,8 @@ prop_getSetUnsetChildren parentName ns = let ns' = nub ns
            isNothing (getChild n name) &&
            Just c1 == getChild absentAdd name &&
            name    == getName c1 &&
+           null (rest \\ getChildren n) && null (getChildren n \\ rest) &&
+           null (names \\ getChildren n) && null (getChildren n \\ names) &&
            null ([([parentName], absentAdd), ([parentName,name], c1)] \\ getKeys absentAdd)
            
            

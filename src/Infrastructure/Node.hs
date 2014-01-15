@@ -5,6 +5,7 @@ module Infrastructure.Node
 , getKeys
 , getConfig
 , setConfig
+, getChildren
 , getChild
 , setChild
 , unsetChild
@@ -38,6 +39,9 @@ getConfig (Node _ config _) key = fromMaybe "" $ M.lookup key config
 setConfig :: Node -> String -> String -> Node
 setConfig (Node name config children) key value = let f = if null value then M.delete key else M.insert key value
                                                   in  Node name (f config) children
+
+getChildren :: Node -> [String]
+getChildren = error "Not implemented: Node.getChildren"
 
 getChild :: Node -> String -> Maybe Node
 getChild (Node _ _ children) key = M.lookup key children

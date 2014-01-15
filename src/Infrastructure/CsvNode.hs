@@ -19,7 +19,7 @@ addCsv :: Node -> String -> [String] -> Node
 addCsv n key vs = setCsv n key $ union vs $ getCsv n key
 
 removeCsv :: Node -> String -> [String] -> Node
-removeCsv n key vs = setCsv n key $ (getCsv n key) \\ vs
+removeCsv n key vs = setCsv n key $ getCsv n key \\ vs
                     
 separate s = let result = splitOn "," s
              in  if result == [""] then [] else result

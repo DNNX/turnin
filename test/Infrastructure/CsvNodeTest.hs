@@ -27,6 +27,7 @@ prop_addRemoveGetSetValues name ps = let ps' = nubBy ((==) `on` fst) ps
             presentUnset = setCsv absentSet k []
             absentUnset = setCsv n k []
         in  null (vs \\ getCsv absentAdd k) && null (getCsv absentAdd k \\ vs) &&
+            null (map fst rest \\ getCsv n k) && null (getCsv n k \\ map fst rest) &&
             [presentRemove, absentRemove, presentUnset, absentUnset] == replicate 4 n &&
             [absentAdd, presentAdd, presentSet] == replicate 3 absentSet
           

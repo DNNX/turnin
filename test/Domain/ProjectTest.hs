@@ -25,7 +25,7 @@ prop_settingAndGettingStartEndLateDates name start end late =
      late == getLateDate p'
        
 prop_settingAndGettingAcceptExecutables name acceptsExec = 
- acceptsExec == (getAcceptExecutables $ setAcceptExecutables (makeProject name) acceptsExec)
+ acceptsExec == getAcceptExecutables (setAcceptExecutables (makeProject name) acceptsExec)
  
 prop_addingAndRemovingNamesToValidate name ns = let names = nub $ filter (not.null) $ map (filter (/=',')) ns in names /= [] ==> 
  let p = makeProject name
@@ -35,22 +35,23 @@ prop_addingAndRemovingNamesToValidate name ns = let names = nub $ filter (not.nu
      absentRemove = removeNamesToValidate p names
  in  (presentRemove,absentRemove) == (p,p) &&
      absentAdd == presentAdd &&
-     (null $ names \\ getNamesToValidate absentAdd)
+     null (names \\ getNamesToValidate absentAdd) &&
+     null (getNamesToValidate absentAdd \\ names)
  
 prop_settingAndGettingValidationCommand name command = 
- command == (getValidationCommand $ setValidationCommand (makeProject name) command)
+ command == getValidationCommand (setValidationCommand (makeProject name) command)
  
 prop_settingAndGettingValidationScript name scriptName scriptContent = 
- (scriptName, scriptContent) == (getValidationScript $ setValidationScript (makeProject name) scriptName scriptContent)
+ (scriptName, scriptContent) == getValidationScript (setValidationScript (makeProject name) scriptName scriptContent)
  
 prop_settingAndGettingTrainScript name scriptName scriptContent = 
- (scriptName, scriptContent) == (getTrainScript $ setTrainScript (makeProject name) scriptName scriptContent)
+ (scriptName, scriptContent) == getTrainScript (setTrainScript (makeProject name) scriptName scriptContent)
  
 prop_settingAndGettingTrainTimeLimit name timeLimit = 
- timeLimit == (getTrainTimeLimit $ setTrainTimeLimit (makeProject name) timeLimit)
+ timeLimit == getTrainTimeLimit (setTrainTimeLimit (makeProject name) timeLimit)
  
 prop_settingAndGettingTrainSpaceLimit name spaceLimit = 
- spaceLimit == (getTrainSpaceLimit $ setTrainSpaceLimit (makeProject name) spaceLimit) 
+ spaceLimit == getTrainSpaceLimit (setTrainSpaceLimit (makeProject name) spaceLimit) 
  
  
  

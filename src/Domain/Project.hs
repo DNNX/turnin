@@ -1,5 +1,6 @@
 module Domain.Project
-( makeProject
+( Project()
+, makeProject
 , getStartDate
 , setStartDate
 , getEndDate
