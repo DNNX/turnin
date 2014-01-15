@@ -24,7 +24,8 @@ executable turnin
                    Interface.CommandLineParser.Project.Submit,
                    Interface.CommandLineParser.SubmitWorktrain,
                    Infrastructure.Node,
-                   Infrastructure.CsvNode
+                   Infrastructure.CsvNode,
+                   Domain.Project
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -53,5 +54,7 @@ test-suite turnin-tests
                    Infrastructure.NodeTest,
                    Infrastructure.Node,
                    Infrastructure.CsvNode,
-                   Infrastructure.CsvNodeTest
+                   Infrastructure.CsvNodeTest,
+                   Domain.ProjectTest,
+                   Domain.Project
 

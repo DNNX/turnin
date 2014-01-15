@@ -17,24 +17,19 @@ prop_addRemoveGetSetValues name ps = let ps' = nubBy ((==) `on` fst) ps
                                      in  ps'' /= [] ==> f ps''
  where f ((k,vs):rest) = 
         let n = buildCsvNode name rest
-            absentAdd = addAll n k vs
-            presentAdd = addAll absentAdd k vs
-            presentRemove = removeAll absentAdd k vs
-            absentRemove = removeAll n k vs
+            absentAdd = addCsv n k vs
+            presentAdd = addCsv absentAdd k vs
+            presentRemove = removeCsv absentAdd k vs 
+            absentRemove = removeCsv n k vs
             
             absentSet = setCsv n k vs
             presentSet = setCsv absentSet k vs
             presentUnset = setCsv absentSet k []
             absentUnset = setCsv n k []
-        in  [presentRemove, absentRemove, presentUnset, absentUnset] == replicate 4 n &&
+        in  null (vs \\ getCsv absentAdd k) && null (getCsv absentAdd k \\ vs) &&
+            [presentRemove, absentRemove, presentUnset, absentUnset] == replicate 4 n &&
             [absentAdd, presentAdd, presentSet] == replicate 3 absentSet
           
 buildCsvNode name ps = let node = makeNode name in f node ps
  where f n [] = n
        f n ((k,vs):rest) = f (setCsv n k vs) rest
-         
-addAll n _ [] = n
-addAll n k (x:xs) = addAll (addCsv n k x) k xs
-
-removeAll n _ [] = n
-removeAll n k (x:xs) = removeAll (removeCsv n k x) k xs
