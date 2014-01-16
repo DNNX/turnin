@@ -14,10 +14,10 @@ import Domain.Project
  
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-prop_rootChildrenr rs = let repoNames = filter (not.null) $ nub rs
-                        in  repoNames /= [] ==> f repoNames
+prop_rootChildrenr name rs = let repoNames = filter (not.null) $ nub rs
+                             in  repoNames /= [] ==> f repoNames
  where f names@(repoName:rest) =  
-        let root = foldl (\x n -> addRepo x (makeRepo n)) makeRoot rest
+        let root = foldl (\x n -> addRepo x (makeRepo n)) (makeRoot name) rest
             r = makeRepo repoName 
             addAbsent = addRepo root r
             addPresent = addRepo addAbsent r
