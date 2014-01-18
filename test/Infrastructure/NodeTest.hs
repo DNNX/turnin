@@ -2,16 +2,18 @@
 module Infrastructure.NodeTest where
 import Test.Framework
  
-import Infrastructure.Node
 import Data.Maybe
 import Data.List
+import TestUtils
+
+import Infrastructure.Node
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 prop_emptyNode name k = 
  let n = makeNode name
  in  "" == getConfig n k &&
     isNothing (getChild n k) &&
-     name      == getName n &&
+     name == getName n &&
      [([name], n)] == getKeys n
       
 prop_getSetUnsetConfig name ts = let ts' = nubBy (\(a,_,_)(b,_,_)->a==b) ts
@@ -24,7 +26,7 @@ prop_getSetUnsetConfig name ts = let ts' = nubBy (\(a,_,_)(b,_,_)->a==b) ts
             presentAdd    = setConfig absentAdd key v2
             presentRemove = setConfig absentAdd key ""
             absentRemove  = setConfig n key ""
-        in  (presentRemove, absentRemove) == (n,n) &&
+        in  areEqual [presentRemove, absentRemove, n] &&
             "" == getConfig n key && 
             v1 == getConfig absentAdd key &&
             v2 == getConfig presentAdd key
@@ -41,14 +43,14 @@ prop_getSetUnsetChildren parentName ns = let ns' = nub ns
             presentAdd    = setChild absentAdd c2
             presentRemove = unsetChild presentAdd name
             absentRemove  = unsetChild n name
-        in (presentRemove, absentRemove) == (n,n) && 
+        in areEqual [presentRemove, absentRemove, n] && 
            absentAdd == presentAdd &&
            isNothing (getChild n name) &&
            Just c1 == getChild absentAdd name &&
            name    == getName c1 &&
-           null (rest \\ getChildren n) && null (getChildren n \\ rest) &&
-           null (names \\ getChildren n) && null (getChildren n \\ names) &&
-           null ([([parentName], absentAdd), ([parentName,name], c1)] \\ getKeys absentAdd)
+           sameElements rest (getChildren n) &&
+           sameElements names (getChildren n) &&
+           sameElements [([parentName], absentAdd), ([parentName,name], c1)] (getKeys absentAdd)
            
            
 buildNodeConfig name ts = let node = makeNode name in f node ts

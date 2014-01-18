@@ -13,10 +13,10 @@ getCsv :: Node -> String -> [String]
 getCsv n key = separate $ getConfig n key
 
 setCsv :: Node -> String -> [String] -> Node
-setCsv n key vs = setConfig n key $ unseparate $ sort vs
+setCsv n key vs = setConfig n key $ unseparate $ sort $ nub vs
 
 addCsv :: Node -> String -> [String] -> Node
-addCsv n key vs = setCsv n key $ union vs $ getCsv n key
+addCsv n key vs = setCsv n key $ vs ++ getCsv n key
 
 removeCsv :: Node -> String -> [String] -> Node
 removeCsv n key vs = setCsv n key $ getCsv n key \\ vs

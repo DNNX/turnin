@@ -68,5 +68,8 @@ test-suite turnin-tests
                    Domain.Course,
                    Domain.Group,
                    Domain.Root,
-                   Domain.RootTest
+                   Domain.RootTest,
+                   Domain.TermTest,
+                   Domain.GroupTest,
+                   TestUtils
 

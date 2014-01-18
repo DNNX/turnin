@@ -5,6 +5,10 @@ module Domain.Term
 , removeCourse
 , getCourses
 , getCourse
+, getStartDate
+, setStartDate
+, getEndDate
+, setEndDate
 ) where
 
 import Domain.Course
@@ -25,3 +29,15 @@ getCourses = error "Not implemented: Term.getCourses"
 
 getCourse :: Term -> String -> Maybe Course
 getCourse = error "Not implemented: Term.getCourse"
+
+getStartDate :: Term -> String
+getStartDate = error "Not implemented: Term.getStartDate"
+
+setStartDate :: Term -> String -> Term
+setStartDate = error "Not implemented: Term.setStartDate"
+
+getEndDate :: Term -> String
+getEndDate = error "Not implemented: Term.getEndDate"
+
+setEndDate :: Term -> String -> Term
+setEndDate = error "Not implemented: Term.setEndDate"

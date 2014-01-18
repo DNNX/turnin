@@ -2,41 +2,32 @@
 module Domain.RootTest where
 import Test.Framework
 
-import Data.List
+import TestUtils
 
 import Domain.Root
  
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 prop_emptyRoot name = let r = makeRoot name in
- [""] == nub (map ($ r) [getCurrentThreshold, getChooseThreshold, getTerm1Date, getTerm2Date, getTerm3Date, getProjectEndDate, 
-                          getProjectLateDate, getAcceptExecutables, getTrainTimeLimit, getTrainSpaceLimit]) &&
- [[]] == nub (map ($ r) [getAdminGroups, getTeacherGroups])
+ [""] == applyGets r [getCurrentThreshold, getChooseThreshold, getTerm1Date, getTerm2Date, getTerm3Date, getProjectEndDate, 
+                          getProjectLateDate, getAcceptExecutables, getTrainTimeLimit, getTrainSpaceLimit] &&
+ [[]] == applyGets r [getAdminGroups, getTeacherGroups]
 
 prop_thresholds name currentThresh chooseThresh =
- let r = makeRoot name
-     rs = map (foldl apply r) $ permutations [(setCurrentThreshold, currentThresh), (setChooseThreshold, chooseThresh)]
-     apply x (g,d) = g x d
-     [r'] = nub rs 
- in  currentThresh == getCurrentThreshold r' &&
-     chooseThresh == getChooseThreshold r'  
+ let [r] = applySets (makeRoot name) [(setCurrentThreshold, currentThresh), (setChooseThreshold, chooseThresh)]
+ in  currentThresh == getCurrentThreshold r &&
+     chooseThresh == getChooseThreshold r  
      
 prop_termDates name term1 term2 term3 =
- let r = makeRoot name
-     rs = map (foldl apply r) $ permutations [(setTerm1Date, term1), (setTerm2Date, term2), (setTerm3Date, term3)]
-     apply x (g,d) = g x d
-     [r'] = nub rs 
- in  term1 == getTerm1Date r' &&
-     term2 == getTerm2Date r' &&
-     term3 == getTerm3Date r' 
+ let [r] = applySets (makeRoot name) [(setTerm1Date, term1), (setTerm2Date, term2), (setTerm3Date, term3)]
+ in  term1 == getTerm1Date r &&
+     term2 == getTerm2Date r &&
+     term3 == getTerm3Date r 
           
 prop_projectDates name end late =
- let r = makeRoot name
-     rs = map (foldl apply r) $ permutations [(setProjectEndDate, end), (setProjectLateDate, late)]
-     apply x (g,d) = g x d
-     [r'] = nub rs 
- in  end == getProjectEndDate r' &&
-     late == getProjectLateDate r' 
+ let [r] = applySets (makeRoot name) [(setProjectEndDate, end), (setProjectLateDate, late)]
+ in  end == getProjectEndDate r &&
+     late == getProjectLateDate r 
      
 prop_acceptExecutables name acceptExec =
  acceptExec == getAcceptExecutables (setAcceptExecutables (makeRoot name) acceptExec)
@@ -47,16 +38,14 @@ prop_trainTimeLimit name timeLimit =
 prop_trainSpaceLimit name spaceLimit =
  spaceLimit == getTrainSpaceLimit (setTrainSpaceLimit (makeRoot name) spaceLimit)
  
-prop_adminGroups name gs = let groups = nub $ filter (not.null) $ map (filter (/=',')) gs in groups /= [] ==>
- let r = setAdminGroups (makeRoot name) groups 
- in null (groups \\ getAdminGroups r) && null (getAdminGroups r \\ groups) 
+prop_adminGroups name gs = let groups = uniqueNonEmpty gs in groups /= [] ==>
+ sameElements groups $ getAdminGroups $ setAdminGroups (makeRoot name) groups
 
 prop_teacherGroups name gs = 
- let groups = nub $ filter (not.null) $ map (filter (/=',')) gs
-     r = setAdminGroups (makeRoot name) groups  
- in  null (groups \\ getTeacherGroups r) && null (getTeacherGroups r \\ groups) 
+ let groups = uniqueNonEmpty gs
+ in  sameElements groups $ getTeacherGroups $ setAdminGroups (makeRoot name) groups   
 
-prop_correctors name cs = let correctors = nub $ filter (not.null) $ map (filter (/=',')) cs 
+prop_correctors name cs = let correctors = uniqueNonEmpty cs 
                           in correctors /= [] ==> f correctors
  where f (corrector:rest) = 
         let r = foldl addCorrector (makeRoot name) rest
@@ -64,7 +53,7 @@ prop_correctors name cs = let correctors = nub $ filter (not.null) $ map (filter
             presentAdd = addCorrector absentAdd corrector
             presentRemove = removeCorrector absentAdd corrector
             absentRemove = removeCorrector r corrector
-        in  (presentRemove, absentRemove) == (r,r) &&
+        in  areEqual [presentRemove, absentRemove, r] &&
             absentAdd == presentAdd &&
             not(isCorrector r corrector) &&
             isCorrector absentAdd corrector

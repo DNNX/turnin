@@ -14,6 +14,8 @@ import {-@ HTF_TESTS @-} Infrastructure.CsvNodeTest
 
 import {-@ HTF_TESTS @-} Domain.HierarchyTest
 import {-@ HTF_TESTS @-} Domain.RootTest
+import {-@ HTF_TESTS @-} Domain.TermTest
+import {-@ HTF_TESTS @-} Domain.GroupTest
 import {-@ HTF_TESTS @-} Domain.ProjectTest
 
 main :: IO ()
