@@ -38,14 +38,13 @@ prop_trainTimeLimit name timeLimit =
 prop_trainSpaceLimit name spaceLimit =
  spaceLimit == getTrainSpaceLimit (setTrainSpaceLimit (makeRoot name) spaceLimit)
  
-prop_adminGroups name gs = let groups = uniqueNonEmpty gs in groups /= [] ==>
+prop_adminGroups name gs = let groups = uniqueNonEmptyNoComma gs in groups /= [] ==>
  sameElements groups $ getAdminGroups $ setAdminGroups (makeRoot name) groups
 
-prop_teacherGroups name gs = 
- let groups = uniqueNonEmpty gs
- in  sameElements groups $ getTeacherGroups $ setAdminGroups (makeRoot name) groups   
+prop_teacherGroups name gs = let groups = uniqueNonEmptyNoComma gs in  
+ sameElements groups $ getTeacherGroups $ setTeacherGroups (makeRoot name) groups   
 
-prop_correctors name cs = let correctors = uniqueNonEmpty cs 
+prop_correctors name cs = let correctors = uniqueNonEmptyNoComma cs 
                           in correctors /= [] ==> f correctors
  where f (corrector:rest) = 
         let r = foldl addCorrector (makeRoot name) rest

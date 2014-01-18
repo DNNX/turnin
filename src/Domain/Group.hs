@@ -16,6 +16,7 @@ module Domain.Group
 ) where
 
 import Infrastructure.Node
+import Infrastructure.CsvNode
 import Domain.Project 
 
 data Group = G Node deriving (Show, Eq)
@@ -36,25 +37,29 @@ getProject :: Group -> String -> Maybe Project
 getProject (G node) = fmap nodeToProject . getChild node
 
 addTeachers :: Group -> [String] -> Group
-addTeachers = error "Not implemented: Group.addTeachers"
+addTeachers (G node) = G . addCsv node teachers
 
 removeTeachers :: Group -> [String] -> Group
-removeTeachers = error "Not implemented: Group.removeTeachers"
+removeTeachers (G node) = G . removeCsv node teachers
 
 getTeachers :: Group -> [String]
-getTeachers = error "Not implemented: Group.getTeachers"
+getTeachers (G node) = getCsv node teachers
 
 addCorrectors :: Group -> [String] -> Group
-addCorrectors = error "Not implemented: Group.addCorrectors"
+addCorrectors (G node) = G . addCsv node correctors
 
 removeCorrectors :: Group -> [String] -> Group
-removeCorrectors = error "Not implemented: Group.removeCorrectors"
+removeCorrectors (G node) = G . removeCsv node correctors
 
 getCorrectors :: Group -> [String]
-getCorrectors = error "Not implemented: Group.getCorrectors"
+getCorrectors (G node) = getCsv node correctors
 
 addGroupTo :: Group -> Node -> Node
 addGroupTo (G node) = flip setChild node
 
 nodeToGroup :: Node -> Group
 nodeToGroup = G
+
+
+teachers = "TEACHERS"
+correctors = "CORRECTORS"

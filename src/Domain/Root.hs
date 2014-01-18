@@ -35,6 +35,7 @@ module Domain.Root
 ) where
 
 import Infrastructure.Node
+import Infrastructure.CsvNode
 import Domain.Repo
  
 data Root = R Node deriving (Show, Eq)
@@ -55,82 +56,98 @@ getRepo :: Root -> String -> Maybe Repo
 getRepo (R node) = fmap nodeToRepo . getChild node 
 
 getCurrentThreshold :: Root -> String
-getCurrentThreshold = error "Not implemented: Root.getCurrentThreshold"
+getCurrentThreshold (R node) = getConfig node currentThreshold
 
 setCurrentThreshold :: Root -> String -> Root
-setCurrentThreshold = error "Not implemented: Root.setCurrentThreshold"
+setCurrentThreshold (R node) = R . setConfig node currentThreshold
 
 getChooseThreshold :: Root -> String
-getChooseThreshold = error "Not implemented: Root.getChooseThreshold"
+getChooseThreshold (R node) = getConfig node chooseThreshold
 
 setChooseThreshold :: Root -> String -> Root
-setChooseThreshold = error "Not implemented: Root.getChooseThreshold"
+setChooseThreshold (R node) = R . setConfig node chooseThreshold
 
 getTerm1Date :: Root -> String
-getTerm1Date = error "Not implemented: Root.getTerm1Date"
+getTerm1Date (R node) = getConfig node term1Date
 
 setTerm1Date :: Root -> String -> Root
-setTerm1Date = error "Not implemented: Root.setTerm1Date"
+setTerm1Date (R node) = R . setConfig node term1Date
 
 getTerm2Date :: Root -> String
-getTerm2Date = error "Not implemented: Root.getTerm2Date"
+getTerm2Date (R node) = getConfig node term2Date
 
 setTerm2Date :: Root -> String -> Root
-setTerm2Date = error "Not implemented: Root.setTerm2Date"
+setTerm2Date (R node) = R . setConfig node term2Date
 
 getTerm3Date :: Root -> String
-getTerm3Date = error "Not implemented: Root.getTerm3Date"
+getTerm3Date (R node) = getConfig node term3Date
 
 setTerm3Date :: Root -> String -> Root
-setTerm3Date = error "Not implemented: Root.setTerm3Date"
+setTerm3Date (R node) = R . setConfig node term3Date
 
 getProjectEndDate :: Root -> String
-getProjectEndDate = error "Not implemented: Root.getProjectEndDate"
+getProjectEndDate (R node) = getConfig node projectEndDate
 
 setProjectEndDate :: Root -> String -> Root
-setProjectEndDate = error "Not implemented: Root.setProjectEndDate"
+setProjectEndDate (R node) = R . setConfig node projectEndDate
 
 getProjectLateDate :: Root -> String
-getProjectLateDate = error "Not implemented: Root.getProjectLateDate"
+getProjectLateDate (R node) = getConfig node projectLateDate
 
 setProjectLateDate :: Root -> String -> Root
-setProjectLateDate = error "Not implemented: Root.setProjectLateDate"
+setProjectLateDate (R node) = R . setConfig node projectLateDate
 
 getAcceptExecutables :: Root -> String
-getAcceptExecutables = error "Not implemented: Root.getAcceptExecutables"
+getAcceptExecutables (R node) = getConfig node acceptExecutables
 
 setAcceptExecutables :: Root -> String -> Root
-setAcceptExecutables = error "Not implemented: Root.setAcceptExecutables"
+setAcceptExecutables (R node) = R . setConfig node acceptExecutables
 
 getTrainTimeLimit :: Root -> String
-getTrainTimeLimit = error "Not implemented: Root.getTrainTimelimit"
+getTrainTimeLimit (R node) = getConfig node trainTimeLimit
 
 setTrainTimeLimit :: Root -> String -> Root
-setTrainTimeLimit = error "Not implemented: Root.setTrainTimelimit"
+setTrainTimeLimit (R node) = R . setConfig node trainTimeLimit
 
 getTrainSpaceLimit :: Root -> String
-getTrainSpaceLimit = error "Not implemented: Root.getTrainSpacelimit"
+getTrainSpaceLimit (R node) = getConfig node trainSpaceLimit
 
 setTrainSpaceLimit :: Root -> String -> Root
-setTrainSpaceLimit = error "Not implemented: Root.setTrainSpacelimit"
+setTrainSpaceLimit (R node) = R . setConfig node trainSpaceLimit
 
 getAdminGroups :: Root -> [String]
-getAdminGroups = error "Not implemented: Root.getAdminGroups"
+getAdminGroups (R node) = getCsv node adminGroups
 
 setAdminGroups :: Root -> [String] -> Root
-setAdminGroups = error "Not implemented: Root.setAdminGroups"
+setAdminGroups (R node) = R . setCsv node adminGroups
 
 getTeacherGroups :: Root -> [String]
-getTeacherGroups = error "Not implemented: Root.getTeacherGroups"
+getTeacherGroups (R node) = getCsv node teacherGroups
 
 setTeacherGroups :: Root -> [String] -> Root
-setTeacherGroups = error "Not implemented: Root.setTeacherGroups"
+setTeacherGroups (R node) = R . setCsv node teacherGroups
 
 addCorrector :: Root -> String -> Root
-addCorrector = error "Not implemented: Root.addCorrector"
+addCorrector (R node) = R . addCsv node corrector . \x->[x]
 
 removeCorrector :: Root -> String -> Root
-removeCorrector = error "Not implemented: Root.removeCorrector"
+removeCorrector (R node) = R . removeCsv node corrector . \x->[x]
 
 isCorrector :: Root -> String -> Bool
-isCorrector = error "Not implemented: Root.isCorrector"
+isCorrector (R node) = (`elem` getCsv node corrector)
+
+
+currentThreshold = "CURRENT_THRESHOLD"
+chooseThreshold = "CHOOSE_THRESHOLD"
+term1Date = "TERM1_DATE"
+term2Date = "TERM2_DATE"
+term3Date = "TERM3_DATE"
+projectEndDate = "PROJECT_END_DATE"
+projectLateDate = "PROJECT_LATE_DATE"
+acceptExecutables = "ACCEPT_EXECUTABLES"
+trainTimeLimit = "TRAIN_TIME_LIMIT"
+trainSpaceLimit = "TRAIN_SPACE_LIMIT"
+adminGroups = "ADMIN_GROUPS"
+teacherGroups = "TEACHER_GROUPS"
+corrector = "CORRECTOR"
+

@@ -34,19 +34,22 @@ getCourse :: Term -> String -> Maybe Course
 getCourse (T node) = fmap nodeToCourse . getChild node
 
 getStartDate :: Term -> String
-getStartDate = error "Not implemented: Term.getStartDate"
+getStartDate (T node) = getCache node startDate
 
 setStartDate :: Term -> String -> Term
-setStartDate = error "Not implemented: Term.setStartDate"
+setStartDate (T node) = T . setCache node startDate
 
 getEndDate :: Term -> String
-getEndDate = error "Not implemented: Term.getEndDate"
+getEndDate (T node) = getCache node endDate
 
 setEndDate :: Term -> String -> Term
-setEndDate = error "Not implemented: Term.setEndDate"
+setEndDate (T node) = T . setCache node endDate
 
 addTermTo :: Term -> Node -> Node
 addTermTo (T node) = flip setChild node
 
 nodeToTerm :: Node -> Term
 nodeToTerm = T
+
+startDate = "START_DATE"
+endDate = "END_DATE"
