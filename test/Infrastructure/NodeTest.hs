@@ -12,6 +12,7 @@ import Infrastructure.Node
 prop_emptyNode name k = 
  let n = makeNode name
  in  "" == getConfig n k &&
+     "" == getCache n k &&
     isNothing (getChild n k) &&
      name == getName n &&
      [([name], n)] == getKeys n
@@ -30,6 +31,21 @@ prop_getSetUnsetConfig name ts = let ts' = nubBy (\(a,_,_)(b,_,_)->a==b) ts
             "" == getConfig n key && 
             v1 == getConfig absentAdd key &&
             v2 == getConfig presentAdd key
+
+prop_getSetUnsetCache name ts = let ts' = nubBy (\(a,_,_)(b,_,_)->a==b) ts
+                                    tss = tails ts'
+                                    tss' = filter (not.null) tss
+                                in  tss' /= [] ==> all f tss'
+ where f ((key, v1, v2):rest) =                               
+        let n             = buildNodeCache name rest
+            absentAdd     = setCache n key v1
+            presentAdd    = setCache absentAdd key v2
+            presentRemove = setCache absentAdd key ""
+            absentRemove  = setCache n key ""
+        in  areEqual [presentRemove, absentRemove, n] &&
+            "" == getCache n key && 
+            v1 == getCache absentAdd key &&
+            v2 == getCache presentAdd key            
       
 prop_getSetUnsetChildren parentName ns = let ns' = nub ns
                                              nss = tails ns'
@@ -55,6 +71,10 @@ prop_getSetUnsetChildren parentName ns = let ns' = nub ns
 buildNodeConfig name ts = let node = makeNode name in f node ts
  where f n [] = n
        f n ((k,v1,_):xs) = f (setConfig n k v1) xs
+       
+buildNodeCache name ts = let node = makeNode name in f node ts 
+ where f n [] = n
+       f n ((k,v1,_):xs) = f (setCache n k v1) xs
        
 buildNodeChildren parentName ns = let node = makeNode parentName in f node ns
  where f n [] = n
