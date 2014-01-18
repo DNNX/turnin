@@ -22,6 +22,8 @@ module Domain.Project
 , setTrainTimeLimit
 , getTrainSpaceLimit
 , setTrainSpaceLimit
+, addProjectTo
+, nodeToProject
 ) where
 
 import Infrastructure.Node
@@ -94,6 +96,12 @@ getTrainSpaceLimit (P node) = getConfig node trainSpaceLimit
 
 setTrainSpaceLimit :: Project -> String -> Project
 setTrainSpaceLimit (P node) = P . setConfig node trainSpaceLimit
+
+addProjectTo :: Project -> Node -> Node
+addProjectTo (P node) = flip setChild node
+
+nodeToProject :: Node -> Project
+nodeToProject = P
 
 startDate = "START_DATE"
 endDate = "END_DATE"

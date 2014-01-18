@@ -3,7 +3,7 @@ module Domain.ProjectTest where
 import Test.Framework
  
 import TestUtils
-import System.IO.Unsafe
+
 import Domain.Project
 
 {-# ANN module "HLint: ignore Use camelCase" #-}

@@ -5,23 +5,32 @@ module Domain.Course
 , removeGroup
 , getGroups
 , getGroup
+, addCourseTo
+, nodeToCourse
 ) where
 
+import Infrastructure.Node
 import Domain.Group
 
-data Course = Course deriving (Show, Eq)
+data Course = C Node deriving (Show, Eq)
 
 makeCourse :: String -> Course
-makeCourse = error "Not implemented: Course.makeCourse"
+makeCourse = C . makeNode
 
 addGroup :: Course -> Group -> Course
-addGroup = error "Not implemented: Course.addGroup"
+addGroup (C node) = C . (`addGroupTo` node)
 
 removeGroup :: Course -> String -> Course
-removeGroup = error "Not implemented: Course.removeGroup"
+removeGroup (C node) = C . unsetChild node
 
 getGroups :: Course -> [String]
-getGroups = error "Not implemented: Course.getGroups"
+getGroups (C node) = getChildren node
 
 getGroup :: Course -> String -> Maybe Group
-getGroup = error "Not implemented: Course.getGroup"
+getGroup (C node) = fmap nodeToGroup . getChild node
+
+addCourseTo :: Course -> Node -> Node
+addCourseTo (C node) = flip setChild node
+
+nodeToCourse :: Node -> Course
+nodeToCourse = C

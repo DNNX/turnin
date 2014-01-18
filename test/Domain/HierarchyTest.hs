@@ -14,7 +14,7 @@ import Domain.Project
  
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-prop_rootChildrenr name rs = let repoNames = uniqueNonEmpty rs
+prop_rootChildren name rs = let repoNames = uniqueNonEmpty rs
                              in  repoNames /= [] ==> f repoNames
  where f names@(repoName:rest) =  
         let root = foldl (\x n -> addRepo x (makeRepo n)) (makeRoot name) rest

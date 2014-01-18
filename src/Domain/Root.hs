@@ -34,24 +34,25 @@ module Domain.Root
 , isCorrector
 ) where
 
+import Infrastructure.Node
 import Domain.Repo
+ 
+data Root = R Node deriving (Show, Eq)
 
-data Root = Root deriving (Show, Eq)
-
-makeRoot :: String -> Root
-makeRoot = error "Not implemented: Root.makeRoot"
+makeRoot :: String -> Root 
+makeRoot = R . makeNode
 
 addRepo :: Root -> Repo -> Root
-addRepo = error "Not implemented: Root.addRepo"
+addRepo (R node) = R . (`addRepoTo` node) 
 
 removeRepo :: Root -> String -> Root
-removeRepo = error "Not implemented: Root.removeRepo"
+removeRepo (R node) = R . unsetChild node
 
-getRepos :: Root -> [String]
-getRepos = error "Not implemented: Root.getRepos"
+getRepos :: Root -> [String] 
+getRepos (R node) = getChildren node
 
 getRepo :: Root -> String -> Maybe Repo
-getRepo = error "Not implemented: Root.getRepo"
+getRepo (R node) = fmap nodeToRepo . getChild node 
 
 getCurrentThreshold :: Root -> String
 getCurrentThreshold = error "Not implemented: Root.getCurrentThreshold"

@@ -11,26 +11,29 @@ module Domain.Group
 , addCorrectors
 , removeCorrectors
 , getCorrectors
+, addGroupTo
+, nodeToGroup
 ) where
 
+import Infrastructure.Node
 import Domain.Project 
 
-data Group = Group deriving (Show, Eq)
+data Group = G Node deriving (Show, Eq)
 
 makeGroup :: String -> Group
-makeGroup = error "Not implemented: Group.makeGroup"
+makeGroup = G . makeNode
 
 addProject :: Group -> Project -> Group
-addProject = error "Not implemented: Group.addProject"
+addProject (G node) = G . (`addProjectTo` node)
 
 removeProject :: Group -> String -> Group
-removeProject = error "Not implemented: Group.removeProject"
+removeProject (G node) = G . unsetChild node
 
 getProjects :: Group -> [String]
-getProjects = error "Not implemented: Group.getProjects"
+getProjects (G node) = getChildren node
 
 getProject :: Group -> String -> Maybe Project
-getProject = error "Not implemented: Group.getProject"
+getProject (G node) = fmap nodeToProject . getChild node
 
 addTeachers :: Group -> [String] -> Group
 addTeachers = error "Not implemented: Group.addTeachers"
@@ -49,3 +52,9 @@ removeCorrectors = error "Not implemented: Group.removeCorrectors"
 
 getCorrectors :: Group -> [String]
 getCorrectors = error "Not implemented: Group.getCorrectors"
+
+addGroupTo :: Group -> Node -> Node
+addGroupTo (G node) = flip setChild node
+
+nodeToGroup :: Node -> Group
+nodeToGroup = G

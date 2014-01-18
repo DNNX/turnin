@@ -5,23 +5,32 @@ module Domain.Repo
 , removeTerm
 , getTerms
 , getTerm
+, addRepoTo
+, nodeToRepo
 ) where
 
+import Infrastructure.Node
 import Domain.Term
 
-data Repo = Repo deriving (Show, Eq)
+data Repo = R Node deriving (Show, Eq)
 
 makeRepo :: String -> Repo
-makeRepo = error "Not implemented: Repo.makeRepo"
+makeRepo = R . makeNode
 
 addTerm :: Repo -> Term -> Repo
-addTerm = error "Not implemented: Repo.addTerm"
+addTerm (R node) = R . (`addTermTo` node)
 
 removeTerm :: Repo -> String -> Repo
-removeTerm = error "Not implemented: Repo.removeTerm"
+removeTerm (R node) = R . unsetChild node
 
 getTerms :: Repo -> [String]
-getTerms = error "Not implemented: Repo.getTerms"
+getTerms (R node) = getChildren node
 
 getTerm :: Repo -> String -> Maybe Term
-getTerm = error "Not implemented: Repo.getTerm"
+getTerm (R node) = fmap nodeToTerm . getChild node 
+
+addRepoTo :: Repo -> Node -> Node
+addRepoTo (R node) = flip setChild node
+
+nodeToRepo :: Node -> Repo
+nodeToRepo = R

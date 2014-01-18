@@ -9,26 +9,29 @@ module Domain.Term
 , setStartDate
 , getEndDate
 , setEndDate
+, addTermTo
+, nodeToTerm
 ) where
 
+import Infrastructure.Node
 import Domain.Course
 
-data Term = Term deriving (Show, Eq)
+data Term = T Node deriving (Show, Eq)
 
 makeTerm :: String -> Term
-makeTerm = error "Not implemented: Term.makeTerm"
+makeTerm = T . makeNode
 
 addCourse :: Term -> Course -> Term
-addCourse = error "Not implemented: Term.addCourse"
+addCourse (T node) = T . (`addCourseTo` node)
 
 removeCourse :: Term -> String -> Term
-removeCourse = error "Not implemented: Term.removeCourse"
+removeCourse (T node) = T . unsetChild node
 
 getCourses :: Term -> [String]
-getCourses = error "Not implemented: Term.getCourses"
+getCourses (T node) = getChildren node
 
 getCourse :: Term -> String -> Maybe Course
-getCourse = error "Not implemented: Term.getCourse"
+getCourse (T node) = fmap nodeToCourse . getChild node
 
 getStartDate :: Term -> String
 getStartDate = error "Not implemented: Term.getStartDate"
@@ -41,3 +44,9 @@ getEndDate = error "Not implemented: Term.getEndDate"
 
 setEndDate :: Term -> String -> Term
 setEndDate = error "Not implemented: Term.setEndDate"
+
+addTermTo :: Term -> Node -> Node
+addTermTo (T node) = flip setChild node
+
+nodeToTerm :: Node -> Term
+nodeToTerm = T
