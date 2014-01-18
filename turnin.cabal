@@ -30,7 +30,11 @@ executable turnin
                    Domain.Term,
                    Domain.Course,
                    Domain.Group,
-                   Domain.Root
+                   Domain.Root,
+                   Domain.SubmitRepo,
+                   Domain.TrainFileRepo,
+                   Domain.TrainRunRepo,
+                   Domain.TrainRun
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -71,5 +75,11 @@ test-suite turnin-tests
                    Domain.RootTest,
                    Domain.TermTest,
                    Domain.GroupTest,
-                   TestUtils
+                   TestUtils,
+                   Infrastructure.FinderTest,
+                   Domain.ProjectHeirarchyTest,
+                   Domain.SubmitRepo,
+                   Domain.TrainFileRepo,
+                   Domain.TrainRunRepo,
+                   Domain.TrainRun
 

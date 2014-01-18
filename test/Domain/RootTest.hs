@@ -54,9 +54,9 @@ prop_correctors name cs = let correctors = uniqueNonEmptyNoComma cs
             absentRemove = removeCorrector r corrector
         in  areEqual [presentRemove, absentRemove, r] &&
             absentAdd == presentAdd &&
-            not(isCorrector r corrector) &&
-            isCorrector absentAdd corrector
+            sameElements rest (getCorrectors r) &&
+            sameElements (corrector:rest) (getCorrectors absentAdd)
       
-                       
+                        
 
 

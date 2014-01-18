@@ -5,8 +5,11 @@ module Infrastructure.Node
 , getKeys
 , getConfig
 , setConfig
+, unsetConfig
+, getCacheKeys
 , getCache
 , setCache
+, unsetCache
 , getChildren
 , getChild
 , setChild
@@ -40,15 +43,24 @@ getConfig :: Node -> String -> String
 getConfig (Node _ config _ _) key = fromMaybe "" $ M.lookup key config
 
 setConfig :: Node -> String -> String -> Node
-setConfig (Node name config cache children) key value = let f = if null value then M.delete key else M.insert key value
-                                                        in  Node name (f config) cache children
+setConfig node                              key ""     = unsetConfig node key
+setConfig (Node name config cache children) key value  = Node name (M.insert key value config) cache children
+
+unsetConfig :: Node -> String -> Node
+unsetConfig (Node name config cache children) key = Node name (M.delete key config) cache children
+                                
+getCacheKeys :: Node -> [String]
+getCacheKeys (Node _ _ cache _) = M.keys cache                                
                                                   
 getCache :: Node -> String -> String
 getCache (Node _ _ cache _) key = fromMaybe "" $ M.lookup key cache
 
 setCache :: Node -> String -> String -> Node
-setCache (Node name config cache children) key value = let f = if null value then M.delete key else M.insert key value
-                                                       in  Node name config (f cache) children                                                  
+setCache node                              key ""    = unsetCache node key 
+setCache (Node name config cache children) key value = Node name config (M.insert key value cache) children 
+                                                       
+unsetCache :: Node -> String -> Node
+unsetCache (Node name config cache children) key = Node name config (M.delete key cache) children                                                                                      
 
 getChildren :: Node -> [String]
 getChildren (Node _ _ _ children) = M.keys children

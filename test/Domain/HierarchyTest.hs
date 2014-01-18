@@ -33,7 +33,7 @@ prop_rootChildren name rs = let repoNames = uniqueNonEmpty rs
 prop_repoChildren repoName ts = let termNames = uniqueNonEmpty ts
                                 in  termNames /= [] ==> f termNames
  where f names@(termName:rest) =  
-        let r = foldl (\ x n -> addTerm x (makeTerm n)) (makeRepo repoName) rest
+        let r = foldl (\x n -> addTerm x (makeTerm n)) (makeRepo repoName) rest
             t = makeTerm termName
             absentAdd = addTerm r t
             presentAdd = addTerm absentAdd t
@@ -49,7 +49,7 @@ prop_repoChildren repoName ts = let termNames = uniqueNonEmpty ts
 prop_termChildren termName cs = let courseNames = uniqueNonEmpty cs
                                 in  courseNames /= [] ==> f courseNames
  where f names@(courseName:rest) =   
-        let t = foldl (\ x n -> addCourse x (makeCourse n)) (makeTerm termName) rest
+        let t = foldl (\x n -> addCourse x (makeCourse n)) (makeTerm termName) rest
             c = makeCourse courseName
             absentAdd = addCourse t c
             presentAdd = addCourse absentAdd c 
@@ -65,7 +65,7 @@ prop_termChildren termName cs = let courseNames = uniqueNonEmpty cs
 prop_courseChildren courseName gs = let groupNames = uniqueNonEmpty gs
                                     in  groupNames /= [] ==> f groupNames
  where f names@(groupName:rest) =  
-        let c = foldl (\ x n -> addGroup x (makeGroup n)) (makeCourse courseName) rest
+        let c = foldl (\x n -> addGroup x (makeGroup n)) (makeCourse courseName) rest
             g = makeGroup groupName
             absentAdd = addGroup c g
             presentAdd = addGroup absentAdd g
@@ -81,7 +81,7 @@ prop_courseChildren courseName gs = let groupNames = uniqueNonEmpty gs
 prop_groupChildren groupName ps = let projectNames = uniqueNonEmpty ps
                                   in  projectNames /= [] ==> f projectNames
  where f names@(projectName:rest) =  
-        let g = foldl (\ x n -> addProject x (makeProject n)) (makeGroup groupName) rest
+        let g = foldl (\x n -> addProject x (makeProject n)) (makeGroup groupName) rest
             p = makeProject projectName
             absentAdd = addProject g p
             presentAdd = addProject absentAdd p

@@ -31,7 +31,7 @@ module Domain.Root
 , setTeacherGroups
 , addCorrector
 , removeCorrector
-, isCorrector
+, getCorrectors
 ) where
 
 import Infrastructure.Node
@@ -128,13 +128,13 @@ setTeacherGroups :: Root -> [String] -> Root
 setTeacherGroups (R node) = R . setCsv node teacherGroups
 
 addCorrector :: Root -> String -> Root
-addCorrector (R node) = R . addCsv node corrector . \x->[x]
+addCorrector (R node) = R . addCsv node corrector . (:[])
 
 removeCorrector :: Root -> String -> Root
-removeCorrector (R node) = R . removeCsv node corrector . \x->[x]
+removeCorrector (R node) = R . removeCsv node corrector . (:[])
 
-isCorrector :: Root -> String -> Bool
-isCorrector (R node) = (`elem` getCsv node corrector)
+getCorrectors :: Root -> [String]
+getCorrectors (R node) = getCsv node corrector
 
 
 currentThreshold = "CURRENT_THRESHOLD"
