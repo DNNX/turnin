@@ -41,7 +41,7 @@ prop_getSetUnsetChildren parentName ns = let ns' = nub ns
             c2            = setConfig c1 "key" "value"
             absentAdd     = setChild n c1
             presentAdd    = setChild absentAdd c2
-            presentRemove = unsetChild presentAdd name
+            presentRemove = unsetChild absentAdd name
             absentRemove  = unsetChild n name
         in areEqual [presentRemove, absentRemove, n] && 
            absentAdd == presentAdd &&
@@ -49,9 +49,8 @@ prop_getSetUnsetChildren parentName ns = let ns' = nub ns
            Just c1 == getChild absentAdd name &&
            name    == getName c1 &&
            sameElements rest (getChildren n) &&
-           sameElements names (getChildren n) &&
-           sameElements [([parentName], absentAdd), ([parentName,name], c1)] (getKeys absentAdd)
-           
+           sameElements names (getChildren absentAdd) &&
+           sameElements (getKeysModel absentAdd) (getKeys absentAdd)
            
 buildNodeConfig name ts = let node = makeNode name in f node ts
  where f n [] = n
@@ -59,7 +58,19 @@ buildNodeConfig name ts = let node = makeNode name in f node ts
        
 buildNodeChildren parentName ns = let node = makeNode parentName in f node ns
  where f n [] = n
-       f n (name:rest) = let c = makeNode name
-                             c' = setConfig c name name
-                         in  f (setChild n c') rest       
+       f n (name:rest) = let c = setConfig (makeNode name) name name
+                         in  f (setChild n c) rest       
+                                 
+getKeysModel n = f [] n
+ where f parentKey c = let key = parentKey ++ [getName c]
+                           rest = concatMap (f key.fromJust.getChild c) $ getChildren c
+                       in  (key,c):rest
+
+
+
+
+
+
+
+                               
                                      

@@ -41,7 +41,7 @@ setConfig (Node name config children) key value = let f = if null value then M.d
                                                   in  Node name (f config) children
 
 getChildren :: Node -> [String]
-getChildren = error "Not implemented: Node.getChildren"
+getChildren (Node _ _ children) = M.keys children
 
 getChild :: Node -> String -> Maybe Node
 getChild (Node _ _ children) key = M.lookup key children
