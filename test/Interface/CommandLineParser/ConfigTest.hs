@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -F -pgmF htfpp -fno-warn-incomplete-patterns#-}
 module Interface.CommandLineParser.ConfigTest where
+
 import Test.Framework
 import Interface.CommandLineParser.ParserTestUtils
 
@@ -12,7 +13,7 @@ import Interface.CommandLineParser.Config
 -- Config
 prop_configThresholdSetSuccess cu ch =
  validOpts [cu, ch] ==>
-  testSuccess (cu,ch) x [configSub, thresholdSub, setSub] (thresholdOpts cu ch) noArgs
+  testSuccess (cu,ch) x [configSub, thresholdSub, setSub] (configThresholdOpts cu ch) noArgs
    where x (Global(
             Config(ConfigOpts(
              ConfigThreshold(ConfigThresholdOpts(

@@ -1,11 +1,10 @@
 {-# OPTIONS_GHC -F -pgmF htfpp -fno-warn-incomplete-patterns#-}
 module Infrastructure.NodeTest where
+
 import Test.Framework
- 
 import Data.Maybe
 import Data.List
 import TestUtils
-import System.IO.Unsafe
 
 import Infrastructure.Node
 {-# ANN module "HLint: ignore Use camelCase" #-}

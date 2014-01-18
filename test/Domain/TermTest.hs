@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -F -pgmF htfpp -fno-warn-incomplete-patterns#-}
 module Domain.TermTest where
-import Test.Framework
 
+import Test.Framework
 import TestUtils
 
 import Domain.Term

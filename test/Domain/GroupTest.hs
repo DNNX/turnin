@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -F -pgmF htfpp -fno-warn-incomplete-patterns#-}
 module Domain.GroupTest where
-import Test.Framework
 
+import Test.Framework
 import TestUtils
 
 import Domain.Group

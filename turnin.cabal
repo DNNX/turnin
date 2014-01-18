@@ -34,7 +34,8 @@ executable turnin
                    Domain.SubmitRepo,
                    Domain.TrainFileRepo,
                    Domain.TrainRunRepo,
-                   Domain.TrainRun
+                   Domain.TrainRun,
+                   Security.SecurityManager
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -81,5 +82,7 @@ test-suite turnin-tests
                    Domain.SubmitRepo,
                    Domain.TrainFileRepo,
                    Domain.TrainRunRepo,
-                   Domain.TrainRun
+                   Domain.TrainRun,
+                   Security.SecurityManager,
+                   Security.CommandLineParserSecurityTest
 

@@ -6,6 +6,7 @@ import Options.Applicative
 import Data.List
 import Data.Maybe
 import Interface.Lexicon
+import Security.SecurityManager
 
 import Interface.CommandLineParser
 
@@ -29,7 +30,7 @@ trainRunOpts r t c g p tr = (map z [repoNodeOpt, termNodeOpt, courseNodeOpt, gro
 trainRunOutputOpts r t c g p tr m v = let l@(xs, ys) = trainRunOpts r t c g p tr
                                       in  if m then (xs ++ [z' v], ys ++ [Just ""]) else l 
 
-thresholdOpts cu ch = (map z [configThresholdSetCurrentOpt, configThresholdSetChooseOpt], [cu, ch])
+configThresholdOpts cu ch = (map z [configThresholdSetCurrentOpt, configThresholdSetChooseOpt], [cu, ch])
 configTermDateOpts t1 t2 t3 = (map z [configTermDateSetTerm1Opt, configTermDateSetTerm2Opt, configTermDateSetTerm3Opt], [t1,t2,t3])
 configProjectDateOpts end late = (map z [configProjectDateSetEndOpt, configProjectDateSetLateOpt], [end, late])
 
@@ -54,13 +55,13 @@ noLeadingHyphens ('-':s) = noLeadingHyphens s
 noLeadingHyphens s       = s
 
 testSuccess :: (Eq a) => a -> (Global -> a) -> [String] -> Opts -> [String] -> Bool
-testSuccess expected f cmd opts args = all ((expected ==).g) $ makeCmd cmd (uncurry makeOpts opts) args
- where g = f . h . execParserMaybe globalInfo
-       h (Just x) = x
+testSuccess expected f cmd opts args = all ((expected ==).g) $ makeCmd cmd opts args
+ where g = f . h . execParserMaybe (globalInfo adminRole)
+       h (Just x) = x 
        h _ = error "Unexpectedly Nothing in testSuccess"
 
-makeCmd :: [String] -> [[String]] -> [String] -> [[String]]
-makeCmd cmd opts vars = [cmd ++ o ++ vars | o <- opts]
+makeCmd :: [String] -> Opts -> [String] -> [[String]]
+makeCmd cmd opts vars = [cmd ++ o ++ vars | o <- uncurry makeOpts opts]
 
 makeOpts :: [Opt] -> [Maybe String] -> [[String]]
 makeOpts os = take sampleSize.buildOpts.permutations.map f.filter (isJust.snd).zip os

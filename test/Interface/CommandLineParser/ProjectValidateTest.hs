@@ -10,8 +10,8 @@ import Interface.CommandLineParser.Project.Validate
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-prop_projectAddSuccess repoNN termNN courseNN groupNN start end late n = let ns = validArgs [n] in ns /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, start, end, late] ==> let name = head ns in
+prop_projectAddSuccess repoNN termNN courseNN groupNN start end late n = let ns = validArgs [n]; [name] = ns in ns /= [] ==>
+ validOpts [repoNN, termNN, courseNN, groupNN, start, end, late] ==>
   testSuccess (repoNN, termNN, courseNN, groupNN, start, end, late, name) x
    [projectSub, addSub] (projectAddOpts repoNN termNN courseNN groupNN start end late) [name]
    where x (Global(
@@ -106,8 +106,8 @@ prop_projectValidateNameListSuccess repoNN termNN courseNN groupNN projectNN =
                 ProjectValidateNameList(ProjectValidateNameListOpts a b c d e))))))))) = (a,b,c,d,e)
 
 
-prop_projectValidateCommandSetSuccess repoNN termNN courseNN groupNN projectNN co = let cs = validArgs [co] in cs /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let command = head cs in
+prop_projectValidateCommandSetSuccess repoNN termNN courseNN groupNN projectNN co = let cs = validArgs [co]; [command] = cs in cs /= [] ==>
+ validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
   testSuccess (repoNN, termNN, courseNN, groupNN, projectNN, command) x [projectSub, validateSub, commandSub, setSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) [command]
     where x (Global(
@@ -139,8 +139,8 @@ prop_projectValidateCommandListSuccess repoNN termNN courseNN groupNN projectNN 
                 ProjectValidateCommandList(ProjectValidateCommandListOpts a b c d e))))))))) = (a,b,c,d,e)
 
 
-prop_projectValidateScriptSetSuccess repoNN termNN courseNN groupNN projectNN s = let ss = validArgs [s] in ss /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let scriptName = head ss in
+prop_projectValidateScriptSetSuccess repoNN termNN courseNN groupNN projectNN s = let ss = validArgs [s]; [scriptName] = ss in ss /= [] ==>
+ validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
   testSuccess (repoNN, termNN, courseNN, groupNN, projectNN, scriptName) x [projectSub, validateSub, scriptSub, setSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) [scriptName]
     where x (Global(
@@ -172,8 +172,8 @@ prop_projectValidateScriptListSuccess repoNN termNN courseNN groupNN projectNN =
                 ProjectValidateScriptList(ProjectValidateScriptListOpts a b c d e))))))))) = (a,b,c,d,e)
 
 
-prop_projectValidateScriptExtractSuccess repoNN termNN courseNN groupNN projectNN di = let ds = validArgs [di] in ds /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let extractDir = head ds in
+prop_projectValidateScriptExtractSuccess repoNN termNN courseNN groupNN projectNN di = let ds = validArgs [di]; [extractDir] = ds in ds /= [] ==>
+ validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
   testSuccess (repoNN, termNN, courseNN, groupNN, projectNN, extractDir) x [projectSub, validateSub, scriptSub, extractSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) [extractDir]
     where x (Global(

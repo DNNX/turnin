@@ -23,7 +23,7 @@ data Cmd = Config    ConfigOpts
          | Extract   ExtractOpts
          | Worktrain WorktrainOpts deriving (Show, Eq)
 
-globalInfo = info (myHelper <*> global) (progDesc globalDesc <> header globalHeader)
+globalInfo _ = info (myHelper <*> global) (progDesc globalDesc <> header globalHeader)
 
 global = Global <$> subparser (
  command configSub    (Config <$> configInfo) <>
