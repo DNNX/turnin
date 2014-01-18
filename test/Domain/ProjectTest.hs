@@ -3,7 +3,7 @@ module Domain.ProjectTest where
 import Test.Framework
  
 import TestUtils
-
+import System.IO.Unsafe
 import Domain.Project
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
@@ -14,40 +14,39 @@ prop_emptyProject name = let p = makeProject name in
  [("", "")] == applyGets p [getValidationScript, getTrainScript] &&
  [] == getNamesToValidate p   
   
-prop_settingAndGettingStartEndLateDates name start end late = 
+prop_setGetStartEndLateDates name start end late = 
  let [p] = applySets (makeProject name) [(setStartDate, start), (setEndDate, end), (setLateDate, late)]
  in  start == getStartDate p &&
      end == getEndDate p && 
      late == getLateDate p
        
-prop_settingAndGettingAcceptExecutables name acceptsExec = 
+prop_setGetAcceptExecutables name acceptsExec = 
  acceptsExec == getAcceptExecutables (setAcceptExecutables (makeProject name) acceptsExec)
  
-prop_addingAndRemovingNamesToValidate name ns = let ns' = uniqueNonEmpty ns in ns' /= [] ==> 
+prop_addRemoveNamesToValidate name ns = let ns' = uniqueNonEmptyNoComma ns in ns' /= [] ==> 
  let (xs,names) = splitAt (length ns' `div` 2) ns'
      p = addNamesToValidate (makeProject name) xs
      absentAdd = addNamesToValidate p names
      presentAdd = addNamesToValidate absentAdd names
      presentRemove = removeNamesToValidate absentAdd names
      absentRemove = removeNamesToValidate p names
-     
  in  areEqual [presentRemove,absentRemove, p] &&
      absentAdd == presentAdd &&
-     sameElements names (getNamesToValidate absentAdd)
+     sameElements ns' (getNamesToValidate absentAdd)
  
-prop_settingAndGettingValidationCommand name command = 
+prop_setGetValidationCommand name command = 
  command == getValidationCommand (setValidationCommand (makeProject name) command)
  
-prop_settingAndGettingValidationScript name scriptName scriptContent = 
+prop_setGetValidationScript name scriptName scriptContent = 
  (scriptName, scriptContent) == getValidationScript (setValidationScript (makeProject name) scriptName scriptContent)
  
-prop_settingAndGettingTrainScript name scriptName scriptContent = 
+prop_setGetTrainScript name scriptName scriptContent = 
  (scriptName, scriptContent) == getTrainScript (setTrainScript (makeProject name) scriptName scriptContent)
  
-prop_settingAndGettingTrainTimeLimit name timeLimit = 
+prop_setGetTrainTimeLimit name timeLimit = 
  timeLimit == getTrainTimeLimit (setTrainTimeLimit (makeProject name) timeLimit)
  
-prop_settingAndGettingTrainSpaceLimit name spaceLimit = 
+prop_setGetTrainSpaceLimit name spaceLimit = 
  spaceLimit == getTrainSpaceLimit (setTrainSpaceLimit (makeProject name) spaceLimit) 
  
  

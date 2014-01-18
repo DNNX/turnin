@@ -27,77 +27,73 @@ module Domain.Project
 import Infrastructure.Node
 import Infrastructure.CsvNode
 
-data Project = P Node ProjectData deriving (Show, Eq)
-
-data ProjectData = D String String deriving (Show, Eq)
+data Project = P Node deriving (Show, Eq)
 
 makeProject :: String -> Project
-makeProject name = P (makeNode name) (D "" "")
+makeProject = P . makeNode
 
 getStartDate :: Project -> String
-getStartDate (P node _) = getConfig node startDate
+getStartDate (P node) = getConfig node startDate
 
 setStartDate :: Project -> String -> Project
-setStartDate (P node d) newStartDate = P (setConfig node startDate newStartDate) d
+setStartDate (P node) = P . setConfig node startDate  
 
 getEndDate :: Project -> String
-getEndDate (P node _) = getConfig node endDate 
+getEndDate (P node) = getConfig node endDate 
 
 setEndDate :: Project -> String -> Project
-setEndDate (P node d) newEndDate = P (setConfig node endDate newEndDate) d
+setEndDate (P node) = P . setConfig node endDate
 
 getLateDate :: Project -> String
-getLateDate (P node _) = getConfig node lateDate
+getLateDate (P node) = getConfig node lateDate
 
 setLateDate :: Project -> String -> Project
-setLateDate (P node d) newLateDate = P (setConfig node lateDate newLateDate) d
+setLateDate (P node) = P . setConfig node lateDate
 
 getAcceptExecutables :: Project -> String
-getAcceptExecutables (P node _) = getConfig node acceptExecutables
+getAcceptExecutables (P node) = getConfig node acceptExecutables
 
 setAcceptExecutables :: Project -> String -> Project
-setAcceptExecutables (P node d) acceptExec = P (setConfig node acceptExecutables acceptExec) d
+setAcceptExecutables (P node) = P . setConfig node acceptExecutables
 
 getNamesToValidate :: Project -> [String]
-getNamesToValidate (P node _) = getCsv node validationNames
+getNamesToValidate (P node) = getCsv node validationNames
  
 addNamesToValidate :: Project -> [String] -> Project
-addNamesToValidate (P node d) names = P (addCsv node validationNames names) d
+addNamesToValidate (P node) = P . addCsv node validationNames
 
 removeNamesToValidate :: Project -> [String] -> Project
-removeNamesToValidate (P node d) names = P (removeCsv node validationNames names) d
+removeNamesToValidate (P node) = P . removeCsv node validationNames
 
 getValidationCommand :: Project -> String
-getValidationCommand (P node _) = getConfig node validationCommand
+getValidationCommand (P node) = getConfig node validationCommand
 
 setValidationCommand :: Project -> String -> Project
-setValidationCommand (P node d) command = P (setConfig node validationCommand command) d
+setValidationCommand (P node) = P . setConfig node validationCommand
 
 getValidationScript :: Project -> (String, String)
-getValidationScript (P node (D valScript _)) = (getConfig node validationScriptName, valScript) 
+getValidationScript (P node) = (getConfig node validationScriptName, getCache node validationScriptContent) 
 
 setValidationScript :: Project -> String -> String -> Project
-setValidationScript (P node (D _ trainScript)) scriptName scriptContent = 
- P (setConfig node validationScriptName scriptName) (D scriptContent trainScript)
+setValidationScript (P node) scriptName = P . setCache (setConfig node validationScriptName scriptName) validationScriptContent
 
 getTrainScript :: Project -> (String, String)
-getTrainScript (P node (D _ trainScript)) = (getConfig node trainScriptName, trainScript)
+getTrainScript (P node) = (getConfig node trainScriptName, getCache node trainScriptContent)
 
 setTrainScript :: Project -> String -> String -> Project
-setTrainScript (P node (D validationScript _)) scriptName scriptContent = 
- P (setConfig node trainScriptName scriptName) (D validationScript scriptContent)
+setTrainScript (P node) scriptName = P . setCache (setConfig node trainScriptName scriptName) trainScriptContent
 
 getTrainTimeLimit :: Project -> String
-getTrainTimeLimit (P node _) = getConfig node trainTimeLimit
+getTrainTimeLimit (P node) = getConfig node trainTimeLimit
 
 setTrainTimeLimit :: Project -> String -> Project
-setTrainTimeLimit (P node d) timeLimit = P (setConfig node trainTimeLimit timeLimit) d
+setTrainTimeLimit (P node) = P . setConfig node trainTimeLimit
 
 getTrainSpaceLimit :: Project -> String
-getTrainSpaceLimit (P node _) = getConfig node trainSpaceLimit
+getTrainSpaceLimit (P node) = getConfig node trainSpaceLimit
 
 setTrainSpaceLimit :: Project -> String -> Project
-setTrainSpaceLimit (P node d) spaceLimit = P (setConfig node trainSpaceLimit spaceLimit) d
+setTrainSpaceLimit (P node) = P . setConfig node trainSpaceLimit
 
 startDate = "START_DATE"
 endDate = "END_DATE"
@@ -106,7 +102,9 @@ validationNames = "VALIDATION_NAMES"
 acceptExecutables = "ACCEPT_EXECUTABLES"
 validationCommand = "VALIDATION_COMMAND"
 validationScriptName = "VALIDATION_SCRIPT_NAME"
+validationScriptContent = "VALIDATION_SCRIPT_NAME"
 trainScriptName = "TRAIN_SCRIPT_NAME"
+trainScriptContent = "TRAIN_SCRIPT_CONTENT"
 trainTimeLimit = "TRAIN_TIME_LIMIT"
 trainSpaceLimit = "TRAIN_SPACE_LIMIT"
 
