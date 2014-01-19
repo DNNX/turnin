@@ -62,7 +62,7 @@ hasInspectRights   = (`mustBe` anyone)
 hasExtractRights   = (`mustBe` anyone)
 hasWorktrainRights = (`mustBe` adminTeacherCorr)
 
-admin            = adminRole:[]
+admin            = [adminRole]
 adminTeacher     = teacherRole:admin
 adminTeacherCorr = correctorRole:adminTeacher
 anyone           = studentRole:adminTeacherCorr

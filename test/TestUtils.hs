@@ -20,6 +20,13 @@ clamp v minV maxV = let [x,y] = sort [minV,maxV] in f x y $ abs v
  where f mi ma val
         | mi == ma  = mi
         | otherwise = val `mod` (ma-mi+1) + mi
+        
+unclamp :: Integer -> Integer -> Integer -> Integer
+unclamp v minV maxV = let [x,y] = sort [minV,maxV] in f x y v
+ where f mi ma val
+        | mi == ma = ma + 1
+        | mi <= val && val <= ma = if val `mod` 2 == 0 then mi - 1 else ma + 1
+        | otherwise               = val     
 
 pad :: Integer -> Integer -> String
 pad v l = let s = show v
@@ -28,6 +35,12 @@ pad v l = let s = show v
 
 fromRight (Right x) = x
 fromRight _         = error "Should be right value"
+
+fromLeft (Left x) = x
+fromLeft _        = error "Should be left value"
+
+isRight (Right _) = True
+isRight _         = False
 
 increment pos = f pos []
  where f 0 front (x:back) = reverse front ++ [x+1] ++ back
