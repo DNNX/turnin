@@ -54,10 +54,11 @@ validArgs = filter (not.null) . map noLeadingHyphens
 noLeadingHyphens ('-':s) = noLeadingHyphens s
 noLeadingHyphens s       = s
 
-testSuccess :: (Eq a) => a -> (Global -> a) -> [String] -> Opts -> [String] -> Bool
-testSuccess expected f cmd opts args = all ((expected ==).g) $ makeCmd cmd opts args
- where g = f . h . execParserMaybe (globalInfo adminRole)
-       h (Just x) = x 
+testSuccess :: (Eq a) => Int -> a -> (Global -> a) -> [String] -> Opts -> [String] -> Bool
+testSuccess securityLevel expected f cmd opts args = all func $ makeCmd cmd opts args 
+ where func cmd' = expected == g cmd' && securityTests securityLevel cmd'
+       g = f . h . execParserMaybe (globalInfo adminRole)
+       h (Just x) = x  
        h _ = error "Unexpectedly Nothing in testSuccess"
 
 makeCmd :: [String] -> Opts -> [String] -> [[String]]
@@ -79,4 +80,13 @@ buildOpt (O s l, v) = [['-':s:v],
                        ['-':[s],v],
                        ["--" ++ l, v]]
 buildOpt (B s l, _)   = [['-':[s]], ["--" ++ l]]
+
+securityTests level cmd = all f $ zip [1..] [adminRole, teacherRole, correctorRole, studentRole]
+ where f (n,role) = (if n <= level then security_success else security_failure) cmd role
+ 
+security_failure cmd = isNothing . security_case cmd 
+security_success cmd = isJust . security_case cmd
+security_case cmd role = execParserMaybe (globalInfo role) cmd
+
+
 

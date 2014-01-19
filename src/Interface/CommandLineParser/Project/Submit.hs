@@ -3,6 +3,7 @@ module Interface.CommandLineParser.Project.Submit where
 import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
+import Security.SecurityManager
 
 data ProjectSubmitOpts = ProjectSubmitOpts       ProjectSubmitCmd         deriving (Show, Eq)
 data ProjectSubmitCmd  = ProjectSubmitList       ProjectSubmitListOpts
@@ -41,17 +42,17 @@ data ProjectSubmitExtractOpts = ProjectSubmitExtractOpts
  , projectSubmitExtractDir       :: String       
  , projectSubmitExtractNames     :: [String]     } deriving (Show, Eq)       
                     
-projectSubmitInfo =        info (myHelper <*> projectSubmit)        (progDesc projectSubmitDesc)
+projectSubmitInfo role =   info (myHelper <*> projectSubmit role)   (progDesc projectSubmitDesc)
 projectSubmitListInfo =    info (myHelper <*> projectSubmitList)    (progDesc projectSubmitListDesc)
 projectSubmitLateInfo =    info (myHelper <*> projectSubmitLate)    (progDesc projectSubmitLateDesc)
 projectSubmitInspectInfo = info (myHelper <*> projectSubmitInspect) (progDesc projectSubmitInspectDesc)
 projectSubmitExtractInfo = info (myHelper <*> projectSubmitExtract) (progDesc projectSubmitExtractDesc)
  
-projectSubmit = ProjectSubmitOpts <$> subparser (
- command listSub    projectSubmitListInfo <>
- command lateSub    projectSubmitLateInfo <>
- command inspectSub projectSubmitInspectInfo <>  
- command extractSub projectSubmitExtractInfo)
+projectSubmit role = ProjectSubmitOpts <$> subparser (
+ hasProjectReadRights role (command listSub    projectSubmitListInfo) <>
+ hasProjectReadRights role (command lateSub    projectSubmitLateInfo) <>
+ hasProjectReadRights role (command inspectSub projectSubmitInspectInfo) <>  
+ hasProjectReadRights role (command extractSub projectSubmitExtractInfo))
 
 projectSubmitList = ProjectSubmitList <$> (ProjectSubmitListOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)

@@ -83,6 +83,5 @@ test-suite turnin-tests
                    Domain.TrainFileRepo,
                    Domain.TrainRunRepo,
                    Domain.TrainRun,
-                   Security.SecurityManager,
-                   Security.CommandLineParserSecurityTest
+                   Security.SecurityManager
 

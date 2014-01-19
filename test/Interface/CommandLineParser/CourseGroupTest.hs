@@ -14,28 +14,28 @@ import Interface.CommandLineParser.Group
 -- Course
 prop_courseAddSuccess repoNN termNN n = let name = noLeadingHyphens n in
  validOpts [repoNN, termNN] ==>
-  testSuccess (repoNN, termNN, name) x [courseSub, addSub] (termOpts repoNN termNN) [name]
+  testSuccess 2 (repoNN, termNN, name) x [courseSub, addSub] (termOpts repoNN termNN) [name]
    where x (Global(
             Course(CourseOpts(
              CourseAdd(CourseAddOpts a b c))))) = (a,b,c)
 
 prop_courseRemoveSuccess repoNN termNN courseNN =
  validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess (repoNN, termNN, courseNN) x [courseSub, removeSub] (courseOpts repoNN termNN courseNN) noArgs
+  testSuccess 2 (repoNN, termNN, courseNN) x [courseSub, removeSub] (courseOpts repoNN termNN courseNN) noArgs
    where x (Global(
             Course(CourseOpts(
              CourseRemove(CourseRemoveOpts a b c))))) = (a,b,c)
 
 prop_courseListSuccess repoNN termNN =
  validOpts [repoNN, termNN] ==>
-  testSuccess (repoNN, termNN) x [courseSub, listSub] (termOpts repoNN termNN) noArgs
+  testSuccess 3 (repoNN, termNN) x [courseSub, listSub] (termOpts repoNN termNN) noArgs
    where x (Global(
             Course(CourseOpts(
              CourseList(CourseListOpts a b))))) = (a,b)
 
 prop_courseTeacherAddSuccess repoNN termNN courseNN ns = let names = validArgs ns in names /= [] ==>
  validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess (repoNN, termNN, courseNN, names) x [courseSub, teacherSub, addSub]
+  testSuccess 2 (repoNN, termNN, courseNN, names) x [courseSub, teacherSub, addSub]
    (courseOpts repoNN termNN courseNN) names
        where x (Global(
                 Course(CourseOpts(
@@ -44,7 +44,7 @@ prop_courseTeacherAddSuccess repoNN termNN courseNN ns = let names = validArgs n
 
 prop_courseTeacherRemoveSuccess repoNN termNN courseNN ns = let names = validArgs ns in names /= [] ==>
  validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess (repoNN, termNN, courseNN, names) x [courseSub, teacherSub, removeSub]
+  testSuccess 2 (repoNN, termNN, courseNN, names) x [courseSub, teacherSub, removeSub]
    (courseOpts repoNN termNN courseNN) names
        where x (Global(
                 Course(CourseOpts(
@@ -53,7 +53,7 @@ prop_courseTeacherRemoveSuccess repoNN termNN courseNN ns = let names = validArg
 
 prop_courseTeacherListSuccess repoNN termNN courseNN =
  validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess (repoNN, termNN, courseNN) x [courseSub, teacherSub, listSub]
+  testSuccess 3 (repoNN, termNN, courseNN) x [courseSub, teacherSub, listSub]
    (courseOpts repoNN termNN courseNN) noArgs
        where x (Global(
                 Course(CourseOpts(
@@ -63,7 +63,7 @@ prop_courseTeacherListSuccess repoNN termNN courseNN =
 
 prop_courseCorrectorAddSuccess repoNN termNN courseNN ns = let names = validArgs ns in names /= [] ==>
  validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess (repoNN, termNN, courseNN, names) x [courseSub, correctorSub, addSub]
+  testSuccess 2 (repoNN, termNN, courseNN, names) x [courseSub, correctorSub, addSub]
    (courseOpts repoNN termNN courseNN) names
        where x (Global(
                 Course(CourseOpts(
@@ -72,7 +72,7 @@ prop_courseCorrectorAddSuccess repoNN termNN courseNN ns = let names = validArgs
 
 prop_courseCorrectorRemoveSuccess repoNN termNN courseNN ns = let names = validArgs ns in names /= [] ==>
  validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess (repoNN, termNN, courseNN, names) x [courseSub, correctorSub, removeSub]
+  testSuccess 2 (repoNN, termNN, courseNN, names) x [courseSub, correctorSub, removeSub]
    (courseOpts repoNN termNN courseNN) names
        where x (Global(
                 Course(CourseOpts(
@@ -81,7 +81,7 @@ prop_courseCorrectorRemoveSuccess repoNN termNN courseNN ns = let names = validA
 
 prop_courseCorrectorListSuccess repoNN termNN courseNN =
  validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess (repoNN, termNN, courseNN) x [courseSub, correctorSub, listSub]
+  testSuccess 3 (repoNN, termNN, courseNN) x [courseSub, correctorSub, listSub]
    (courseOpts repoNN termNN courseNN) noArgs
        where x (Global(
                 Course(CourseOpts(
@@ -91,7 +91,7 @@ prop_courseCorrectorListSuccess repoNN termNN courseNN =
 -- Group
 prop_groupAddSuccess repoNN termNN courseNN n = let name = noLeadingHyphens n in
  validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess (repoNN, termNN, courseNN, name) x [groupSub, addSub]
+  testSuccess 2 (repoNN, termNN, courseNN, name) x [groupSub, addSub]
    (courseOpts repoNN termNN courseNN) [name]
     where x (Global(
              Group(GroupOpts(
@@ -99,7 +99,7 @@ prop_groupAddSuccess repoNN termNN courseNN n = let name = noLeadingHyphens n in
 
 prop_groupRemoveSuccess repoNN termNN courseNN groupNN =
  validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN) x [groupSub, removeSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN) x [groupSub, removeSub]
    (groupOpts repoNN termNN courseNN groupNN) noArgs
     where x (Global(
              Group(GroupOpts(
@@ -107,14 +107,14 @@ prop_groupRemoveSuccess repoNN termNN courseNN groupNN =
 
 prop_groupListSuccess repoNN termNN courseNN =
  validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess (repoNN, termNN, courseNN) x [groupSub, listSub] (courseOpts repoNN termNN courseNN) noArgs
+  testSuccess 3 (repoNN, termNN, courseNN) x [groupSub, listSub] (courseOpts repoNN termNN courseNN) noArgs
    where x (Global(
             Group(GroupOpts(
              GroupList(GroupListOpts a b c))))) = (a,b,c)
 
 prop_groupTeacherAddSuccess repoNN termNN courseNN groupNN ns = let names = validArgs ns in names /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, names) x
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, names) x
    [groupSub, teacherSub, addSub] (groupOpts repoNN termNN courseNN groupNN) names
        where x (Global(
                 Group(GroupOpts(
@@ -123,7 +123,7 @@ prop_groupTeacherAddSuccess repoNN termNN courseNN groupNN ns = let names = vali
 
 prop_groupTeacherRemoveSuccess repoNN termNN courseNN groupNN ns = let names = validArgs ns in names /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, names) x [groupSub, teacherSub, removeSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, names) x [groupSub, teacherSub, removeSub]
    (groupOpts repoNN termNN courseNN groupNN) names
        where x (Global(
                 Group(GroupOpts(
@@ -132,7 +132,7 @@ prop_groupTeacherRemoveSuccess repoNN termNN courseNN groupNN ns = let names = v
 
 prop_groupTeacherListSuccess repoNN termNN courseNN groupNN =
  validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN) x [groupSub, teacherSub, listSub]
+  testSuccess 3 (repoNN, termNN, courseNN, groupNN) x [groupSub, teacherSub, listSub]
    (groupOpts repoNN termNN courseNN groupNN) noArgs
     where x (Global(
              Group(GroupOpts(
@@ -142,7 +142,7 @@ prop_groupTeacherListSuccess repoNN termNN courseNN groupNN =
 
 prop_groupCorrectorAddSuccess repoNN termNN courseNN groupNN ns = let names = validArgs ns in names /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, names) x [groupSub, correctorSub, addSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, names) x [groupSub, correctorSub, addSub]
    (groupOpts repoNN termNN courseNN groupNN) names
        where x (Global(
                 Group(GroupOpts(
@@ -151,7 +151,7 @@ prop_groupCorrectorAddSuccess repoNN termNN courseNN groupNN ns = let names = va
 
 prop_groupCorrectorRemoveSuccess repoNN termNN courseNN groupNN ns = let names = validArgs ns in names /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, names) x [groupSub, correctorSub, removeSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, names) x [groupSub, correctorSub, removeSub]
    (groupOpts repoNN termNN courseNN groupNN) names
        where x (Global(
                 Group(GroupOpts(
@@ -160,7 +160,7 @@ prop_groupCorrectorRemoveSuccess repoNN termNN courseNN groupNN ns = let names =
 
 prop_groupCorrectorListSuccess repoNN termNN courseNN groupNN =
  validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN) x [groupSub, correctorSub, listSub]
+  testSuccess 3 (repoNN, termNN, courseNN, groupNN) x [groupSub, correctorSub, listSub]
    (groupOpts repoNN termNN courseNN groupNN) noArgs
        where x (Global(
                 Group(GroupOpts(

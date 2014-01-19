@@ -11,6 +11,8 @@ import Interface.CommandLineParser.Group
 import Interface.CommandLineParser.Project
 import Interface.CommandLineParser.SubmitWorktrain
 
+import Security.SecurityManager
+
 data Global = Global Cmd     deriving (Show, Eq)
 data Cmd = Config    ConfigOpts
          | Repo      RepoOpts
@@ -23,20 +25,17 @@ data Cmd = Config    ConfigOpts
          | Extract   ExtractOpts
          | Worktrain WorktrainOpts deriving (Show, Eq)
 
-globalInfo _ = info (myHelper <*> global) (progDesc globalDesc <> header globalHeader)
-
-global = Global <$> subparser (
- command configSub    (Config <$> configInfo) <>
- command repoSub      (Repo   <$> repoInfo) <>
- command termSub      (Term   <$> termInfo) <>
- command courseSub    (Course <$> courseInfo) <>
- command groupSub     (Group  <$> groupInfo) <>
- command projectSub   (Project <$> projectInfo) <>
- command submitSub    (Submit <$> submitInfo) <>
- command inspectSub   (Inspect <$> inspectInfo) <>
- command extractSub   (Extract <$> extractInfo) <>
- command worktrainSub (Worktrain <$> worktrainInfo))
+globalInfo role = info (myHelper <*> global role) (progDesc globalDesc <> header globalHeader)
  
+global role = Global <$> subparser (
+ hasConfigRights role    (command configSub    (Config <$> configInfo role)) <>
+ hasRepoRights role      (command repoSub      (Repo   <$> repoInfo role)) <> 
+ hasTermRights role      (command termSub      (Term   <$> termInfo role)) <> 
+ hasCourseRights role    (command courseSub    (Course <$> courseInfo role)) <>
+ hasGroupRights role     (command groupSub     (Group  <$> groupInfo role)) <>  
+ hasProjectRights role   (command projectSub   (Project <$> projectInfo role)) <>
+ hasSubmitRights role    (command submitSub    (Submit <$> submitInfo)) <>
+ hasInspectRights role   (command inspectSub   (Inspect <$> inspectInfo)) <>
+ hasExtractRights role   (command extractSub   (Extract <$> extractInfo)) <> 
+ hasWorktrainRights role (command worktrainSub (Worktrain <$> worktrainInfo)))
  
- 
-  

@@ -18,7 +18,5 @@ import {-@ HTF_TESTS @-} Domain.TermTest
 import {-@ HTF_TESTS @-} Domain.GroupTest
 import {-@ HTF_TESTS @-} Domain.ProjectTest
 
-import {-@ HTF_TESTS @-} Security.CommandLineParserSecurityTest
-
 main :: IO ()
 main = htfMain htf_importedTests

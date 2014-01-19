@@ -3,6 +3,7 @@ module Interface.CommandLineParser.Repo where
 import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
+import Security.SecurityManager
 
 data RepoOpts = RepoOpts   RepoCmd        deriving (Show, Eq)
 data RepoCmd  = RepoAdd    RepoAddOpts
@@ -17,15 +18,15 @@ data RepoRemoveOpts = RepoRemoveOpts
 
 data RepoListOpts = RepoListOpts          deriving (Show, Eq)
 
-repoInfo =        info (myHelper <*> repo)       (progDesc repoDesc)
+repoInfo role =        info (myHelper <*> repo role)       (progDesc repoDesc)
 repoAddInfo =     info (myHelper <*> repoAdd)    (progDesc repoAddDesc)
 repoRemoveInfo =  info (myHelper <*> repoRemove) (progDesc repoRemoveDesc)
 repoListInfo =    info (myHelper <*> repoList)   (progDesc repoListDesc)
 
-repo = RepoOpts <$> subparser (
- command addSub    repoAddInfo <>
- command removeSub repoRemoveInfo <>
- command listSub   repoListInfo)
+repo role = RepoOpts <$> subparser (
+ hasRepoWriteRights role (command addSub    repoAddInfo) <>
+ hasRepoWriteRights role (command removeSub repoRemoveInfo) <>
+ hasRepoReadRights  role (command listSub   repoListInfo))
 
 repoAdd = RepoAdd <$> (RepoAddOpts
  <$> argument str (metavar repoAddMeta <> help repoAddHelp))

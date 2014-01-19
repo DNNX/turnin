@@ -12,7 +12,7 @@ import Interface.CommandLineParser.Project.Validate
 
 prop_projectAddSuccess repoNN termNN courseNN groupNN start end late n = let ns = validArgs [n]; [name] = ns in ns /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN, start, end, late] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, start, end, late, name) x
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, start, end, late, name) x
    [projectSub, addSub] (projectAddOpts repoNN termNN courseNN groupNN start end late) [name]
    where x (Global(
             Project(ProjectOpts(
@@ -20,7 +20,7 @@ prop_projectAddSuccess repoNN termNN courseNN groupNN start end late n = let ns 
 
 prop_projectRemoveSuccess repoNN termNN courseNN groupNN projectNN =
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN) x
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN) x
    [projectSub, removeSub] (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
     where x (Global(
              Project(ProjectOpts(
@@ -28,7 +28,7 @@ prop_projectRemoveSuccess repoNN termNN courseNN groupNN projectNN =
 
 prop_projectListSuccess repoNN termNN courseNN groupNN =
  validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN) x
+  testSuccess 3 (repoNN, termNN, courseNN, groupNN) x
    [projectSub, listSub] (groupOpts repoNN termNN courseNN groupNN) noArgs
     where x (Global(
              Project(ProjectOpts(
@@ -36,7 +36,7 @@ prop_projectListSuccess repoNN termNN courseNN groupNN =
 
 prop_projectDateSetSuccess repoNN termNN courseNN groupNN projectNN start end late =
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN, start, end, late] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN, start, end, late) x [projectSub, dateSub, setSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, start, end, late) x [projectSub, dateSub, setSub]
   (projectDateOpts repoNN termNN courseNN groupNN projectNN start end late) noArgs
     where x (Global(
              Project(ProjectOpts(
@@ -45,7 +45,7 @@ prop_projectDateSetSuccess repoNN termNN courseNN groupNN projectNN start end la
 
 prop_projectDateListSuccess repoNN termNN courseNN groupNN projectNN =
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, dateSub, listSub]
+  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, dateSub, listSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
     where x (Global(
              Project(ProjectOpts(
@@ -55,7 +55,7 @@ prop_projectDateListSuccess repoNN termNN courseNN groupNN projectNN =
 
 prop_projectValidateAcceptExecSetSuccess repoNN termNN courseNN groupNN projectNN v = let val = ["yYnN" !! (v `mod` 4)] in
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN, val) x [projectSub, validateSub, acceptExecSub, setSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, val) x [projectSub, validateSub, acceptExecSub, setSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) [val]
     where x (Global(
              Project(ProjectOpts(
@@ -65,7 +65,7 @@ prop_projectValidateAcceptExecSetSuccess repoNN termNN courseNN groupNN projectN
 
 prop_projectValidateAcceptExecListSuccess repoNN termNN courseNN groupNN projectNN =
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, acceptExecSub, listSub]
+  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, acceptExecSub, listSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
     where x (Global(
              Project(ProjectOpts(
@@ -75,7 +75,7 @@ prop_projectValidateAcceptExecListSuccess repoNN termNN courseNN groupNN project
 
 prop_projectValidateNameAddSuccess repoNN termNN courseNN groupNN projectNN ns = let names = validArgs ns in names /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN, names) x [projectSub, validateSub, nameSub, addSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, names) x [projectSub, validateSub, nameSub, addSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) names
     where x (Global(
              Project(ProjectOpts(
@@ -86,7 +86,7 @@ prop_projectValidateNameAddSuccess repoNN termNN courseNN groupNN projectNN ns =
 
 prop_projectValidateNameRemoveSuccess repoNN termNN courseNN groupNN projectNN ns = let names = validArgs ns in names /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN, names) x [projectSub, validateSub, nameSub, removeSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, names) x [projectSub, validateSub, nameSub, removeSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) names
     where x (Global(
              Project(ProjectOpts(
@@ -97,7 +97,7 @@ prop_projectValidateNameRemoveSuccess repoNN termNN courseNN groupNN projectNN n
 
 prop_projectValidateNameListSuccess repoNN termNN courseNN groupNN projectNN =
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, nameSub, listSub]
+  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, nameSub, listSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
     where x (Global(
              Project(ProjectOpts(
@@ -108,7 +108,7 @@ prop_projectValidateNameListSuccess repoNN termNN courseNN groupNN projectNN =
 
 prop_projectValidateCommandSetSuccess repoNN termNN courseNN groupNN projectNN co = let cs = validArgs [co]; [command] = cs in cs /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN, command) x [projectSub, validateSub, commandSub, setSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, command) x [projectSub, validateSub, commandSub, setSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) [command]
     where x (Global(
              Project(ProjectOpts(
@@ -119,7 +119,7 @@ prop_projectValidateCommandSetSuccess repoNN termNN courseNN groupNN projectNN c
 
 prop_projectValidateCommandUnsetSuccess repoNN termNN courseNN groupNN projectNN =
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, commandSub, unsetSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, commandSub, unsetSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
     where x (Global(
              Project(ProjectOpts(
@@ -130,7 +130,7 @@ prop_projectValidateCommandUnsetSuccess repoNN termNN courseNN groupNN projectNN
 
 prop_projectValidateCommandListSuccess repoNN termNN courseNN groupNN projectNN =
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, commandSub, listSub]
+  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, commandSub, listSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
     where x (Global(
              Project(ProjectOpts(
@@ -141,7 +141,7 @@ prop_projectValidateCommandListSuccess repoNN termNN courseNN groupNN projectNN 
 
 prop_projectValidateScriptSetSuccess repoNN termNN courseNN groupNN projectNN s = let ss = validArgs [s]; [scriptName] = ss in ss /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN, scriptName) x [projectSub, validateSub, scriptSub, setSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, scriptName) x [projectSub, validateSub, scriptSub, setSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) [scriptName]
     where x (Global(
              Project(ProjectOpts(
@@ -152,7 +152,7 @@ prop_projectValidateScriptSetSuccess repoNN termNN courseNN groupNN projectNN s 
 
 prop_projectValidateScriptUnsetSuccess repoNN termNN courseNN groupNN projectNN =
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, scriptSub, unsetSub]
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, scriptSub, unsetSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
     where x (Global(
              Project(ProjectOpts(
@@ -163,7 +163,7 @@ prop_projectValidateScriptUnsetSuccess repoNN termNN courseNN groupNN projectNN 
 
 prop_projectValidateScriptListSuccess repoNN termNN courseNN groupNN projectNN =
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, scriptSub, listSub]
+  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) x [projectSub, validateSub, scriptSub, listSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
     where x (Global(
              Project(ProjectOpts(
@@ -174,7 +174,7 @@ prop_projectValidateScriptListSuccess repoNN termNN courseNN groupNN projectNN =
 
 prop_projectValidateScriptExtractSuccess repoNN termNN courseNN groupNN projectNN di = let ds = validArgs [di]; [extractDir] = ds in ds /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess (repoNN, termNN, courseNN, groupNN, projectNN, extractDir) x [projectSub, validateSub, scriptSub, extractSub]
+  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN, extractDir) x [projectSub, validateSub, scriptSub, extractSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) [extractDir]
     where x (Global(
              Project(ProjectOpts(

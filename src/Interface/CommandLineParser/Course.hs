@@ -3,6 +3,7 @@ module Interface.CommandLineParser.Course where
 import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
+import Security.SecurityManager
 
 data CourseOpts = CourseOpts      CourseCmd                                deriving (Show, Eq)
 data CourseCmd  = CourseAdd       CourseAddOpts
@@ -69,25 +70,25 @@ data CourseCorrectorListOpts = CourseCorrectorListOpts
  , courseCorrectorListTermNN   :: Maybe String
  , courseCorrectorListCourseNN :: Maybe String }                           deriving (Show, Eq)
 
-courseInfo =                info (myHelper <*> course)                (progDesc courseDesc)
+courseInfo role =           info (myHelper <*> course role)           (progDesc courseDesc)
 courseAddInfo =             info (myHelper <*> courseAdd)             (progDesc courseAddDesc)
 courseRemoveInfo =          info (myHelper <*> courseRemove)          (progDesc courseRemoveDesc)
 courseListInfo =            info (myHelper <*> courseList)            (progDesc courseListDesc)
-courseTeacherInfo =         info (myHelper <*> courseTeacher)         (progDesc courseTeacherDesc)
+courseTeacherInfo role =    info (myHelper <*> courseTeacher role)    (progDesc courseTeacherDesc)
 courseTeacherAddInfo =      info (myHelper <*> courseTeacherAdd)      (progDesc courseTeacherAddDesc)
 courseTeacherRemoveInfo =   info (myHelper <*> courseTeacherRemove)   (progDesc courseTeacherRemoveDesc)
 courseTeacherListInfo =     info (myHelper <*> courseTeacherList)     (progDesc courseTeacherListDesc)
-courseCorrectorInfo =       info (myHelper <*> courseCorrector)       (progDesc courseCorrectorDesc)
+courseCorrectorInfo role =  info (myHelper <*> courseCorrector role)  (progDesc courseCorrectorDesc)
 courseCorrectorAddInfo =    info (myHelper <*> courseCorrectorAdd)    (progDesc courseCorrectorAddDesc)
 courseCorrectorRemoveInfo = info (myHelper <*> courseCorrectorRemove) (progDesc courseCorrectorRemoveDesc)
 courseCorrectorListInfo =   info (myHelper <*> courseCorrectorList)   (progDesc courseCorrectorListDesc)
 
-course = CourseOpts <$> subparser (
- command addSub       courseAddInfo <>
- command removeSub    courseRemoveInfo <>
- command listSub      courseListInfo <>
- command teacherSub   courseTeacherInfo <>
- command correctorSub courseCorrectorInfo)
+course role = CourseOpts <$> subparser (
+ hasCourseWriteRights role (command addSub       courseAddInfo) <>
+ hasCourseWriteRights role (command removeSub    courseRemoveInfo) <>
+ hasCourseReadRights  role (command listSub      courseListInfo) <>
+ command teacherSub   (courseTeacherInfo role) <>
+ command correctorSub (courseCorrectorInfo role))
 
 courseAdd = CourseAdd <$> (CourseAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -103,10 +104,10 @@ courseList = CourseList <$> (CourseListOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp))
 
-courseTeacher = CourseTeacher <$> CourseTeacherOpts <$> subparser (
- command addSub     courseTeacherAddInfo <>
- command removeSub  courseTeacherRemoveInfo <>
- command listSub    courseTeacherListInfo)
+courseTeacher role = CourseTeacher <$> CourseTeacherOpts <$> subparser (
+ hasCourseWriteRights role (command addSub     courseTeacherAddInfo) <>
+ hasCourseWriteRights role (command removeSub  courseTeacherRemoveInfo) <>
+ hasCourseReadRights  role (command listSub    courseTeacherListInfo))
 
 courseTeacherAdd = CourseTeacherAdd <$> (CourseTeacherAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -125,10 +126,10 @@ courseTeacherList = CourseTeacherList <$> (CourseTeacherListOpts
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp))
 
-courseCorrector = CourseCorrector <$> CourseCorrectorOpts <$> subparser (
- command addSub     courseCorrectorAddInfo <>
- command removeSub  courseCorrectorRemoveInfo <>
- command listSub    courseCorrectorListInfo)
+courseCorrector role = CourseCorrector <$> CourseCorrectorOpts <$> subparser (
+ hasCourseWriteRights role (command addSub     courseCorrectorAddInfo) <>
+ hasCourseWriteRights role (command removeSub  courseCorrectorRemoveInfo) <>
+ hasCourseReadRights  role (command listSub    courseCorrectorListInfo))
 
 courseCorrectorAdd = CourseCorrectorAdd <$> (CourseCorrectorAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)

@@ -3,6 +3,7 @@ module Interface.CommandLineParser.Group where
 import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
+import Security.SecurityManager
 
 data GroupOpts = GroupOpts      GroupCmd                                deriving (Show, Eq)
 data GroupCmd  = GroupAdd       GroupAddOpts
@@ -78,25 +79,25 @@ data GroupCorrectorListOpts = GroupCorrectorListOpts
  , groupCorrectorListCourseNN :: Maybe String
  , groupCorrectorListGroupNN  :: Maybe String }                         deriving (Show, Eq)
 
-groupInfo =                info (myHelper <*> group)                (progDesc groupDesc)
+groupInfo role =           info (myHelper <*> group role)           (progDesc groupDesc)
 groupAddInfo =             info (myHelper <*> groupAdd)             (progDesc groupAddDesc)
 groupRemoveInfo =          info (myHelper <*> groupRemove)          (progDesc groupRemoveDesc)
 groupListInfo =            info (myHelper <*> groupList)            (progDesc groupListDesc)
-groupTeacherInfo =         info (myHelper <*> groupTeacher)         (progDesc groupTeacherDesc)
+groupTeacherInfo role =    info (myHelper <*> groupTeacher role)    (progDesc groupTeacherDesc)
 groupTeacherAddInfo =      info (myHelper <*> groupTeacherAdd)      (progDesc groupTeacherAddDesc)
 groupTeacherRemoveInfo =   info (myHelper <*> groupTeacherRemove)   (progDesc groupTeacherRemoveDesc)
 groupTeacherListInfo =     info (myHelper <*> groupTeacherList)     (progDesc groupTeacherListDesc)
-groupCorrectorInfo =       info (myHelper <*> groupCorrector)       (progDesc groupCorrectorDesc)
+groupCorrectorInfo role =  info (myHelper <*> groupCorrector role)  (progDesc groupCorrectorDesc)
 groupCorrectorAddInfo =    info (myHelper <*> groupCorrectorAdd)    (progDesc groupCorrectorAddDesc)
 groupCorrectorRemoveInfo = info (myHelper <*> groupCorrectorRemove) (progDesc groupCorrectorRemoveDesc)
 groupCorrectorListInfo =   info (myHelper <*> groupCorrectorList)   (progDesc groupCorrectorListDesc)
 
-group = GroupOpts <$> subparser (
- command addSub       groupAddInfo <>
- command removeSub    groupRemoveInfo <>
- command listSub      groupListInfo <>
- command teacherSub   groupTeacherInfo <>
- command correctorSub groupCorrectorInfo)
+group role = GroupOpts <$> subparser (
+ hasGroupWriteRights role (command addSub       groupAddInfo) <>
+ hasGroupWriteRights role (command removeSub    groupRemoveInfo) <>
+ hasGroupReadRights  role (command listSub      groupListInfo) <>
+ command teacherSub   (groupTeacherInfo role) <>
+ command correctorSub (groupCorrectorInfo role))
 
 groupAdd = GroupAdd <$> (GroupAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -115,10 +116,10 @@ groupList = GroupList <$> (GroupListOpts
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp))
 
-groupTeacher = GroupTeacher <$> GroupTeacherOpts <$> subparser (
- command addSub     groupTeacherAddInfo <>
- command removeSub  groupTeacherRemoveInfo <>
- command listSub    groupTeacherListInfo)
+groupTeacher role = GroupTeacher <$> GroupTeacherOpts <$> subparser (
+ hasGroupWriteRights role (command addSub     groupTeacherAddInfo) <>
+ hasGroupWriteRights role (command removeSub  groupTeacherRemoveInfo) <>
+ hasGroupReadRights  role (command listSub    groupTeacherListInfo))
 
 groupTeacherAdd = GroupTeacherAdd <$> (GroupTeacherAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -140,10 +141,10 @@ groupTeacherList = GroupTeacherList <$> (GroupTeacherListOpts
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp)
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp))
 
-groupCorrector = GroupCorrector <$> GroupCorrectorOpts <$> subparser (
- command addSub     groupCorrectorAddInfo <>
- command removeSub  groupCorrectorRemoveInfo <>
- command listSub    groupCorrectorListInfo)
+groupCorrector role = GroupCorrector <$> GroupCorrectorOpts <$> subparser (
+ hasGroupWriteRights role (command addSub     groupCorrectorAddInfo) <>
+ hasGroupWriteRights role (command removeSub  groupCorrectorRemoveInfo) <>
+ hasGroupReadRights  role (command listSub    groupCorrectorListInfo))
 
 groupCorrectorAdd = GroupCorrectorAdd <$> (GroupCorrectorAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)

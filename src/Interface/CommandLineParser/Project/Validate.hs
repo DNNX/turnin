@@ -3,6 +3,7 @@ module Interface.CommandLineParser.Project.Validate where
 import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
+import Security.SecurityManager
 
 data ProjectValidateOpts = ProjectValidateOpts       ProjectValidateCmd                              deriving (Show, Eq)
 data ProjectValidateCmd  = ProjectValidateAcceptExec ProjectValidateAcceptExecOpts
@@ -120,33 +121,33 @@ data ProjectValidateScriptExtractOpts = ProjectValidateScriptExtractOpts
  , projectValidateScriptExtractProjectNN  :: Maybe String
  , projectValidateScriptExtractScriptName :: String       }                                          deriving (Show, Eq)
 
-projectValidateInfo =               info (myHelper <*> projectValidate)               (progDesc projectValidateDesc)
-projectValidateAcceptExecInfo =     info (myHelper <*> projectValidateAcceptExec)     (progDesc projectValidateAcceptExecDesc)
-projectValidateAcceptExecSetInfo =  info (myHelper <*> projectValidateAcceptExecSet)  (progDesc projectValidateAcceptExecSetDesc)
-projectValidateAcceptExecListInfo = info (myHelper <*> projectValidateAcceptExecList) (progDesc projectValidateAcceptExecListDesc)
-projectValidateNameInfo =           info (myHelper <*> projectValidateName)           (progDesc projectValidateNameDesc)
-projectValidateNameAddInfo =        info (myHelper <*> projectValidateNameAdd)        (progDesc projectValidateNameAddDesc)
-projectValidateNameRemoveInfo =     info (myHelper <*> projectValidateNameRemove)     (progDesc projectValidateNameRemoveDesc)
-projectValidateNameListInfo =       info (myHelper <*> projectValidateNameList)       (progDesc projectValidateNameListDesc)
-projectValidateCommandInfo =        info (myHelper <*> projectValidateCommand)        (progDesc projectValidateCommandDesc)
-projectValidateCommandSetInfo =     info (myHelper <*> projectValidateCommandSet)     (progDesc projectValidateCommandSetDesc)
-projectValidateCommandUnsetInfo =   info (myHelper <*> projectValidateCommandUnset)   (progDesc projectValidateCommandUnsetDesc)
-projectValidateCommandListInfo =    info (myHelper <*> projectValidateCommandList)    (progDesc projectValidateCommandListDesc)
-projectValidateScriptInfo =         info (myHelper <*> projectValidateScript)         (progDesc projectValidateScriptDesc)
-projectValidateScriptSetInfo =      info (myHelper <*> projectValidateScriptSet)      (progDesc projectValidateScriptSetDesc)
-projectValidateScriptUnsetInfo =    info (myHelper <*> projectValidateScriptUnset)    (progDesc projectValidateScriptUnsetDesc)
-projectValidateScriptListInfo =     info (myHelper <*> projectValidateScriptList)     (progDesc projectValidateScriptListDesc)
-projectValidateScriptExtractInfo =  info (myHelper <*> projectValidateScriptExtract)  (progDesc projectValidateScriptExtractDesc)
+projectValidateInfo role =           info (myHelper <*> projectValidate role)           (progDesc projectValidateDesc)
+projectValidateAcceptExecInfo role = info (myHelper <*> projectValidateAcceptExec role) (progDesc projectValidateAcceptExecDesc)
+projectValidateAcceptExecSetInfo =   info (myHelper <*> projectValidateAcceptExecSet)   (progDesc projectValidateAcceptExecSetDesc)
+projectValidateAcceptExecListInfo =  info (myHelper <*> projectValidateAcceptExecList)  (progDesc projectValidateAcceptExecListDesc)
+projectValidateNameInfo role =       info (myHelper <*> projectValidateName role)       (progDesc projectValidateNameDesc)
+projectValidateNameAddInfo =         info (myHelper <*> projectValidateNameAdd)         (progDesc projectValidateNameAddDesc)
+projectValidateNameRemoveInfo =      info (myHelper <*> projectValidateNameRemove)      (progDesc projectValidateNameRemoveDesc)
+projectValidateNameListInfo =        info (myHelper <*> projectValidateNameList)        (progDesc projectValidateNameListDesc)
+projectValidateCommandInfo role =    info (myHelper <*> projectValidateCommand role)    (progDesc projectValidateCommandDesc)
+projectValidateCommandSetInfo =      info (myHelper <*> projectValidateCommandSet)      (progDesc projectValidateCommandSetDesc)
+projectValidateCommandUnsetInfo =    info (myHelper <*> projectValidateCommandUnset)    (progDesc projectValidateCommandUnsetDesc)
+projectValidateCommandListInfo =     info (myHelper <*> projectValidateCommandList)     (progDesc projectValidateCommandListDesc)
+projectValidateScriptInfo role =     info (myHelper <*> projectValidateScript role)     (progDesc projectValidateScriptDesc)
+projectValidateScriptSetInfo =       info (myHelper <*> projectValidateScriptSet)       (progDesc projectValidateScriptSetDesc)
+projectValidateScriptUnsetInfo =     info (myHelper <*> projectValidateScriptUnset)     (progDesc projectValidateScriptUnsetDesc)
+projectValidateScriptListInfo =      info (myHelper <*> projectValidateScriptList)      (progDesc projectValidateScriptListDesc)
+projectValidateScriptExtractInfo =   info (myHelper <*> projectValidateScriptExtract)   (progDesc projectValidateScriptExtractDesc)
 
-projectValidate = ProjectValidateOpts <$> subparser (
- command acceptExecSub projectValidateAcceptExecInfo <>
- command nameSub       projectValidateNameInfo <>
- command commandSub    projectValidateCommandInfo <>
- command scriptSub     projectValidateScriptInfo)
+projectValidate role = ProjectValidateOpts <$> subparser (
+ command acceptExecSub (projectValidateAcceptExecInfo role) <>
+ command nameSub       (projectValidateNameInfo role) <>
+ command commandSub    (projectValidateCommandInfo role) <>
+ command scriptSub     (projectValidateScriptInfo role))
 
-projectValidateAcceptExec = ProjectValidateAcceptExec <$> ProjectValidateAcceptExecOpts <$> subparser (
- command setSub  projectValidateAcceptExecSetInfo <>
- command listSub projectValidateAcceptExecListInfo)
+projectValidateAcceptExec role = ProjectValidateAcceptExec <$> ProjectValidateAcceptExecOpts <$> subparser (
+ hasProjectWriteRights role (command setSub  projectValidateAcceptExecSetInfo) <>
+ hasProjectReadRights  role (command listSub projectValidateAcceptExecListInfo))
 
 projectValidateAcceptExecSet = ProjectValidateAcceptExecSet <$> (ProjectValidateAcceptExecSetOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -163,10 +164,10 @@ projectValidateAcceptExecList = ProjectValidateAcceptExecList <$> (ProjectValida
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp)
  <*> optional (strOption $ toMod projectNodeOpt <> metavar projectNodeMeta <> help projectNodeHelp))
 
-projectValidateName = ProjectValidateName <$> ProjectValidateNameOpts <$> subparser (
- command addSub    projectValidateNameAddInfo <>
- command removeSub projectValidateNameRemoveInfo <>
- command listSub   projectValidateNameListInfo)
+projectValidateName role = ProjectValidateName <$> ProjectValidateNameOpts <$> subparser (
+ hasProjectWriteRights role (command addSub    projectValidateNameAddInfo) <>
+ hasProjectWriteRights role (command removeSub projectValidateNameRemoveInfo) <>
+ hasProjectReadRights  role (command listSub   projectValidateNameListInfo))
 
 projectValidateNameAdd = ProjectValidateNameAdd <$> (ProjectValidateNameAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -191,10 +192,10 @@ projectValidateNameList = ProjectValidateNameList <$> (ProjectValidateNameListOp
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp)
  <*> optional (strOption $ toMod projectNodeOpt <> metavar projectNodeMeta <> help projectNodeHelp))
 
-projectValidateCommand = ProjectValidateCommand <$> ProjectValidateCommandOpts <$> subparser (
- command setSub    projectValidateCommandSetInfo <>
- command unsetSub  projectValidateCommandUnsetInfo <>
- command listSub   projectValidateCommandListInfo)
+projectValidateCommand role = ProjectValidateCommand <$> ProjectValidateCommandOpts <$> subparser (
+ hasProjectWriteRights  role (command setSub    projectValidateCommandSetInfo) <>
+ hasProjectWriteRights  role (command unsetSub  projectValidateCommandUnsetInfo) <>
+ hasProjectReadRights   role (command listSub   projectValidateCommandListInfo))
 
 projectValidateCommandSet = ProjectValidateCommandSet <$> (ProjectValidateCommandSetOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -218,11 +219,11 @@ projectValidateCommandList = ProjectValidateCommandList <$> (ProjectValidateComm
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp)
  <*> optional (strOption $ toMod projectNodeOpt <> metavar projectNodeMeta <> help projectNodeHelp))
 
-projectValidateScript = ProjectValidateScript <$> ProjectValidateScriptOpts <$> subparser (
- command setSub     projectValidateScriptSetInfo <>
- command unsetSub   projectValidateScriptUnsetInfo <>
- command listSub    projectValidateScriptListInfo <>
- command extractSub projectValidateScriptExtractInfo)
+projectValidateScript role = ProjectValidateScript <$> ProjectValidateScriptOpts <$> subparser (
+ hasProjectWriteRights  role (command setSub     projectValidateScriptSetInfo) <>
+ hasProjectWriteRights  role (command unsetSub   projectValidateScriptUnsetInfo) <>
+ hasProjectReadRights   role (command listSub    projectValidateScriptListInfo) <>
+ hasProjectReadRights   role (command extractSub projectValidateScriptExtractInfo))
 
 projectValidateScriptSet = ProjectValidateScriptSet <$> (ProjectValidateScriptSetOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)

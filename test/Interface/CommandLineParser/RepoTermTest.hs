@@ -13,20 +13,20 @@ import Interface.CommandLineParser.Term
 
 -- Repo
 prop_repoAddSuccess n = let name = noLeadingHyphens n in
- testSuccess name x [repoSub, addSub] noOpts [name]
+ testSuccess 1 name x [repoSub, addSub] noOpts [name]
   where x (Global(
            Repo(RepoOpts(
             RepoAdd(RepoAddOpts a))))) = a
 
 prop_repoRemoveSuccess repoNN =
  validOpts [repoNN] ==>
-  testSuccess repoNN x [repoSub, removeSub] (repoOpts repoNN) noArgs
+  testSuccess 1 repoNN x [repoSub, removeSub] (repoOpts repoNN) noArgs
    where x (Global(
             Repo(RepoOpts(
              RepoRemove(RepoRemoveOpts a))))) = a
 
 prop_repoListSuccess =
- testSuccess noArgsToGet x [repoSub, listSub] noOpts noArgs
+ testSuccess 3 noArgsToGet x [repoSub, listSub] noOpts noArgs
   where x (Global(
            Repo(RepoOpts(
             RepoList RepoListOpts)))) = noArgsToGet
@@ -34,28 +34,28 @@ prop_repoListSuccess =
 -- Term
 prop_termAddSuccess repoNN n s e = let args = validArgs [n, s, e] in length args == 3 ==>
   validOpts [repoNN] ==> let [name, start, end] = args in
-   testSuccess (repoNN, name, start, end) x [termSub, addSub] (repoOpts repoNN) args
+   testSuccess 1 (repoNN, name, start, end) x [termSub, addSub] (repoOpts repoNN) args
     where x (Global(
              Term(TermOpts(
               TermAdd(TermAddOpts a b c d))))) = (a,b,c,d)
 
 prop_termRemoveSuccess repoNN termNN =
  validOpts [repoNN, termNN] ==>
-  testSuccess (repoNN,termNN) x [termSub, removeSub] (termOpts repoNN termNN) noArgs
+  testSuccess 1 (repoNN,termNN) x [termSub, removeSub] (termOpts repoNN termNN) noArgs
    where x (Global(
             Term(TermOpts(
              TermRemove(TermRemoveOpts a b))))) = (a,b)
 
 prop_termListSuccess repoNN =
  validOpts [repoNN] ==>
-  testSuccess repoNN x [termSub, listSub] (repoOpts repoNN) noArgs
+  testSuccess 3 repoNN x [termSub, listSub] (repoOpts repoNN) noArgs
    where x (Global(
             Term(TermOpts(
              TermList(TermListOpts a))))) = a
 
 prop_termDateSetSuccess repoNN termNN start end =
  validOpts [repoNN, termNN, start, end] ==>
-  testSuccess (repoNN, termNN, start, end) x [termSub, dateSub, setSub] (termDateOpts repoNN termNN start end) noArgs
+  testSuccess 1 (repoNN, termNN, start, end) x [termSub, dateSub, setSub] (termDateOpts repoNN termNN start end) noArgs
    where x (Global(
             Term(TermOpts(
              TermDate(TermDateOpts(
@@ -63,7 +63,7 @@ prop_termDateSetSuccess repoNN termNN start end =
 
 prop_termDateListSuccess repoNN termNN =
  validOpts [repoNN, termNN] ==>
-  testSuccess (repoNN, termNN) x [termSub, dateSub, listSub] (termOpts repoNN termNN) noArgs
+  testSuccess 3 (repoNN, termNN) x [termSub, dateSub, listSub] (termOpts repoNN termNN) noArgs
    where x (Global(
             Term(TermOpts(
              TermDate(TermDateOpts(

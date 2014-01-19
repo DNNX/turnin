@@ -3,6 +3,7 @@ module Interface.CommandLineParser.Term where
 import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
+import Security.SecurityManager 
 
 data TermOpts = TermOpts   TermCmd                deriving (Show, Eq)
 data TermCmd  = TermAdd    TermAddOpts
@@ -37,20 +38,20 @@ data TermDateListOpts = TermDateListOpts
  { termDateListRepoNN :: Maybe String
  , termDateListTermNN :: Maybe String }           deriving (Show, Eq)
 
-termInfo =         info (myHelper <*> term)         (progDesc termDesc)
-termAddInfo =      info (myHelper <*> termAdd)      (progDesc termAddDesc)
-termRemoveInfo =   info (myHelper <*> termRemove)   (progDesc termRemoveDesc)
-termListInfo =     info (myHelper <*> termList)     (progDesc termListDesc)
-termDateInfo =     info (myHelper <*> termDate)     (progDesc termDateDesc)
-termDateSetInfo =  info (myHelper <*> termDateSet)  (progDesc termDateSetDesc)
-termDateListInfo = info (myHelper <*> termDateList) (progDesc termDateListDesc)
+termInfo role =         info (myHelper <*> term role)         (progDesc termDesc)
+termAddInfo =           info (myHelper <*> termAdd)           (progDesc termAddDesc)
+termRemoveInfo =        info (myHelper <*> termRemove)        (progDesc termRemoveDesc)
+termListInfo =          info (myHelper <*> termList)          (progDesc termListDesc)
+termDateInfo role =     info (myHelper <*> termDate role)     (progDesc termDateDesc)
+termDateSetInfo =       info (myHelper <*> termDateSet)       (progDesc termDateSetDesc)
+termDateListInfo =      info (myHelper <*> termDateList)      (progDesc termDateListDesc)
 
-term = TermOpts <$> subparser (
- command addSub    termAddInfo <>
- command removeSub termRemoveInfo <>
- command listSub   termListInfo <>
- command dateSub   termDateInfo)
-
+term role = TermOpts <$> subparser (
+ hasTermWriteRights role (command addSub    termAddInfo) <>
+ hasTermWriteRights role (command removeSub termRemoveInfo) <>
+ hasTermReadRights  role (command listSub   termListInfo) <>
+ command dateSub   (termDateInfo role))
+ 
 termAdd = TermAdd <$> (TermAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> argument str (metavar termAddNameMeta <> help termAddNameHelp)
@@ -64,9 +65,9 @@ termRemove = TermRemove <$> (TermRemoveOpts
 termList = TermList <$> (TermListOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp))
 
-termDate = TermDate <$> TermDateOpts <$> subparser (
- command setSub  termDateSetInfo <>
- command listSub termDateListInfo)
+termDate role = TermDate <$> TermDateOpts <$> subparser (
+ hasTermWriteRights role (command setSub  termDateSetInfo) <>
+ hasTermReadRights  role (command listSub termDateListInfo))
 
 termDateSet = TermDateSet <$> (TermDateSetOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)

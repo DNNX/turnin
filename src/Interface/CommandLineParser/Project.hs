@@ -6,6 +6,7 @@ import Interface.CommandLineParser.Utils
 import Interface.CommandLineParser.Project.Validate
 import Interface.CommandLineParser.Project.Worktrain
 import Interface.CommandLineParser.Project.Submit
+import Security.SecurityManager
 
 data ProjectOpts = ProjectOpts      ProjectCmd                deriving (Show, Eq)
 data ProjectCmd  = ProjectAdd       ProjectAddOpts
@@ -60,22 +61,22 @@ data ProjectDateListOpts = ProjectDateListOpts
  , projectDateListGroupNN   :: Maybe String
  , projectDateListProjectNN :: Maybe String }              deriving (Show, Eq)
 
-projectInfo =         info (myHelper <*> project)         (progDesc projectDesc)
-projectAddInfo =      info (myHelper <*> projectAdd)      (progDesc projectAddDesc)
-projectRemoveInfo =   info (myHelper <*> projectRemove)   (progDesc projectRemoveDesc)
-projectListInfo =     info (myHelper <*> projectList)     (progDesc projectListDesc)
-projectDateInfo =     info (myHelper <*> projectDate)     (progDesc projectDateDesc)
-projectDateSetInfo =  info (myHelper <*> projectDateSet)  (progDesc projectDateSetDesc)
-projectDateListInfo = info (myHelper <*> projectDateList) (progDesc projectDateListDesc)
+projectInfo role =         info (myHelper <*> project role) (progDesc projectDesc)
+projectAddInfo =       info (myHelper <*> projectAdd)       (progDesc projectAddDesc)
+projectRemoveInfo =    info (myHelper <*> projectRemove)    (progDesc projectRemoveDesc)
+projectListInfo =      info (myHelper <*> projectList)      (progDesc projectListDesc)
+projectDateInfo role = info (myHelper <*> projectDate role) (progDesc projectDateDesc)
+projectDateSetInfo =   info (myHelper <*> projectDateSet)   (progDesc projectDateSetDesc)
+projectDateListInfo =  info (myHelper <*> projectDateList)  (progDesc projectDateListDesc)
 
-project = ProjectOpts <$> subparser (
- command addSub       projectAddInfo <>
- command removeSub    projectRemoveInfo <>
- command listSub      projectListInfo <>
- command dateSub      projectDateInfo <>
- command validateSub  (ProjectValidate <$> projectValidateInfo) <>
- command worktrainSub (ProjectWorktrain <$> projectWorktrainInfo) <>
- command submitSub    (ProjectSubmit <$> projectSubmitInfo)) 
+project role = ProjectOpts <$> subparser (
+ hasProjectWriteRights role (command addSub       projectAddInfo) <>
+ hasProjectWriteRights role (command removeSub    projectRemoveInfo) <>
+ hasProjectReadRights  role (command listSub      projectListInfo) <>
+ command dateSub      (projectDateInfo role) <>
+ command validateSub  (ProjectValidate <$> projectValidateInfo role) <>
+ command worktrainSub (ProjectWorktrain <$> projectWorktrainInfo role) <>
+ command submitSub    (ProjectSubmit <$> projectSubmitInfo role))  
  
 projectAdd = ProjectAdd <$> (ProjectAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -100,9 +101,9 @@ projectList = ProjectList <$> (ProjectListOpts
  <*> optional (strOption $ toMod courseNodeOpt <> metavar courseNodeMeta <> help courseNodeHelp)
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp))
 
-projectDate = ProjectDate <$> ProjectDateOpts <$> subparser (
- command setSub  projectDateSetInfo <>
- command listSub projectDateListInfo)
+projectDate role = ProjectDate <$> ProjectDateOpts <$> subparser (
+ hasProjectWriteRights role (command setSub  projectDateSetInfo) <>
+ hasProjectReadRights  role (command listSub projectDateListInfo))
 
 projectDateSet = ProjectDateSet <$> (ProjectDateSetOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)

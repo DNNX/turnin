@@ -3,6 +3,7 @@ module Interface.CommandLineParser.Project.Worktrain where
 import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
+import Security.SecurityManager
 
 data ProjectWorktrainOpts = ProjectWorktrainOpts       ProjectWorktrainCmd            deriving (Show, Eq)
 data ProjectWorktrainCmd  = ProjectWorktrainScript     ProjectWorktrainScriptOpts
@@ -122,35 +123,35 @@ data ProjectWorktrainSpaceLimitListOpts = ProjectWorktrainSpaceLimitListOpts
  , projectWorktrainSpaceLimitListGroupNN   :: Maybe String
  , projectWorktrainSpaceLimitListProjectNN :: Maybe String } deriving (Show, Eq)                                    
  
-projectWorktrainInfo =               info (myHelper <*> projectWorktrain)               (progDesc projectWorktrainDesc)
-projectWorktrainScriptInfo =         info (myHelper <*> projectWorktrainScript)         (progDesc projectWorktrainScriptDesc)
-projectWorktrainScriptSetInfo =      info (myHelper <*> projectWorktrainScriptSet)      (progDesc projectWorktrainScriptSetDesc)
-projectWorktrainScriptUnsetInfo =    info (myHelper <*> projectWorktrainScriptUnset)    (progDesc projectWorktrainScriptUnsetDesc)
-projectWorktrainScriptListInfo =     info (myHelper <*> projectWorktrainScriptList)     (progDesc projectWorktrainScriptListDesc) 
-projectWorktrainScriptExtractInfo =  info (myHelper <*> projectWorktrainScriptExtract)  (progDesc projectWorktrainScriptExtractDesc)
-projectWorktrainFileInfo =           info (myHelper <*> projectWorktrainFile)           (progDesc projectWorktrainFileDesc)
-projectWorktrainFileAddInfo =        info (myHelper <*> projectWorktrainFileAdd)        (progDesc projectWorktrainFileAddDesc)
-projectWorktrainFileRemoveInfo =     info (myHelper <*> projectWorktrainFileRemove)     (progDesc projectWorktrainFileRemoveDesc)
-projectWorktrainFileListInfo =       info (myHelper <*> projectWorktrainFileList)       (progDesc projectWorktrainFileListDesc)
-projectWorktrainFileExtractInfo =    info (myHelper <*> projectWorktrainFileExtract)    (progDesc projectWorktrainFileExtractDesc)
-projectWorktrainTimeLimitInfo =      info (myHelper <*> projectWorktrainTimeLimit)      (progDesc projectWorktrainTimeLimitDesc)
-projectWorktrainTimeLimitSetInfo =   info (myHelper <*> projectWorktrainTimeLimitSet)   (progDesc projectWorktrainTimeLimitSetDesc)
-projectWorktrainTimeLimitListInfo =  info (myHelper <*> projectWorktrainTimeLimitList)  (progDesc projectWorktrainTimeLimitListDesc)
-projectWorktrainSpaceLimitInfo =     info (myHelper <*> projectWorktrainSpaceLimit)     (progDesc projectWorktrainSpaceLimitDesc)
-projectWorktrainSpaceLimitSetInfo =  info (myHelper <*> projectWorktrainSpaceLimitSet)  (progDesc projectWorktrainSpaceLimitSetDesc)
-projectWorktrainSpaceLimitListInfo = info (myHelper <*> projectWorktrainSpaceLimitList) (progDesc projectWorktrainSpaceLimitListDesc)
+projectWorktrainInfo role =           info (myHelper <*> projectWorktrain role)           (progDesc projectWorktrainDesc)
+projectWorktrainScriptInfo role =     info (myHelper <*> projectWorktrainScript role)     (progDesc projectWorktrainScriptDesc)
+projectWorktrainScriptSetInfo =       info (myHelper <*> projectWorktrainScriptSet)       (progDesc projectWorktrainScriptSetDesc)
+projectWorktrainScriptUnsetInfo =     info (myHelper <*> projectWorktrainScriptUnset)     (progDesc projectWorktrainScriptUnsetDesc)
+projectWorktrainScriptListInfo =      info (myHelper <*> projectWorktrainScriptList)      (progDesc projectWorktrainScriptListDesc) 
+projectWorktrainScriptExtractInfo =   info (myHelper <*> projectWorktrainScriptExtract)   (progDesc projectWorktrainScriptExtractDesc)
+projectWorktrainFileInfo role =       info (myHelper <*> projectWorktrainFile role)       (progDesc projectWorktrainFileDesc)
+projectWorktrainFileAddInfo =         info (myHelper <*> projectWorktrainFileAdd)         (progDesc projectWorktrainFileAddDesc)
+projectWorktrainFileRemoveInfo =      info (myHelper <*> projectWorktrainFileRemove)      (progDesc projectWorktrainFileRemoveDesc)
+projectWorktrainFileListInfo =        info (myHelper <*> projectWorktrainFileList)        (progDesc projectWorktrainFileListDesc)
+projectWorktrainFileExtractInfo =     info (myHelper <*> projectWorktrainFileExtract)     (progDesc projectWorktrainFileExtractDesc)
+projectWorktrainTimeLimitInfo role =  info (myHelper <*> projectWorktrainTimeLimit role)  (progDesc projectWorktrainTimeLimitDesc)
+projectWorktrainTimeLimitSetInfo =    info (myHelper <*> projectWorktrainTimeLimitSet)    (progDesc projectWorktrainTimeLimitSetDesc)
+projectWorktrainTimeLimitListInfo =   info (myHelper <*> projectWorktrainTimeLimitList)   (progDesc projectWorktrainTimeLimitListDesc)
+projectWorktrainSpaceLimitInfo role = info (myHelper <*> projectWorktrainSpaceLimit role) (progDesc projectWorktrainSpaceLimitDesc)
+projectWorktrainSpaceLimitSetInfo =   info (myHelper <*> projectWorktrainSpaceLimitSet)   (progDesc projectWorktrainSpaceLimitSetDesc)
+projectWorktrainSpaceLimitListInfo =  info (myHelper <*> projectWorktrainSpaceLimitList)  (progDesc projectWorktrainSpaceLimitListDesc)
 
-projectWorktrain = ProjectWorktrainOpts <$> subparser (
- command scriptSub     projectWorktrainScriptInfo <>
- command fileSub       projectWorktrainFileInfo <>
- command timeLimitSub  projectWorktrainTimeLimitInfo <>  
- command spaceLimitSub projectWorktrainSpaceLimitInfo)
+projectWorktrain role = ProjectWorktrainOpts <$> subparser (
+ command scriptSub     (projectWorktrainScriptInfo role) <>
+ command fileSub       (projectWorktrainFileInfo role) <>
+ command timeLimitSub  (projectWorktrainTimeLimitInfo role)<>  
+ command spaceLimitSub (projectWorktrainSpaceLimitInfo role))
 
-projectWorktrainScript = ProjectWorktrainScript <$> ProjectWorktrainScriptOpts <$> subparser (
- command setSub     projectWorktrainScriptSetInfo <>
- command unsetSub   projectWorktrainScriptUnsetInfo <>
- command listSub    projectWorktrainScriptListInfo <>
- command extractSub projectWorktrainScriptExtractInfo)
+projectWorktrainScript role = ProjectWorktrainScript <$> ProjectWorktrainScriptOpts <$> subparser (
+ hasProjectWriteRights role (command setSub     projectWorktrainScriptSetInfo) <>
+ hasProjectWriteRights role (command unsetSub   projectWorktrainScriptUnsetInfo) <>
+ hasProjectReadRights  role (command listSub    projectWorktrainScriptListInfo) <>
+ hasProjectReadRights  role (command extractSub projectWorktrainScriptExtractInfo))
 
 projectWorktrainScriptSet = ProjectWorktrainScriptSet <$> (ProjectWorktrainScriptSetOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -182,11 +183,11 @@ projectWorktrainScriptExtract = ProjectWorktrainScriptExtract <$> (ProjectWorktr
  <*> optional (strOption $ toMod projectNodeOpt <> metavar projectNodeMeta <> help projectNodeHelp)
  <*> argument str (metavar projectWorktrainScriptExtractMeta <> help projectWorktrainScriptExtractHelp))
 
-projectWorktrainFile = ProjectWorktrainFile <$> ProjectWorktrainFileOpts <$> subparser (
- command addSub     projectWorktrainFileAddInfo <>
- command removeSub  projectWorktrainFileRemoveInfo <>
- command listSub    projectWorktrainFileListInfo <>
- command extractSub projectWorktrainFileExtractInfo)
+projectWorktrainFile role = ProjectWorktrainFile <$> ProjectWorktrainFileOpts <$> subparser (
+ hasProjectWriteRights role (command addSub     projectWorktrainFileAddInfo) <>
+ hasProjectWriteRights role (command removeSub  projectWorktrainFileRemoveInfo) <>
+ hasProjectReadRights  role (command listSub    projectWorktrainFileListInfo) <>
+ hasProjectReadRights  role (command extractSub projectWorktrainFileExtractInfo))
  
 projectWorktrainFileAdd = ProjectWorktrainFileAdd <$> (ProjectWorktrainFileAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -220,9 +221,9 @@ projectWorktrainFileExtract = ProjectWorktrainFileExtract <$> (ProjectWorktrainF
  <*> argument str (metavar projectWorktrainFileExtractDirMeta <> help projectWorktrainFileExtractDirHelp)
  <*> some (argument str (metavar projectWorktrainFileExtractNamesMeta <> help projectWorktrainFileExtractNamesHelp)))
   
-projectWorktrainTimeLimit = ProjectWorktrainTimeLimit <$> ProjectWorktrainTimeLimitOpts <$> subparser (
- command setSub     projectWorktrainTimeLimitSetInfo <>
- command listSub    projectWorktrainTimeLimitListInfo)
+projectWorktrainTimeLimit role = ProjectWorktrainTimeLimit <$> ProjectWorktrainTimeLimitOpts <$> subparser (
+ hasProjectWriteRights role (command setSub     projectWorktrainTimeLimitSetInfo) <>
+ hasProjectReadRights role (command listSub    projectWorktrainTimeLimitListInfo))
 
 projectWorktrainTimeLimitSet = ProjectWorktrainTimeLimitSet <$> (ProjectWorktrainTimeLimitSetOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
@@ -239,9 +240,9 @@ projectWorktrainTimeLimitList = ProjectWorktrainTimeLimitList <$> (ProjectWorktr
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp)
  <*> optional (strOption $ toMod projectNodeOpt <> metavar projectNodeMeta <> help projectNodeHelp))
  
-projectWorktrainSpaceLimit = ProjectWorktrainSpaceLimit <$> ProjectWorktrainSpaceLimitOpts <$> subparser (
- command setSub     projectWorktrainSpaceLimitSetInfo <>
- command listSub    projectWorktrainSpaceLimitListInfo)
+projectWorktrainSpaceLimit role = ProjectWorktrainSpaceLimit <$> ProjectWorktrainSpaceLimitOpts <$> subparser (
+ hasProjectWriteRights role (command setSub     projectWorktrainSpaceLimitSetInfo) <>
+ hasProjectReadRights  role (command listSub    projectWorktrainSpaceLimitListInfo))
 
 projectWorktrainSpaceLimitSet = ProjectWorktrainSpaceLimitSet <$> (ProjectWorktrainSpaceLimitSetOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
