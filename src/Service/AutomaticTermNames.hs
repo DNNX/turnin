@@ -14,8 +14,10 @@ make n date ts = let year = getYear date
                  in  take (fromIntegral n) $ dropWhile (not.contains) ds 
                       
 isAutoTerm :: String -> Bool
-isAutoTerm s = let parts = splitOn "-" s in
- length parts == 2 && all (isJust.readPart) parts
+isAutoTerm s = let parts = splitOn "-" s 
+                   maybe_ints = map readPart parts
+                   [year, i] = map fromJust maybe_ints
+               in  length parts == 2 && all isJust maybe_ints && 1 <= year && year <= 9999 && 1 <= i
                         
 -- private utils
 asInfiniteTriples year ts = let n = fromIntegral $ length ts
