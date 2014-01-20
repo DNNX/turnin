@@ -23,7 +23,7 @@ prop_dateReadAndWrite y mo d h mi =
      minute == getMinute first && 
      first == second && second == third
   
-  
+   
 prop_dateDeltaReadAndWrite y mo d h mi = 
  let [year, month, day, hour, minute] = map (fromTrip clamp) 
       [(y,1,9999),(mo,1,12),(d,1,28),(h,0,23),(mi,0,59)]
@@ -52,7 +52,20 @@ prop_dateComparison y mo d h mi p =
      (d1 <= d2 && d1 > d1) ||
      (d1 > d2 && d2 <= d1) ||
      (d1 < d2 && d2 >= d1)
-     
+      
+prop_dateDeltaComparison dy dmo dd dh dmi p = 
+ let parts@[dYear, dMonth, dDay, dHour, dMinute] = map (fromTrip clamp) 
+      [(dy,0,9999),(dmo,0,99),(dd,0,99),(dh,0,22),(dmi,0,99)]
+     posToIncrement = clamp p 0 $ fromIntegral $ length parts
+     dd1 = makeDateDelta dYear dMonth dDay dHour dMinute
+     [year',month',day',hour',minute'] = increment posToIncrement parts
+     dd2 = makeDateDelta year' month' day' hour' minute'
+ in  (dd1 == dd2 && dd2 == dd1) ||
+     (dd1 /= dd2 && dd2 /= dd1) ||
+     (dd1 >= dd2 && dd2 < dd1) ||
+     (dd1 <= dd2 && dd1 > dd1) || 
+     (dd1 > dd2 && dd2 <= dd1) ||
+     (dd1 < dd2 && dd2 >= dd1)
      
 test_dateAddition = 
  let f a b c d e = fromRight $ makeDate a b c d e

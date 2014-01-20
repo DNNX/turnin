@@ -36,7 +36,8 @@ executable turnin
                    Domain.TrainRunRepo,
                    Domain.TrainRun,
                    Security.SecurityManager,
-                   Infrastructure.Date
+                   Infrastructure.Date,
+                   Service.AutomaticTermNames
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -85,5 +86,7 @@ test-suite turnin-tests
                    Domain.TrainRunRepo,
                    Domain.TrainRun,
                    Security.SecurityManager,
-                   Infrastructure.Date
+                   Infrastructure.Date,
+                   Service.AutomaticTermNamesTest,
+                   Service.AutomaticTermNames
 

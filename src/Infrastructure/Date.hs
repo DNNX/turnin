@@ -1,5 +1,6 @@
 module Infrastructure.Date
 ( Date()
+, DateDelta()
 , makeDate
 , makeDateDelta
 , stringToDate
@@ -17,6 +18,8 @@ module Infrastructure.Date
 , add
 , nbDaysInMonth
 , isLeap
+, pad
+, readPart
 ) where
 
 import Control.Monad.Instances()
@@ -38,7 +41,7 @@ data DateDelta = DD
  , getDDay    :: Integer
  , getDHour   :: Integer
  , getDMinute :: Integer
- } deriving Eq
+ } deriving (Eq, Ord)
  
 type MakeD a = Integer -> Integer -> Integer -> Integer -> Integer -> a
 type MakeEitherD a = Integer -> Integer -> Integer -> Integer -> Integer -> Either String a
@@ -121,33 +124,33 @@ add' (y,mo,d,h,mi) (dy,dmo,dd,dh,dmi) r =
      month = mo + dmo 
      hour = h + dh
      minute = mi + dmi
- in  add_month year month (d,dd) hour minute r
+ in  addMonth year month (d,dd) hour minute r
  
-add_month y mo ddd h mi r
- | mo > 12  = add_month (y+1) (mo-12) ddd h mi r
- | otherwise = add_day1 y mo ddd h mi r
+addMonth y mo ddd h mi
+ | mo > 12  = addMonth (y+1) (mo-12) ddd h mi
+ | otherwise = addDay1 y mo ddd h mi
  
-add_day1 y mo (d,dd) r = add_minute y mo (d',dd) r
+addDay1 y mo (d,dd) = addMinute y mo (d',dd)
  where d' = min d $ nbDaysInMonth y mo 
                                       
-add_minute y mo ddd h mi r
- | mi >= 60  = add_minute  y mo ddd (h+1) (mi-60) r
- | otherwise = add_hour y mo ddd h mi r
+addMinute y mo ddd h mi r
+ | mi >= 60  = addMinute  y mo ddd (h+1) (mi-60) r
+ | otherwise = addHour y mo ddd h mi r
  
-add_hour y mo (d,dd) h mi r
- | h >= 24   = add_hour y mo (d+1,dd) (h-24) mi r
- | otherwise = add_day2 y mo (d+dd) h mi (nbDaysInMonth y mo) r
+addHour y mo (d,dd) h mi r
+ | h >= 24   = addHour y mo (d+1,dd) (h-24) mi r
+ | otherwise = addDay2 y mo (d+dd) h mi (nbDaysInMonth y mo) r
  
      
-add_day2 y mo d h mi n r
+addDay2 y mo d h mi n r
  | d > n = let d' = d - n
                m' = mo + 1
                (y',m'') = if m' > 12 then (y+1,m'-12) else (y,m')
                n' = nbDaysInMonth y' m''
-           in  add_day2 y' m'' d' h mi n' r
- | otherwise = add_make y mo d h mi r
+           in  addDay2 y' m'' d' h mi n' r
+ | otherwise = addMake y mo d h mi r
  
-add_make y mo d h mi (date, delta)
+addMake y mo d h mi (date, delta)
  | y > 9999  = Left $ "Date addition overflow when adding delta <"++show delta++"> to date <"++show date++">"
  | otherwise = makeDate y mo d h mi
      

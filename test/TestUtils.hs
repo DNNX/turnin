@@ -28,11 +28,6 @@ unclamp v minV maxV = let [x,y] = sort [minV,maxV] in f x y v
         | mi <= val && val <= ma = if val `mod` 2 == 0 then mi - 1 else ma + 1
         | otherwise               = val     
 
-pad :: Integer -> Integer -> String
-pad v l = let s = show v
-              s' = replicate (fromIntegral l-length s) '0'
-          in  s' ++ s
-
 fromRight (Right x) = x
 fromRight _         = error "Should be right value"
 
