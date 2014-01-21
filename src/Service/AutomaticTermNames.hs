@@ -7,7 +7,7 @@ import Infrastructure.Date as Date
 import Data.List.Split
 import Data.Maybe
 
-make :: Integer -> Date -> [DateDelta] -> [(String, Date, Date)]
+make :: Int -> Date -> [DateDelta] -> [(String, Date, Date)]
 make n date ts = let year = getYear date
                      ds = asInfiniteTriples year ts
                      contains (_,d1,d2) = d1 <= date && date <= d2   
@@ -27,7 +27,7 @@ asInfiniteTriples year ts = let n = fromIntegral $ length ts
                              in  map (toNDD n.toQuint) xs'
                                  
                 
-toNDD :: Integer -> (Integer,Integer,Integer,DateDelta,DateDelta) -> (String,Date,Date)                                 
+toNDD :: Int -> (Int,Int,Int,DateDelta,DateDelta) -> (String,Date,Date)                                 
 toNDD n (i,j,y,t1,t2) = let (q1,r1) = (i-1) `quotRem` n
                             (q2,_) = (j-1) `quotRem` n
                             year1  = y + q1 

@@ -20,6 +20,7 @@ import {-@ HTF_TESTS @-} Domain.GroupTest
 import {-@ HTF_TESTS @-} Domain.ProjectTest
 
 import {-@ HTF_TESTS @-} Service.AutomaticTermNamesTest
+import {-@ HTF_TESTS @-} Service.WorktrainOutputFormatterTest
 
 
 main :: IO ()

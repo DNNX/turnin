@@ -15,13 +15,13 @@ sameElements xs ys = null(xs \\ ys) && null (ys \\ xs)
 
 fromTrip f (a,b,c) = f a b c
 
-clamp :: Integer -> Integer -> Integer -> Integer
-clamp v minV maxV = let [x,y] = sort [minV,maxV] in f x y $ abs v
+clampS :: Int -> Int -> Int -> Int
+clampS minV maxV v = let [x,y] = sort [minV,maxV] in f x y $ abs v
  where f mi ma val
         | mi == ma  = mi
-        | otherwise = val `mod` (ma-mi+1) + mi
+        | otherwise = ((val-mi) `mod` (ma-mi+1)) + mi
         
-unclamp :: Integer -> Integer -> Integer -> Integer
+unclamp :: Int -> Int -> Int -> Int
 unclamp v minV maxV = let [x,y] = sort [minV,maxV] in f x y v
  where f mi ma val
         | mi == ma = ma + 1

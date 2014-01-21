@@ -37,7 +37,10 @@ executable turnin
                    Domain.TrainRun,
                    Security.SecurityManager,
                    Infrastructure.Date,
-                   Service.AutomaticTermNames
+                   Service.AutomaticTermNames,
+                   Service.WorktrainOutputFormatter,
+                   Service.Accents,
+                   Service.AsciiArt
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -88,5 +91,10 @@ test-suite turnin-tests
                    Security.SecurityManager,
                    Infrastructure.Date,
                    Service.AutomaticTermNamesTest,
-                   Service.AutomaticTermNames
+                   Service.AutomaticTermNames,
+                   Service.WorktrainOutputFormatterTest,
+                   Service.Utils.FormatterTestUtils,
+                   Service.WorktrainOutputFormatter,
+                   Service.Accents,
+                   Service.AsciiArt
 

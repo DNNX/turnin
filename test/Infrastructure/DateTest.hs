@@ -10,8 +10,8 @@ import Infrastructure.Date
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 prop_dateReadAndWrite y mo d h mi = 
- let [year, month, day, hour, minute] = map (fromTrip clamp) 
-      [(y,1,9999),(mo,1,12),(d,1,28),(h,0,23),(mi,0,59)]
+ let [year, month, day, hour, minute] = map (fromTrip clampS) 
+      [(1,9999,y),(1,12,mo),(1,28,d),(0,23,h),(0,59,mi)]
      first = fromRight $ makeDate year month day hour minute
      second = fromRight $ stringToDate $ show first
      s = intercalate "-" $ map (uncurry pad) [(year,4),(month,2),(day,2),(hour,2),(minute,2)]
@@ -25,8 +25,8 @@ prop_dateReadAndWrite y mo d h mi =
   
    
 prop_dateDeltaReadAndWrite y mo d h mi = 
- let [year, month, day, hour, minute] = map (fromTrip clamp) 
-      [(y,1,9999),(mo,1,12),(d,1,28),(h,0,23),(mi,0,59)]
+ let [year, month, day, hour, minute] = map (fromTrip clampS) 
+      [(1,9999,y),(1,12,mo),(1,28,d),(0,23,h),(0,59,mi)]
      first = fromRight $ makeDateDelta year month day hour minute
      second = fromRight $ stringToDateDelta $ show first
      s = intercalate "-" $ map (uncurry pad) [(year,4),(month,2),(day,2),(hour,2),(minute,2)]
@@ -40,9 +40,9 @@ prop_dateDeltaReadAndWrite y mo d h mi =
  
  
 prop_dateComparison y mo d h mi p = 
- let parts@[year, month, day, hour, minute] = map (fromTrip clamp) 
-      [(y,1,9998),(mo,1,11),(d,1,27),(h,0,22),(mi,0,58)]
-     posToIncrement = clamp p 0 $ fromIntegral $ length parts
+ let parts@[year, month, day, hour, minute] = map (fromTrip clampS) 
+      [(1,9998,y),(1,11,mo),(1,27,d),(0,22,h),(0,58,mi)]
+     posToIncrement = clampS 0 (fromIntegral $ length parts) p
      d1 = makeDate year month day hour minute
      [year',month',day',hour',minute'] = increment posToIncrement parts
      d2 = makeDate year' month' day' hour' minute'
@@ -54,9 +54,9 @@ prop_dateComparison y mo d h mi p =
      (d1 < d2 && d2 >= d1)
       
 prop_dateDeltaComparison dy dmo dd dh dmi p = 
- let parts@[dYear, dMonth, dDay, dHour, dMinute] = map (fromTrip clamp) 
-      [(dy,0,9999),(dmo,0,99),(dd,0,99),(dh,0,22),(dmi,0,99)]
-     posToIncrement = clamp p 0 $ fromIntegral $ length parts
+ let parts@[dYear, dMonth, dDay, dHour, dMinute] = map (fromTrip clampS) 
+      [(0,9999,dy),(0,99,dmo),(0,99,dd),(0,22,dh),(0,99,dmi)]
+     posToIncrement = clampS 0 (fromIntegral $ length parts) p
      dd1 = makeDateDelta dYear dMonth dDay dHour dMinute
      [year',month',day',hour',minute'] = increment posToIncrement parts
      dd2 = makeDateDelta year' month' day' hour' minute'
@@ -87,8 +87,8 @@ test_dateAddition =
       
       
 prop_additionNoOverflow y mo d h mi dy dmo dd dh dmi = 
- let [year, month, day, hour, minute] = map (fromTrip clamp) [(y,1,9998),(mo,1,11),(d,1,27),(h,0,22),(mi,0,58)]
-     [dYear, dMonth, dDay, dHour, dMinute] = map (fromTrip clamp) [(dy,0,9999-year),(dmo,0,12-month),(dd,0,28-day),(dh,0,23-hour),(dmi,0,59-minute)]
+ let [year, month, day, hour, minute] = map (fromTrip clampS) [(1,9998,y),(1,11,mo),(1,27,d),(0,22,h),(0,58,mi)]
+     [dYear, dMonth, dDay, dHour, dMinute] = map (fromTrip clampS) [(0,9999-year,dy),(0,12-month,dmo),(0,28-day,dd),(0,23-hour,dh),(0,59-minute,dmi)]
       
      d1 = fromRight $ makeDate year month day hour minute
      delta = fromRight $ makeDateDelta dYear dMonth dDay dHour dMinute
@@ -107,8 +107,8 @@ prop_additionNoOverflow y mo d h mi dy dmo dd dh dmi =
       
       
 prop_dateAddition y mo d h mi dy dmo dd dh dmi = 
- let [year, month, day, hour, minute] = map (fromTrip clamp) [(y,1,9999),(mo,1,12),(d,1,nbDaysInMonth year month),(h,0,23),(mi,0,59)]
-     [dYear, dMonth, dDay, dHour, dMinute] = map (fromTrip clamp) [(dy,0,9999),(dmo,0,99),(dd,0,99),(dh,0,99),(dmi,0,99)]
+ let [year, month, day, hour, minute] = map (fromTrip clampS) [(1,9999,y),(1,12,mo),(1,nbDaysInMonth year month,d),(0,23,h),(0,59,mi)]
+     [dYear, dMonth, dDay, dHour, dMinute] = map (fromTrip clampS) [(0,9999,dy),(0,99,dmo),(0,99,dd),(0,99,dh),(0,99,dmi)]
       
      d1 = fromRight $ makeDate year month day hour minute
      delta = fromRight $ makeDateDelta dYear dMonth dDay dHour dMinute
@@ -117,9 +117,9 @@ prop_dateAddition y mo d h mi dy dmo dd dh dmi =
      either_d2 = d1 `add` delta
     
  in  case either_d2 of
-      Left m   -> year' > (9999 :: Integer) && 
+      Left m   -> year' > (9999 :: Int) && 
                    m == "Date addition overflow when adding delta <"++show delta++"> to date <"++show d++">"
-      Right d2 -> year' <= (9999 :: Integer) &&
+      Right d2 -> year' <= (9999 :: Int) &&
                    year' == getYear d2 &&
                    month' == getMonth d2 &&
                    day' == getDay d2 &&
@@ -128,18 +128,18 @@ prop_dateAddition y mo d h mi dy dmo dd dh dmi =
             
             
 prop_nbDaysInMonth y d h mi ys =
- let years = nub $ map (\x -> clamp x 1 9999) ys
-     [year, hour, minute] = map (fromTrip clamp) [(y,1,9999),(h,0,23),(mi,0,59)]
-     dates31Days = map (\month -> makeDate year month (clamp d 1 31) hour minute) [1,3,5,7,8,10,12]
-     dates30Days = map (\month -> makeDate year month (clamp d 1 30) hour minute) [4,6,9,11]
+ let years = nub $ map (clampS 1 9999) ys
+     [year, hour, minute] = map (fromTrip clampS) [(1,9999,y),(0,23,h),(0,59,mi)]
+     dates31Days = map (\month -> makeDate year month (clampS 1 31 d) hour minute) [1,3,5,7,8,10,12]
+     dates30Days = map (\month -> makeDate year month (clampS 1 30 d) hour minute) [4,6,9,11]
      errors31Days = mop (\month -> makeDate year month 31 hour minute) [4,6,9,11]
      
      (leaps, nonLeaps) = partition isLeap years
-     leapDates     = map (\year' -> makeDate year' 2 (clamp d 1 29) hour minute) leaps
-     nonLeapDates  = map (\year' -> makeDate year' 2 (clamp d 1 28) hour minute) nonLeaps
+     leapDates     = map (\year' -> makeDate year' 2 (clampS 1 29 d) hour minute) leaps
+     nonLeapDates  = map (\year' -> makeDate year' 2 (clampS 1 28 d) hour minute) nonLeaps
      
-     day1 = clamp d 30 31
-     day2 = clamp d 29 31
+     day1 = clampS 30 31 d
+     day2 = clampS 29 31 d
      leapErrors    = mop (\year' -> makeDate year' 2 day1 hour minute) leaps
      nonLeapErrors = mop (\year' -> makeDate year' 2 day2 hour minute) nonLeaps
      
@@ -156,10 +156,10 @@ prop_nbDaysInMonth y d h mi ys =
             
 prop_dateFormatErrors year month day hour minute 
                       dYear dMonth dDay dHour dMinute =
- let xs = [(year,1,9999),(month,1,12),(day,1,28),(hour,0,23),(minute,0,59)]
-     ys = [(dYear,0,9999),(dMonth,0,99),(dDay,0,99),(dHour,0,99),(dMinute,0,99)]
-     [y, mo, d, h, mi]       = map (fromTrip clamp) xs 
-     [dy, dmo, dd, dh, dmi]  = map (fromTrip clamp) ys
+ let xs = [(1,9999,year),(1,12,month),(1,28,day),(0,23,hour),(0,59,minute)]
+     ys = [(0,9999,dYear),(0,99,dMonth),(0,99,dDay),(0,99,dHour),(0,99,dMinute)]
+     [y, mo, d, h, mi]       = map (fromTrip clampS) xs 
+     [dy, dmo, dd, dh, dmi]  = map (fromTrip clampS) ys
      [y',mo',_,h',mi']      = map (fromTrip unclamp) xs
      [dy',dmo',dd',dh',dmi'] = map (fromTrip unclamp) ys 
      d' = unclamp day 1 31

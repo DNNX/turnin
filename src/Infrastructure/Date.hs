@@ -28,26 +28,26 @@ import Data.List.Split
 import Data.Maybe
 
 data Date = D 
- { getYear   :: Integer
- , getMonth  :: Integer
- , getDay    :: Integer
- , getHour   :: Integer
- , getMinute :: Integer
+ { getYear   :: Int
+ , getMonth  :: Int
+ , getDay    :: Int
+ , getHour   :: Int
+ , getMinute :: Int
  } deriving (Eq,Ord)
  
 data DateDelta = DD
- { getDYear   :: Integer
- , getDMonth  :: Integer
- , getDDay    :: Integer
- , getDHour   :: Integer
- , getDMinute :: Integer
+ { getDYear   :: Int
+ , getDMonth  :: Int
+ , getDDay    :: Int
+ , getDHour   :: Int
+ , getDMinute :: Int
  } deriving (Eq, Ord)
  
-type MakeD a = Integer -> Integer -> Integer -> Integer -> Integer -> a
-type MakeEitherD a = Integer -> Integer -> Integer -> Integer -> Integer -> Either String a
-type MakeDParts = (Integer,Integer,Integer,Integer,Integer)
+type MakeD a = Int -> Int -> Int -> Int -> Int -> a
+type MakeEitherD a = Int -> Int -> Int -> Int -> Int -> Either String a
+type MakeDParts = (Int,Int,Int,Int,Int)
  
-makeD :: Show a => MakeDParts -> MakeD a -> [a -> Integer] -> [(Integer,Integer,String)] -> Either String a
+makeD :: Show a => MakeDParts -> MakeD a -> [a -> Int] -> [(Int,Int,String)] -> Either String a
 makeD (y,mo,d,h,mi) f [gy,gmo,gd,gh,gmi] [year,month,day,hour,minute] = let x = f y mo d h mi in do  
  check x "year" gy 4 year
  check x "month" gmo 2 month
@@ -83,7 +83,7 @@ showD y mo d h mi = intercalate "-" $ map (uncurry pad) [(y,4),(mo,2),(d,2),(h,2
 instance Show Date where show (D  y mo d h mi) = showD y mo d h mi
 instance Show DateDelta where show (DD y mo d h mi) = showD y mo d h mi
 
-nbDaysInMonth :: Integer -> Integer -> Integer
+nbDaysInMonth :: Int -> Int -> Int
 nbDaysInMonth y m
  | m `elem` [1,3,5,7,8,10,12] = 31
  | m `elem` [4,6,9,11]        = 30
@@ -100,7 +100,7 @@ add :: Date -> DateDelta -> Either String Date
 add date@(D y mo d h mi) delta@(DD dy dmo dd dh dmi) = add' (y,mo,d,h,mi) (dy,dmo,dd,dh,dmi) (date, delta)
 
 -- private utils
-check :: Show a => a -> String -> (a -> Integer) -> Integer -> (Integer,Integer,String) -> Either String ()
+check :: Show a => a -> String -> (a -> Int) -> Int -> (Int,Int,String) -> Either String ()
 check date name getV size (minV,maxV,rest) = let v = getV date in
  if minV <= v && v <= maxV then Right ()
  else Left $ "Invalid date <"++show date++">, "++name++" '"++pad v size++"' must be between '"++
@@ -109,12 +109,12 @@ check date name getV size (minV,maxV,rest) = let v = getV date in
 
 validParts parts = length parts == 5 && all (isJust.readPart) parts
 
-pad :: Integer -> Integer -> String
+pad :: Int -> Int -> String
 pad v l = let s = show v
               s' = replicate (fromIntegral l- length s) '0'
           in  s' ++ s
 
-readPart ::  String -> Maybe Integer
+readPart ::  String -> Maybe Int
 readPart s = case reads s of
               [(x, "")] -> Just x
               _ -> Nothing
