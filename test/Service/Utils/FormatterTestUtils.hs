@@ -45,7 +45,7 @@ makeRepeatLines = undefined
 
 makeHeaderAndFooter :: String -> String -> (String, String, String)
 makeHeaderAndFooter k toFormat =
- let key = filter (`elem` (['a'..'z']++['A'..'Z']++['0'..'9']++['_'])) k
+ let key = filter (`elem` (['a'..'z']++['A'..'Z']++['0'..'9']++"_")) k
      expected = applyHeaderFooter key toFormat
  in  (key, expected, toFormat)
   
@@ -54,8 +54,8 @@ applyHeaderFooter key toFormat = unlines [toAsciiArt key, key, begin, toFormat, 
        end   = " ============  output end  ============ " 
  
 
-makeMerge :: [String] -> ([String], String)
-makeMerge toMerge = (toMerge, unlines toMerge)
+makeMerge :: [String] -> (String, [String])
+makeMerge toMerge = (unlines toMerge, toMerge)
 
 
 

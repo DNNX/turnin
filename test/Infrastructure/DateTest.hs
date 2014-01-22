@@ -22,8 +22,7 @@ prop_dateReadAndWrite y mo d h mi =
      hour == getHour first &&
      minute == getMinute first && 
      first == second && second == third
-  
-   
+     
 prop_dateDeltaReadAndWrite y mo d h mi = 
  let [year, month, day, hour, minute] = map (fromTrip clampS) 
       [(1,9999,y),(1,12,mo),(1,28,d),(0,23,h),(0,59,mi)]

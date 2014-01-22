@@ -31,5 +31,5 @@ prop_headerAndFooter s k = s /= [] && k /= [] ==>
 prop_merge s = s /= [] ==>
  let (expected, toMerge) = makeMerge s
  in  expected == mergeOutputs toMerge
-
+ 
   
