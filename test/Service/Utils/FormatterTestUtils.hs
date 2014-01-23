@@ -5,6 +5,10 @@ import Data.Char
 import Service.Accents
 import Service.AsciiArt
 
+import Test.Framework
+import Control.Applicative
+import Data.List
+
 type AsciiString = [Int]
 toAsciiString :: AsciiString -> String
 toAsciiString = map (chr.clampS 32 126)
@@ -40,7 +44,7 @@ getLineComponents n s x y = map (map(map chr).f) [1..  x]
 getFrom :: Int -> Int -> [a] -> [a]              
 getFrom i n s = take n $ drop (i*n) $ cycle s                              
 
-makeRepeatLines :: String -> Int -> (Int, String, String)
+makeRepeatLines :: RepeatTree -> Int -> (Int, String, String)
 makeRepeatLines = undefined
 
 makeHeaderAndFooter :: String -> String -> (String, String, String)
@@ -52,10 +56,57 @@ makeHeaderAndFooter k toFormat =
 applyHeaderFooter key toFormat = unlines [toAsciiArt key, key, begin, toFormat, end]
  where begin = " ============ output begin ============ "
        end   = " ============  output end  ============ " 
- 
 
 makeMerge :: [String] -> (String, [String])
 makeMerge toMerge = (unlines toMerge, toMerge)
 
+data RepeatTree = Leaf String | Node [(Int, RepeatTree)] deriving (Show,Eq)
 
+instance Arbitrary RepeatTree where 
+ arbitrary = sized arbTree
+  where arbTree :: Int -> Gen RepeatTree
+        arbTree 1 = Leaf <$> (fmap toAsciiString arbitrary)
+        arbTree n = do
+         let n' = 1 + n `div` 8
+         ms <- arbitrary
+         ts <- mapM arbTree [1..n'] 
+         return $ Node $ zip (map (clampS 2 10) ms) $ nub ts
+         
+ shrink (Leaf s)  = map Leaf $ shrink s
+ shrink (Node ys) = map snd ys
+
+makeExpected :: RepeatTree -> Int -> String
+makeExpected t n = unlines $ makeExpectedLines t n
+
+makeToFormat :: RepeatTree -> String
+makeToFormat = unlines . makeLines
+
+
+makeExpectedLines :: RepeatTree -> Int -> [String]
+makeExpectedLines (Leaf s) _ = [s]
+makeExpectedLines (Node xs) n = f xs
+ where f :: [(Int,RepeatTree)] -> [String]
+       f [] = []
+       f ((m,t):ys) = let previous_lines = (makeExpectedLines t n)
+                          n_repeats =  concat (replicate (min m n) previous_lines)
+                          maybe_truncation = if m > n then repeatMessage (length previous_lines) (m-n) else [] 
+                          rest = f ys
+                      in  n_repeats ++ maybe_truncation ++ rest
+
+makeLines :: RepeatTree -> [String]
+makeLines (Leaf s) = [s]
+makeLines (Node xs) = f xs
+ where f :: [(Int,RepeatTree)] -> [String]
+       f [] = []
+       f ((n,t):ys) =  concat (replicate n (makeLines t)) ++ f ys
+      
+
+repeatMessage nbLines nbTimes = let ls = makePlural "line" nbLines
+                                    ts = makePlural "time" nbTimes 
+                                in  ["[The previous "++show nbLines++" "++ls++" repeat "++show nbTimes++" more "++ts++"]"] 
+
+makePlural s n
+ | n < 0 = error "Plural of a negative number ["++show n++"] and string ["++s++"]"
+ | n < 2 = s
+ | otherwise = s ++ "s"
 
