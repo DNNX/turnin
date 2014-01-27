@@ -41,7 +41,8 @@ executable turnin
                    Service.AutomaticTermNames,
                    Service.WorktrainOutputFormatter,
                    Service.Accents,
-                   Service.AsciiArt
+                   Service.AsciiArt,
+                   Infrastructure.Finder
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -85,7 +86,6 @@ test-suite turnin-tests
                    Domain.GroupTest,
                    TestUtils,
                    Infrastructure.FinderTest,
-                   Domain.ProjectHeirarchyTest,
                    Domain.SubmitRepo,
                    Domain.TrainFileRepo,
                    Domain.TrainRunRepo,
@@ -98,5 +98,7 @@ test-suite turnin-tests
                    Service.Utils.FormatterTestUtils,
                    Service.WorktrainOutputFormatter,
                    Service.Accents,
-                   Service.AsciiArt
+                   Service.AsciiArt,
+                   Infrastructure.Finder,
+                   Domain.ProjectHierarchyTest
 

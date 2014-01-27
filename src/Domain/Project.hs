@@ -1,17 +1,23 @@
 module Domain.Project
 ( Project()
 , makeProject
+, getSubmitRepo
+, setSubmitRepo
+, getTrainFileRepo
+, setTrainFileRepo
+, getTrainRunRepo
+, setTrainRunRepo
 , getStartDate
 , setStartDate
 , getEndDate
 , setEndDate
 , getLateDate
 , setLateDate
-, getNamesToValidate
+, getNamesToValidate 
 , addNamesToValidate
 , removeNamesToValidate
 , getAcceptExecutables
-, setAcceptExecutables
+, setAcceptExecutables 
 , getValidationCommand
 , setValidationCommand
 , getValidationScript
@@ -29,10 +35,37 @@ module Domain.Project
 import Infrastructure.Node
 import Infrastructure.CsvNode
 
+import Domain.SubmitRepo 
+import Domain.TrainFileRepo
+import Domain.TrainRunRepo
+ 
+import Data.Maybe
+
 data Project = P Node deriving (Show, Eq)
 
 makeProject :: String -> Project
-makeProject = P . makeNode
+makeProject name = let p0 = P $ makeNode name
+                       p1 = setSubmitRepo p0 emptySubmitRepo 
+                       p2 = setTrainFileRepo p1 emptyTrainFileRepo 
+                   in  setTrainRunRepo p2 emptyTrainRunRepo  
+ 
+getSubmitRepo :: Project -> SubmitRepo
+getSubmitRepo (P node) = nodeToSubmitRepo $ fromJust $ getChild node submitRepoName 
+
+setSubmitRepo :: Project -> SubmitRepo -> Project
+setSubmitRepo (P node) r = P $ addSubmitRepoTo r $ unsetChild node submitRepoName
+
+getTrainFileRepo :: Project -> TrainFileRepo
+getTrainFileRepo (P node) = nodeToTrainFileRepo $ fromJust $ getChild node trainFileRepoName 
+
+setTrainFileRepo :: Project -> TrainFileRepo -> Project
+setTrainFileRepo (P node) r = P $ addTrainFileRepoTo r $ unsetChild node trainFileRepoName
+
+getTrainRunRepo :: Project -> TrainRunRepo
+getTrainRunRepo (P node) = nodeToTrainRunRepo $ fromJust $ getChild node trainRunRepoName 
+ 
+setTrainRunRepo :: Project -> TrainRunRepo -> Project
+setTrainRunRepo (P node) r = P $ addTrainRunRepoTo r $ unsetChild node trainRunRepoName
 
 getStartDate :: Project -> String
 getStartDate (P node) = getConfig node startDate
@@ -92,7 +125,7 @@ setTrainTimeLimit :: Project -> String -> Project
 setTrainTimeLimit (P node) = P . setConfig node trainTimeLimit
 
 getTrainSpaceLimit :: Project -> String
-getTrainSpaceLimit (P node) = getConfig node trainSpaceLimit
+getTrainSpaceLimit (P node) = getConfig node trainSpaceLimit 
 
 setTrainSpaceLimit :: Project -> String -> Project
 setTrainSpaceLimit (P node) = P . setConfig node trainSpaceLimit
