@@ -22,11 +22,11 @@ clampS minV maxV v = let [x,y] = sort [minV,maxV] in f x y $ abs v
         | otherwise = ((val-mi) `mod` (ma-mi+1)) + mi
         
 unclamp :: Int -> Int -> Int -> Int
-unclamp v minV maxV = let [x,y] = sort [minV,maxV] in f x y v
+unclamp minV maxV v = let [x,y] = sort [minV,maxV] in f x y v
  where f mi ma val
         | mi == ma = ma + 1
         | mi <= val && val <= ma = if val `mod` 2 == 0 then mi - 1 else ma + 1
-        | otherwise               = val     
+        | otherwise              = val     
 
 fromRight (Right x) = x
 fromRight _         = error "Should be right value"

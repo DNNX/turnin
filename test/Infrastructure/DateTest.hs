@@ -114,10 +114,10 @@ prop_dateAddition y mo d h mi dy dmo dd dh dmi =
      
      (year', month', day', hour', minute') = referenceAdd (year,month,day,hour,minute) (dYear,dMonth,dDay,dHour,dMinute)
      either_d2 = d1 `add` delta
-    
+     
  in  case either_d2 of
       Left m   -> year' > (9999 :: Int) && 
-                   m == "Date addition overflow when adding delta <"++show delta++"> to date <"++show d++">"
+                   m == "Date addition overflow when adding delta <"++show delta++"> to date <"++show d1++">"
       Right d2 -> year' <= (9999 :: Int) &&
                    year' == getYear d2 &&
                    month' == getMonth d2 &&
@@ -161,7 +161,7 @@ prop_dateFormatErrors year month day hour minute
      [dy, dmo, dd, dh, dmi]  = map (fromTrip clampS) ys
      [y',mo',_,h',mi']      = map (fromTrip unclamp) xs
      [dy',dmo',dd',dh',dmi'] = map (fromTrip unclamp) ys 
-     d' = unclamp day 1 31
+     d' = unclamp 1 31 day
      
  in  errorCase makeDate y' mo d h mi "year" 1 9999 y' 4 "" &&
      errorCase makeDate y mo' d h mi "month" 1 12 mo' 2 "" &&

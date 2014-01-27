@@ -5,8 +5,9 @@ import Test.Framework
 import Service.Utils.FormatterTestUtils
 
 import Service.WorktrainOutputFormatter 
-import System.IO.Unsafe
 import TestUtils
+
+import System.IO.Unsafe
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
@@ -18,27 +19,26 @@ prop_lineEnd s = s /= [] ==>
  let (expected, toFormat) = makeLineEnds s
  in  expected == formatLineEnds toFormat
  
-prop_maxLineWidth s (Positive n) x y = s /= [] ==>
- let (maxLineWidth, expected, toFormat) = makeTooLongLines s n x y
- in  expected == wrapLines toFormat (fromIntegral maxLineWidth)
+prop_maxLineWidth s (Positive n) xs = s /= [] ==>
+ let (maxLineWidth, expected, toFormat) = makeTooLongLines s n xs
+     result = wrapLines toFormat (fromIntegral maxLineWidth)
+ in  expected == result 
  
-prop_repeats s (Positive n) =
- let (maxNbRepeats, expected, toFormat) = makeRepeatLines s n
- in  expected == formatRepetitions toFormat (fromIntegral  maxNbRepeats)
-  
-prop_moo t n' = let n = clampS 3 6 n' in unsafePerformIO $ do
- putStrLn "" 
- print t 
- print $ makeExpected t n
- putStrLn "\n\n\n\n\n"
- return True 
-  
 prop_headerAndFooter s k = s /= [] && k /= [] ==>
  let (key, expected, toFormat) = makeHeaderAndFooter s k
- in  expected == addHeaderAndFooter toFormat key
+     actual = addHeaderAndFooter toFormat key
+ in  expected == actual
   
 prop_merge s = s /= [] ==>
  let (expected, toMerge) = makeMerge s
- in  expected == mergeOutputs toMerge
- 
+ in  expected == mergeOutputs toMerge 
    
+prop_repeats s (Positive n') = let n = clampS 2 10 n' in
+ let (expected, toFormat) = makeRepeatLines s n
+ in  expected == (formatRepetitions toFormat (fromIntegral  n))
+  
+test_repeatTree = mapM_ f testValues
+ where f (toMakeWith,expected) = do
+        assertEqual expected (makeRepeatTree toMakeWith)
+  
+  

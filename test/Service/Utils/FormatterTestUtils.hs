@@ -27,14 +27,22 @@ makeLineEnds ls = let the_lines = map toAsciiString ls
                       f (line, sep) = let (li,ne) = splitAt (length line `div` 2) line in  li ++ "\r" ++ ne ++ sep
                   in  (expected, toFormat)          
 
-makeTooLongLines :: AsciiString -> Int -> Int -> Int -> (Int, String, String)
-makeTooLongLines s n' x' y' = let n = clampS 1 10 n'
-                                  x = clampS 1 10 x'
-                                  y = clampS 1 10 y'
-                                  the_lines = getLineComponents n (map (clampS 32 126) s) x y
-                                  expected = unlines $ concat the_lines
-                                  toFormat = unlines $ map concat the_lines
-                              in  (n,expected,toFormat)
+makeTooLongLines :: AsciiString -> Int -> [(Int,Int)] -> (Int, String, String)
+makeTooLongLines as n' ys = let s = toAsciiString as
+                                n = clampS 1 10 n'
+                                xs = map (\(a,b) -> (clampS 1 10 a, clampS 0 (n-1) b)) ys
+                                parts = makeParts s n xs
+                                expected = unlines $ concat parts
+                                toFormat = unlines $ map concat parts 
+                            in  (n, expected, toFormat)
+                            
+makeParts :: String -> Int -> [(Int,Int)] -> [[String]]
+makeParts s' n' xs' = filter (not.null) $ reverse $ map reverse $ f [[]] s' n' xs'
+ where f acc    _  _ []         = acc
+       f acc    [] _ _          = acc
+       f acc    s  n ((0,0):xs) = f acc s n xs
+       f (l:ls) s  n ((0,b):xs) = let (begin,rest) = splitAt b s in f ([]:(begin:l):ls) rest n xs
+       f (l:ls) s  n ((a,b):xs) = let (begin,rest) = splitAt n s in f ((begin:l):ls) rest n ((a-1,b):xs)
                               
 getLineComponents :: Int -> AsciiString -> Int -> Int -> [[String]]                        
 getLineComponents n s x y = map (map(map chr).f) [1..  x]
@@ -44,11 +52,11 @@ getLineComponents n s x y = map (map(map chr).f) [1..  x]
 getFrom :: Int -> Int -> [a] -> [a]              
 getFrom i n s = take n $ drop (i*n) $ cycle s                              
 
-makeRepeatLines :: RepeatTree -> Int -> (Int, String, String)
-makeRepeatLines = undefined
+makeRepeatLines :: Tree -> Int -> (String, String)
+makeRepeatLines t n = (unlines $ makeExpectedLines n t, unlines $ makeToFormatLines t) 
 
 makeHeaderAndFooter :: String -> String -> (String, String, String)
-makeHeaderAndFooter k toFormat =
+makeHeaderAndFooter toFormat k =
  let key = filter (`elem` (['a'..'z']++['A'..'Z']++['0'..'9']++"_")) k
      expected = applyHeaderFooter key toFormat
  in  (key, expected, toFormat)
@@ -60,53 +68,52 @@ applyHeaderFooter key toFormat = unlines [toAsciiArt key, key, begin, toFormat, 
 makeMerge :: [String] -> (String, [String])
 makeMerge toMerge = (unlines toMerge, toMerge)
 
-data RepeatTree = Leaf String | Node [(Int, RepeatTree)] deriving (Show,Eq)
+data Tree = L String | N Int [Tree] deriving (Show,Eq)
 
-instance Arbitrary RepeatTree where 
+instance Arbitrary Tree where 
  arbitrary = sized arbTree
-  where arbTree :: Int -> Gen RepeatTree
-        arbTree 1 = Leaf <$> (fmap toAsciiString arbitrary)
+  where arbTree :: Int -> Gen Tree
+        arbTree 1 = do
+         NonEmpty l <- arbitrary
+         return $ L $ toAsciiString l
         arbTree n = do
-         let n' = 1 + n `div` 8
+         let n' = 1 + n `div` 16
          ms <- arbitrary
          ts <- mapM arbTree [1..n'] 
-         return $ Node $ zip (map (clampS 2 10) ms) $ nub ts
+         return $ N (clampS 2 10 ms) $ nub ts
          
- shrink (Leaf s)  = map Leaf $ shrink s
- shrink (Node ys) = map snd ys
+ shrink (L s)  = map L $ shrink s
+ shrink (N _ xs) = xs
 
-makeExpected :: RepeatTree -> Int -> String
-makeExpected t n = unlines $ makeExpectedLines t n
-
-makeToFormat :: RepeatTree -> String
-makeToFormat = unlines . makeLines
-
-
-makeExpectedLines :: RepeatTree -> Int -> [String]
-makeExpectedLines (Leaf s) _ = [s]
-makeExpectedLines (Node xs) n = f xs
- where f :: [(Int,RepeatTree)] -> [String]
-       f [] = []
-       f ((m,t):ys) = let previous_lines = (makeExpectedLines t n)
-                          n_repeats =  concat (replicate (min m n) previous_lines)
-                          maybe_truncation = if m > n then repeatMessage (length previous_lines) (m-n) else [] 
-                          rest = f ys
-                      in  n_repeats ++ maybe_truncation ++ rest
-
-makeLines :: RepeatTree -> [String]
-makeLines (Leaf s) = [s]
-makeLines (Node xs) = f xs
- where f :: [(Int,RepeatTree)] -> [String]
-       f [] = []
-       f ((n,t):ys) =  concat (replicate n (makeLines t)) ++ f ys
+makeExpectedLines :: Int -> Tree -> [String]
+makeExpectedLines _ (L s) = [s]
+makeExpectedLines n (N nb xs) = let ls = concatMap (makeExpectedLines n) xs
+                                    n_repeats = concat (replicate (min n nb) ls)
+                                    maybe_truncation = if nb > n then repeatMessage (length ls) (nb-n) else []
+                                in  n_repeats ++ maybe_truncation
+                                
+makeToFormatLines :: Tree -> [String]
+makeToFormatLines (L s) = [s]
+makeToFormatLines (N n xs) = concat $ replicate n $ concatMap makeToFormatLines xs
       
 
 repeatMessage nbLines nbTimes = let ls = makePlural "line" nbLines
                                     ts = makePlural "time" nbTimes 
-                                in  ["[The previous "++show nbLines++" "++ls++" repeat "++show nbTimes++" more "++ts++"]"] 
+                                in  ["[The previous "++show nbLines++" "++ls++" repeat "++show nbTimes++" "++ts++"]"] 
 
 makePlural s n
  | n < 0 = error "Plural of a negative number ["++show n++"] and string ["++s++"]"
  | n < 2 = s
  | otherwise = s ++ "s"
+
+
+
+
+
+
+
+
+
+
+
 

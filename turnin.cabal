@@ -11,7 +11,8 @@ executable turnin
                    base >= 4,
                    optparse-applicative >=0.7.0 && <0.8,
                    containers >=0.4.2 && <0.5,
-                   split >=0.2.2 && <0.3
+                   split >=0.2.2 && <0.3,
+                   text >=0.11.1 && <0.12
   ghc-options:     -Wall -fno-warn-missing-signatures
   other-modules:
                    Interface.Lexicon,
@@ -50,7 +51,8 @@ test-suite turnin-tests
                    base >= 4, HTF > 0.9,
                    optparse-applicative >=0.7.0 && <0.8,
                    containers >=0.4.2 && <0.5,
-                   split >=0.2.2 && <0.3
+                   split >=0.2.2 && <0.3,
+                   text >=0.11.1 && <0.12
   hs-source-dirs:
                    src,
                    test
