@@ -19,7 +19,7 @@ stripAccents = map fromAccent
 formatLineEnds :: String -> String 
 formatLineEnds [] = []
 formatLineEnds ('\r':s) = formatLineEnds s
-formatLineEnds (c:s) = c:formatLineEnds s
+formatLineEnds (x:s) = x:formatLineEnds s
 
 wrapLines :: String -> Int -> String
 wrapLines s n = let ls = lines s
@@ -128,34 +128,34 @@ merge' (L x) (L y)       | x == y   = Just $ N 2 [L x]
 merge' (N i xs) (N j ys) | xs == ys = Just $ N (i+j) xs
 merge' _        _                   = Nothing
 
-testValues = [ (l0,l0_expected)
-             , (l1,l1_expected)
-             , (l2,l2_expected)
-             , (l3,l3_expected)
-             , (t0,t0_expected)
-             , (t1,t1_expected)
-             , (t2,t2_expected)
-             , (t3,t3_expected)
-             , (t4,t4_expected)
+testValues = [ (l0,l0Expected)
+             , (l1,l1Expected)
+             , (l2,l2Expected)
+             , (l3,l3Expected)
+             , (t0,t0Expected)
+             , (t1,t1Expected)
+             , (t2,t2Expected)
+             , (t3,t3Expected)
+             , (t4,t4Expected)
              ]
 
 l0 = [a,a,a]
-l0_expected = N 3 [a]
+l0Expected = N 3 [a]
 
 l1 = [a,b,a,b,a,b]
-l1_expected = N 3 [b,a]
+l1Expected = N 3 [b,a]
 
 l2 = [a,b,a,b,a,b,c,a,b,a,b,a,b,c,a,b,a,b,a,b,c]
-l2_expected = N 3 [N 1 [c],N 3 [b,a]]
+l2Expected = N 3 [N 1 [c],N 3 [b,a]]
 
 l3 = [a,a,b,b,c,c,  a,a,b,b,a,a,b,b,a,a,b,b,c,  a,a,a,b,b,b,a,a,a,b,b,b,c,c,  a,a,a,b,b,b,a,a,a,b,b,b,c,c,  a,a,a,b,b,b,a,a,a,b,b,b,c,c]
-l3_expected = N 1 [N 3 [N 1 [N 2 [c]],N 2 [N 3 [b],N 3 [a]]],c,N 3 [N 2 [b],N 2 [a]],N 2 [c],N 2 [b],N 2 [a]]
+l3Expected = N 1 [N 3 [N 1 [N 2 [c]],N 2 [N 3 [b],N 3 [a]]],c,N 3 [N 2 [b],N 2 [a]],N 2 [c],N 2 [b],N 2 [a]]
 
 t0 = replicate 10 a
-t0_expected = N 10 [a]
+t0Expected = N 10 [a]
 
 t1 = [a,b,a,b,a,b,a,b,a,b,a,b,a,b,a,b,a,b,a,b]
-t1_expected = N 10 [b,a]
+t1Expected = N 10 [b,a]
 
 t2 = [a,b,a,b,a,b,a,b,a,b,c,
       a,b,a,b,a,b,a,b,a,b,c,
@@ -167,12 +167,12 @@ t2 = [a,b,a,b,a,b,a,b,a,b,c,
       a,b,a,b,a,b,a,b,a,b,c,
       a,b,a,b,a,b,a,b,a,b,c,
       a,b,a,b,a,b,a,b,a,b,c]
-t2_expected = N 10 [N 1 [c],N 5 [b,a]]
+t2Expected = N 10 [N 1 [c],N 5 [b,a]]
 
 t3 = replicate 10 a ++ replicate 10 b ++ replicate 10 c ++ [d] ++
       concat (replicate 10 (replicate 10 a ++ replicate 10 b)) ++ [c] ++ 
        concat (replicate 10 (replicate 10 a ++ replicate 10 b ++ replicate 10 c))
-t3_expected = N 1 [N 10 [N 10 [c],N 10 [b],N 10 [a]],c,N 10 [N 10 [b],N 10 [a]],d,N 10 [c],N 10 [b],N 10 [a]]
+t3Expected = N 1 [N 10 [N 10 [c],N 10 [b],N 10 [a]],c,N 10 [N 10 [b],N 10 [a]],d,N 10 [c],N 10 [b],N 10 [a]]
 
 t4 = [ a,b,b,c,c,c,c,c,c,c,c
      , a,b,b,c,c,c,c,c,c,c,c
@@ -183,7 +183,7 @@ t4 = [ a,b,b,c,c,c,c,c,c,c,c
      , a,b,b,c,c,c,c,c,c,c,c
      ]
      
-t4_expected =  N 7 [N 8 [c],N 2 [b],N 1 [a]]
+t4Expected =  N 7 [N 8 [c],N 2 [b],N 1 [a]]
    
 a = L "a"
 b = L "b"

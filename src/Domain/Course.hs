@@ -24,7 +24,7 @@ removeGroup :: Course -> String -> Course
 removeGroup (C node) = C . unsetChild node
 
 getGroups :: Course -> [String]
-getGroups (C node) = getChildren node
+getGroups (C node) = map getName $ getChildren node
 
 getGroup :: Course -> String -> Maybe Group
 getGroup (C node) = fmap nodeToGroup . getChild node

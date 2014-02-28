@@ -6,8 +6,23 @@ import Data.List
 import TestUtils
 
 import Infrastructure.Date
+import Control.Monad
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
+
+test_dateReadAndWrite = do
+ forM_ [(1,1,1,0,0),(9999,12,31,23,59),(5000,6,15,12,30)] $ \(year, month, day, hour, minute) -> do 
+   let Right first = makeDate year month day hour minute
+       Right second = stringToDate $ show first
+   assertEqual year $ getYear first
+   assertEqual month $ getMonth first
+   assertEqual day $ getDay first
+   assertEqual hour $ getHour first
+   assertEqual minute $ getMinute first
+   assertEqual first  second
+ assertEqual (stringToDate "0001-01-01-00-00") $ makeDate 1 1 1 0 0
+ assertEqual (stringToDate "9999-12-31-23-59") $ makeDate 9999 12 31 23 59
+ assertEqual (stringToDate "1234-6-15-12-30") $ makeDate 1234 6 15 12 30
 
 prop_dateReadAndWrite y mo d h mi = 
  let [year, month, day, hour, minute] = map (fromTrip clampS) 
@@ -23,11 +38,25 @@ prop_dateReadAndWrite y mo d h mi =
      minute == getMinute first && 
      first == second && second == third
      
+test_dateDeltaReadAndWrite = do
+ forM_ [(0,0,0,0,0),(9999,99,99,99,99),(5000,50,50,50,50)] $ \(year, month, day, hour, minute) -> do 
+   let Right first = makeDateDelta year month day hour minute
+       Right second = stringToDateDelta $ show first
+   assertEqual year $ getDYear first
+   assertEqual month $ getDMonth first
+   assertEqual day $ getDDay first
+   assertEqual hour $ getDHour first
+   assertEqual minute $ getDMinute first
+   assertEqual first  second
+ assertEqual (stringToDateDelta "0000-00-00-00-00") $ makeDateDelta 0 0 0 0 0
+ assertEqual (stringToDateDelta "9999-99-99-99-99") $ makeDateDelta 9999 99 99 99 99
+ assertEqual (stringToDateDelta "5000-50-50-50-50") $ makeDateDelta 5000 50 50 50 50
+     
 prop_dateDeltaReadAndWrite y mo d h mi = 
  let [year, month, day, hour, minute] = map (fromTrip clampS) 
       [(1,9999,y),(1,12,mo),(1,28,d),(0,23,h),(0,59,mi)]
-     first = fromRight $ makeDateDelta year month day hour minute
-     second = fromRight $ stringToDateDelta $ show first
+     Right first = makeDateDelta year month day hour minute
+     Right second = stringToDateDelta $ show first
      s = intercalate "-" $ map (uncurry pad) [(year,4),(month,2),(day,2),(hour,2),(minute,2)]
      third = fromRight $ stringToDateDelta s
  in  year == getDYear first &&
@@ -36,8 +65,19 @@ prop_dateDeltaReadAndWrite y mo d h mi =
      hour == getDHour first && 
      minute == getDMinute first &&  
      first == second && second == third
- 
- 
+
+test_dateComparison = 
+ forM_ [(1,1,1,0,0),(9998,11,27,22,58),(5000,6,15,12,30)] $ \(y, mo, d, h, mi) -> do 
+   forM_ [(1,0,0,0,0),(0,1,0,0,0),(0,0,1,0,0),(0,0,0,1,0),(0,0,0,0,1)] $ \(dy, dmo, dd, dh, dmi) -> do
+     let Right d1 = makeDate y mo d h mi
+         Right d2 = makeDate (y+dy) (mo+dmo) (d+dd) (h+dh) (mi+dmi)
+     when (d1 == d2) $ assertBool (d2 == d1)
+     when (d1 /= d2) $  assertBool (d2 /= d1) 
+     when (d1 >= d2) $  assertBool (d2 < d1) 
+     when (d1 <= d2) $  assertBool (d2 > d1) 
+     when (d1 > d2) $ assertBool (d2 <= d1)
+     when (d1 < d2) $ assertBool (d2 >= d1) 
+  
 prop_dateComparison y mo d h mi p = 
  let parts@[year, month, day, hour, minute] = map (fromTrip clampS) 
       [(1,9998,y),(1,11,mo),(1,27,d),(0,22,h),(0,58,mi)]
@@ -51,6 +91,18 @@ prop_dateComparison y mo d h mi p =
      (d1 <= d2 && d1 > d1) ||
      (d1 > d2 && d2 <= d1) ||
      (d1 < d2 && d2 >= d1)
+
+test_dateDeltaComparison = 
+ forM_ [(1,1,1,0,0),(9998,98,98,98,98),(5000,50,50,50,50)] $ \(y, mo, d, h, mi) -> do 
+   forM_ [(1,0,0,0,0),(0,1,0,0,0),(0,0,1,0,0),(0,0,0,1,0),(0,0,0,0,1)] $ \(dy, dmo, dd, dh, dmi) -> do
+     let Right d1 = makeDateDelta y mo d h mi
+         Right d2 = makeDateDelta (y+dy) (mo+dmo) (d+dd) (h+dh) (mi+dmi)
+     when (d1 == d2) $ assertBool (d2 == d1)
+     when (d1 /= d2) $  assertBool (d2 /= d1) 
+     when (d1 >= d2) $  assertBool (d2 < d1) 
+     when (d1 <= d2) $  assertBool (d2 > d1) 
+     when (d1 > d2) $ assertBool (d2 <= d1)
+     when (d1 < d2) $ assertBool (d2 >= d1)    
       
 prop_dateDeltaComparison dy dmo dd dh dmi p = 
  let parts@[dYear, dMonth, dDay, dHour, dMinute] = map (fromTrip clampS) 
@@ -65,7 +117,31 @@ prop_dateDeltaComparison dy dmo dd dh dmi p =
      (dd1 <= dd2 && dd1 > dd1) || 
      (dd1 > dd2 && dd2 <= dd1) ||
      (dd1 < dd2 && dd2 >= dd1)
-     
+
+test_additionNoOverflow = 
+ forM_ [(1,1,1,0,0),(9998,11,27,22,58),(5000,6,15,12,30)] $ \(y, mo, d, h, mi) -> do 
+   forM_ [(1,0,0,0,0),(0,1,0,0,0),(0,0,1,0,0),(0,0,0,1,0),(0,0,0,0,1)] $ \(dy, dmo, dd, dh, dmi) -> do
+     let d1 = fromRight $ makeDate y mo d h mi
+         d2 = fromRight $ d1 `add` (fromRight $ makeDateDelta dy dmo dd dh dmi)
+     assertEqual (y + dy) $ getYear d2
+     assertEqual (mo + dmo) $ getMonth d2
+     assertEqual (d + dd) $ getDay d2
+     assertEqual (h + dh) $ getHour d2
+     assertEqual (mi + dmi) $ getMinute d2
+
+prop_additionNoOverflow y mo d h mi dy dmo dd dh dmi = 
+ let [year, month, day, hour, minute] = map (fromTrip clampS) [(1,9998,y),(1,11,mo),(1,27,d),(0,22,h),(0,58,mi)]
+     [dYear, dMonth, dDay, dHour, dMinute] = map (fromTrip clampS) [(0,9999-year,dy),(0,12-month,dmo),(0,28-day,dd),(0,23-hour,dh),(0,59-minute,dmi)]
+      
+     d1 = fromRight $ makeDate year month day hour minute
+     delta = fromRight $ makeDateDelta dYear dMonth dDay dHour dMinute
+     d2 = fromRight $ d1 `add` delta
+ in  year + dYear == getYear d2 &&
+     month + dMonth == getMonth d2 &&
+     day + dDay == getDay d2 &&
+     hour + dHour == getHour d2 &&
+     minute + dMinute == getMinute d2
+      
 test_dateAddition = 
  let f a b c d e = fromRight $ makeDate a b c d e
      g a b c d e = fromRight $ makeDateDelta a b c d e in do
@@ -83,27 +159,6 @@ test_dateAddition =
  assertEqual (f 1999 4 30 0 0) $ fromRight $ f 1999 3 31 0 0 `add` g 0 1 0 0 0
  assertEqual (f 2004 3 1 0 0) $ fromRight $ f 2004 2 28 0 0 `add` g 0 0 2 0 0
  assertEqual (f 2003 3 1 0 0) $ fromRight $ f 2003 2 28 0 0 `add` g 0 0 1 0 0
-      
-      
-prop_additionNoOverflow y mo d h mi dy dmo dd dh dmi = 
- let [year, month, day, hour, minute] = map (fromTrip clampS) [(1,9998,y),(1,11,mo),(1,27,d),(0,22,h),(0,58,mi)]
-     [dYear, dMonth, dDay, dHour, dMinute] = map (fromTrip clampS) [(0,9999-year,dy),(0,12-month,dmo),(0,28-day,dd),(0,23-hour,dh),(0,59-minute,dmi)]
-      
-     d1 = fromRight $ makeDate year month day hour minute
-     delta = fromRight $ makeDateDelta dYear dMonth dDay dHour dMinute
-     d2 = fromRight $ d1 `add` delta
- in  dYear == getDYear delta &&
-     dMonth == getDMonth delta && 
-     dDay == getDDay delta &&
-     dHour == getDHour delta &&
-     dMinute == getDMinute delta &&
-     
-     year + dYear == getYear d2 &&
-     month + dMonth == getMonth d2 &&
-     day + dDay == getDay d2 &&
-     hour + dHour == getHour d2 &&
-     minute + dMinute == getMinute d2
-      
       
 prop_dateAddition y mo d h mi dy dmo dd dh dmi = 
  let [year, month, day, hour, minute] = map (fromTrip clampS) [(1,9999,y),(1,12,mo),(1,nbDaysInMonth year month,d),(0,23,h),(0,59,mi)]
@@ -125,6 +180,16 @@ prop_dateAddition y mo d h mi dy dmo dd dh dmi =
                    hour' == getHour d2 &&
                    minute' == getMinute d2
             
+test_nbDaysInMonth = do
+ forM_ [1,3,5,7,8,10,12] $ \mo -> do
+   assertBool $ isRight $ makeDate 2000 mo 31 00 00
+ forM_ [4,6,9,11] $ \mo -> do
+   assertBool $ isRight $ makeDate 2003 mo 30 00 00
+   assertBool $ isLeft $ makeDate 2003 mo 31 00 00
+ assertBool $ isRight $ makeDate 2003 2 28 00 00
+ assertBool $ isLeft $ makeDate 2003 2 29 00 00
+ assertBool $ isRight $ makeDate 2004 2 29 00 00
+ assertBool $ isLeft $ makeDate 2004 2 30 00 00 
             
 prop_nbDaysInMonth y d h mi ys =
  let years = nub $ map (clampS 1 9999) ys
@@ -152,6 +217,29 @@ prop_nbDaysInMonth y d h mi ys =
      all (\(y',date) -> date == Left ("Invalid date <"++toDateString y' 2 day1 hour minute++">, day '"++pad day1 2++"' must be between '01' and '29' for month '"++pad 2 2++"' and year '"++pad y' 4++"'")) leapErrors &&
      all (\(y',date) -> date == Left ("Invalid date <"++toDateString y' 2 day2 hour minute++">, day '"++pad day2 2++"' must be between '01' and '28' for month '"++pad 2 2++"' and year '"++pad y' 4++"'")) nonLeapErrors
             
+test_dateFormatErrors = do
+ assertBool $ errorCase makeDate 0     6 15 12 30 "year" 1 9999 0 4 ""
+ assertBool $ errorCase makeDate 10000 6 15 12 30 "year" 1 9999 10000 4 ""
+ assertBool $ errorCase makeDate 5000 0  15 12 30 "month" 1 12 0 2 ""
+ assertBool $ errorCase makeDate 5000 13 15 12 30 "month" 1 12 13 2 ""
+ assertBool $ errorCase makeDate 5000 6 0  12 30 "day" 1 30 0 2 " for month '06' and year '5000'"
+ assertBool $ errorCase makeDate 5000 6 31 12 30 "day" 1 30 31 2 " for month '06' and year '5000'"
+ assertBool $ errorCase makeDate 5000 6 15 (-1) 30 "hour" 0 23 (-1) 2 ""
+ assertBool $ errorCase makeDate 5000 6 15 24 30 "hour" 0 23 24 2 ""
+ assertBool $ errorCase makeDate 5000 6 15 12 (-1) "minute" 0 59 (-1) 2 ""
+ assertBool $ errorCase makeDate 5000 6 15 12 60 "minute" 0 59 60 2 ""
+ 
+test_dateDeltaFormatErrors = do
+ assertBool $ errorCase makeDateDelta (-1)  50   50   50   50   "year"   0 9999 (-1)  4 ""
+ assertBool $ errorCase makeDateDelta 10000 50   50   50   50   "year"   0 9999 10000 4 ""
+ assertBool $ errorCase makeDateDelta 5000  (-1) 50   50   50   "month"  0 99   (-1)  2 ""
+ assertBool $ errorCase makeDateDelta 5000  100  50   50   50   "month"  0 99   100   2 ""
+ assertBool $ errorCase makeDateDelta 5000  50   (-1) 50   50   "day"    0 99   (-1)  2 ""
+ assertBool $ errorCase makeDateDelta 5000  50   100  50   50   "day"    0 99   100   2 ""
+ assertBool $ errorCase makeDateDelta 5000  50   50   (-1) 50   "hour"   0 99   (-1)  2 ""
+ assertBool $ errorCase makeDateDelta 5000  50   50   100  50   "hour"   0 99   100   2 ""
+ assertBool $ errorCase makeDateDelta 5000  50   50   50   (-1) "minute" 0 99   (-1)  2 ""
+ assertBool $ errorCase makeDateDelta 5000  50   50   50   100  "minute" 0 99   100   2 ""
             
 prop_dateFormatErrors year month day hour minute 
                       dYear dMonth dDay dHour dMinute =

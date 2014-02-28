@@ -6,8 +6,9 @@ import Service.Accents
 import Service.AsciiArt
 
 import Test.Framework
-import Control.Applicative
 import Data.List
+
+import Control.Arrow ((***))
 
 type AsciiString = [Int]
 toAsciiString :: AsciiString -> String
@@ -30,7 +31,7 @@ makeLineEnds ls = let the_lines = map toAsciiString ls
 makeTooLongLines :: AsciiString -> Int -> [(Int,Int)] -> (Int, String, String)
 makeTooLongLines as n' ys = let s = toAsciiString as
                                 n = clampS 1 10 n'
-                                xs = map (\(a,b) -> (clampS 1 10 a, clampS 0 (n-1) b)) ys
+                                xs = map (clampS 1 10 *** clampS 0 (n - 1)) ys
                                 parts = makeParts s n xs
                                 expected = unlines $ concat parts
                                 toFormat = unlines $ map concat parts 
@@ -43,6 +44,7 @@ makeParts s' n' xs' = filter (not.null) $ reverse $ map reverse $ f [[]] s' n' x
        f acc    s  n ((0,0):xs) = f acc s n xs
        f (l:ls) s  n ((0,b):xs) = let (begin,rest) = splitAt b s in f ([]:(begin:l):ls) rest n xs
        f (l:ls) s  n ((a,b):xs) = let (begin,rest) = splitAt n s in f ((begin:l):ls) rest n ((a-1,b):xs)
+       f _      _  _ _          = error "Should not get here"
                               
 getLineComponents :: Int -> AsciiString -> Int -> Int -> [[String]]                        
 getLineComponents n s x y = map (map(map chr).f) [1..  x]

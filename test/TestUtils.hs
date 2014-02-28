@@ -21,6 +21,10 @@ clampS minV maxV v = let [x,y] = sort [minV,maxV] in f x y $ abs v
         | mi == ma  = mi
         | otherwise = ((val-mi) `mod` (ma-mi+1)) + mi
         
+clampL :: Int -> Int -> [a] -> [a]
+clampL minL maxL l = let len = clampS minL maxL $ length l
+                     in  take len l        
+        
 unclamp :: Int -> Int -> Int -> Int
 unclamp minV maxV v = let [x,y] = sort [minV,maxV] in f x y v
  where f mi ma val
@@ -33,6 +37,8 @@ fromRight _         = error "Should be right value"
 
 fromLeft (Left x) = x
 fromLeft _        = error "Should be left value"
+
+isLeft = not . isRight
 
 isRight (Right _) = True
 isRight _         = False

@@ -32,7 +32,10 @@ prop_makeTermNames y qs n' = length qs >= 2 ==>
      d = toDate year d' 
      toDateDelta (mo,day,h,mi) = fromRight $ makeDateDelta 0 (clampS 1 12 mo) (clampS 1 28 day) (clampS 0 23 h) (clampS 0 59 mi)
      expected = makeExpected year ts
- in  take (fromIntegral n) expected == make n d ts
+     actual = make n d ts
+ in  take (fromIntegral n) expected == actual &&
+     all (isAutoTerm.(\(x,_,_)->x)) actual
+ 
  
 toDate year delta = fromRight $ makeDate year (getDMonth delta) (getDDay delta) (getDHour delta) (getDMinute delta) 
  

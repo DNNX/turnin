@@ -50,7 +50,7 @@ removeRepo :: Root -> String -> Root
 removeRepo (R node) = R . unsetChild node
 
 getRepos :: Root -> [String] 
-getRepos (R node) = getChildren node
+getRepos (R node) = map getName $ getChildren node
 
 getRepo :: Root -> String -> Maybe Repo
 getRepo (R node) = fmap nodeToRepo . getChild node 

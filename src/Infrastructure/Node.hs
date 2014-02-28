@@ -1,5 +1,5 @@
 module Infrastructure.Node
-( Node
+( Node(Node)
 , makeNode
 , getName
 , getKeys
@@ -62,8 +62,8 @@ setCache (Node name config cache children) key value = Node name config (M.inser
 unsetCache :: Node -> String -> Node
 unsetCache (Node name config cache children) key = Node name config (M.delete key cache) children                                                                                      
 
-getChildren :: Node -> [String]
-getChildren (Node _ _ _ children) = M.keys children
+getChildren :: Node -> [Node]
+getChildren (Node _ _ _ children) = M.elems children
 
 getChild :: Node -> String -> Maybe Node
 getChild (Node _ _ _ children) key = M.lookup key children

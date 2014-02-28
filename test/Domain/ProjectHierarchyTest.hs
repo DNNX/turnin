@@ -4,17 +4,26 @@ module Domain.ProjectHierarchyTest where
 import Test.Framework
 import TestUtils
 import Data.Maybe
-import Data.List
 
 import Domain.Project
 import Domain.SubmitRepo
 import Domain.TrainFileRepo
 import Domain.TrainRunRepo 
 import Domain.TrainRun
-
-import System.IO.Unsafe 
  
 {-# ANN module "HLint: ignore Use camelCase" #-}
+
+test_projectChildren = 
+ let p = makeProject "project"
+     s = addSubmit emptySubmitRepo "submitKey" "submitValue"
+     tf = addTrainFile emptyTrainFileRepo "trainFileKey" "trainFileValue"
+     tr = addTrainRun emptyTrainRunRepo $ makeTrainRun "trainRunName" in do
+ assertEqual emptySubmitRepo $ getSubmitRepo p
+ assertEqual emptyTrainFileRepo $ getTrainFileRepo p
+ assertEqual emptyTrainRunRepo $ getTrainRunRepo p
+ assertEqual s $ getSubmitRepo $ setSubmitRepo p s
+ assertEqual tf $ getTrainFileRepo $ setTrainFileRepo p tf
+ assertEqual tr $ getTrainRunRepo $ setTrainRunRepo p tr
 
 prop_projectChildren projectName submit trainFile trainRun = 
  length (filter (not.null) [submit,trainFile,trainRun]) == 3 ==>
@@ -28,6 +37,21 @@ prop_projectChildren projectName submit trainFile trainRun =
      s == getSubmitRepo (setSubmitRepo p s) &&
      tf == getTrainFileRepo (setTrainFileRepo p tf) &&
      tr == getTrainRunRepo (setTrainRunRepo p tr)
+
+test_trainRunRepoChildren = 
+ let trr = emptyTrainRunRepo
+     tr = makeTrainRun "trainRunDate"
+     absentAdd = addTrainRun trr tr
+     presentAdd = addTrainRun absentAdd tr
+     presentRemove = removeTrainRun absentAdd "trainRunDate"
+     absentRemove = removeTrainRun trr "trainRunDate" in do 
+ assertEqual trr presentRemove
+ assertEqual trr absentRemove
+ assertEqual absentAdd presentAdd
+ assertEqual [] $ getTrainRuns trr
+ assertEqual ["trainRunDate"] $ getTrainRuns absentAdd
+ assertEqual True $ isNothing $ getTrainRun trr "trainRunDate"
+ assertEqual (Just tr) $ getTrainRun absentAdd "trainRunDate"       
 
 prop_trainRunRepoChildren rs = let trainRunDates = uniqueNonEmpty rs
                                in  trainRunDates /= [] ==> f trainRunDates
@@ -45,9 +69,30 @@ prop_trainRunRepoChildren rs = let trainRunDates = uniqueNonEmpty rs
             isNothing (getTrainRun trr trainRunDate) &&
             Just tr == getTrainRun absentAdd trainRunDate                                                   
 
+
+test_emptyRepos = do 
+ assertEqual [] $ getSubmits emptySubmitRepo
+ assertEqual [] $ getLateSubmits emptySubmitRepo
+ assertEqual [] $ getTrainFiles emptyTrainFileRepo
+ assertEqual [] $ getTrainRuns emptyTrainRunRepo
+ 
 prop_emptySubmitRepo = [[]] == applyGets emptySubmitRepo [getSubmits, getLateSubmits]
 prop_emptyTrainFileRepo = [] == getTrainFiles emptyTrainFileRepo
 prop_emptyTrainRunRepo = [] == getTrainRuns emptyTrainRunRepo
+
+test_addRemoveGetSubmits =
+ let sr = emptySubmitRepo
+     absentAdd = addSubmit sr "key" "content"
+     presentAdd = addSubmit absentAdd "key" ("content" ++ "suffix")
+     presentRemove = removeSubmit absentAdd "key"
+     absentRemove = removeSubmit sr "key" in do
+ assertEqual sr presentRemove
+ assertEqual sr absentRemove
+ assertEqual(getSubmit absentAdd "key" ++ "suffix") $ getSubmit presentAdd "key"
+ assertEqual [] $ getSubmits sr
+ assertEqual ["key"] $ getSubmits absentAdd
+ assertEqual "" $ getSubmit sr "key"
+ assertEqual "content" $ getSubmit absentAdd "key"
 
 prop_addRemoveGetSubmits ks suffix = let ks' = uniqueNonEmpty ks in ks' /= [] ==> f $ zip ks' $ map (++suffix) ks'
  where f ((key, content):rest) =
@@ -57,11 +102,23 @@ prop_addRemoveGetSubmits ks suffix = let ks' = uniqueNonEmpty ks in ks' /= [] ==
               presentRemove = removeSubmit absentAdd key
               absentRemove = removeSubmit sr key
           in  areEqual [presentRemove, absentRemove, sr] &&
-              (getSubmit absentAdd key) ++ suffix == (getSubmit presentAdd key) &&
+              getSubmit absentAdd key ++ suffix == getSubmit presentAdd key &&
               sameElements (map fst rest) (getSubmits sr) &&
               sameElements (key:map fst rest) (getSubmits absentAdd) &&
               "" == getSubmit sr key &&
-              (key ++ suffix) == getSubmit absentAdd key
+              content == getSubmit absentAdd key
+
+test_addRemoveGetLateSubmits = 
+ let sr = emptySubmitRepo 
+     absentAdd = addLateSubmit sr "key"
+     presentAdd = addLateSubmit absentAdd "key"
+     presentRemove = removeLateSubmit absentAdd "key"
+     absentRemove = removeLateSubmit sr "key" in do
+ assertEqual sr presentRemove
+ assertEqual sr absentRemove
+ assertEqual absentAdd presentAdd
+ assertEqual [] $ getLateSubmits sr
+ assertEqual ["key"] $ getLateSubmits absentAdd           
            
 prop_addRemoveGetLateSubmits ks = let ks' = uniqueNonEmptyNoComma ks in ks' /= [] ==> f ks'
  where f (key:rest) = 
@@ -75,6 +132,19 @@ prop_addRemoveGetLateSubmits ks = let ks' = uniqueNonEmptyNoComma ks in ks' /= [
             sameElements rest (getLateSubmits sr) &&
             sameElements (key:rest) (getLateSubmits absentAdd)
 
+test_addRemoveGetTrainFiles = 
+ let fr = emptyTrainFileRepo
+     absentAdd = addTrainFile fr "name" "content"
+     presentAdd = addTrainFile absentAdd "name" ("content" ++ "suffix")
+     presentRemove = removeTrainFile absentAdd "name"
+     absentRemove = removeTrainFile fr "name" in do
+ assertEqual fr presentRemove
+ assertEqual fr absentRemove
+ assertEqual (getTrainFile absentAdd "name" ++ "suffix") $ getTrainFile presentAdd "name"
+ assertEqual [] $ getTrainFiles fr
+ assertEqual ["name"] $ getTrainFiles absentAdd
+ assertEqual "" $ getTrainFile fr "name"
+ assertEqual "content" $ getTrainFile absentAdd "name"
 
 prop_addRemoveGetTrainFiles fs suffix = let fs' = uniqueNonEmpty fs in fs' /= [] ==> f $ zip fs' $ map (++suffix) fs'
  where f ((name, content):rest) = 
@@ -84,11 +154,24 @@ prop_addRemoveGetTrainFiles fs suffix = let fs' = uniqueNonEmpty fs in fs' /= []
             presentRemove = removeTrainFile absentAdd name
             absentRemove = removeTrainFile fr name
         in  areEqual [presentRemove, absentRemove, fr] &&  
-            (getTrainFile absentAdd name) ++ suffix == (getTrainFile presentAdd name) &&
+            getTrainFile absentAdd name ++ suffix == getTrainFile presentAdd name &&
             sameElements (map fst rest) (getTrainFiles fr) &&
             sameElements (name: map fst rest) (getTrainFiles absentAdd) &&
             "" == getTrainFile fr name &&
-            (name ++ suffix) == getTrainFile absentAdd name
+            content == getTrainFile absentAdd name
+        
+test_addRemoveGetTrainRuns =
+ let fr = makeTrainRun ""
+     absentAdd = addResult fr "key" "content"
+     presentAdd = addResult absentAdd "key" ("content" ++ "suffix")
+     presentRemove = removeResult absentAdd "key"
+     absentRemove = removeResult fr "key" in do
+ assertEqual fr presentRemove
+ assertEqual fr absentRemove
+ assertEqual (getResult absentAdd "key" ++ "suffix") $ getResult presentAdd "key"
+ assertEqual [] $ getResults fr
+ assertEqual ["key"] $ getResults absentAdd
+ assertEqual "content" $ getResult absentAdd "key"          
         
 prop_addRemoveGetTrainRuns name rs suffix = let rs' = uniqueNonEmpty rs in rs' /= [] ==> f $ zip rs' $ map (++suffix) rs'
  where f ((key, content):rest) = 
@@ -98,10 +181,9 @@ prop_addRemoveGetTrainRuns name rs suffix = let rs' = uniqueNonEmpty rs in rs' /
             presentRemove = removeResult absentAdd key
             absentRemove = removeResult fr key
         in  areEqual [presentRemove, absentRemove, fr] &&
-            (getResult absentAdd key) ++ suffix == (getResult presentAdd key) &&
+            getResult absentAdd key ++ suffix == getResult presentAdd key &&
             sameElements (map fst rest) (getResults fr) &&
             sameElements (key: map fst rest) (getResults absentAdd) &&
-            (key ++ suffix) == getResult absentAdd key      
-            
+            content == getResult absentAdd key      
             
         

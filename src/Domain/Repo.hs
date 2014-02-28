@@ -24,7 +24,7 @@ removeTerm :: Repo -> String -> Repo
 removeTerm (R node) = R . unsetChild node
 
 getTerms :: Repo -> [String]
-getTerms (R node) = getChildren node
+getTerms (R node) = map getName $ getChildren node
 
 getTerm :: Repo -> String -> Maybe Term
 getTerm (R node) = fmap nodeToTerm . getChild node 

@@ -25,7 +25,7 @@ removeTrainRun :: TrainRunRepo -> String -> TrainRunRepo
 removeTrainRun (R node) = R . unsetChild node
 
 getTrainRuns :: TrainRunRepo -> [String]
-getTrainRuns (R node) = getChildren node
+getTrainRuns (R node) = map getName $ getChildren node
 
 getTrainRun :: TrainRunRepo -> String -> Maybe TrainRun
 getTrainRun (R node) = fmap nodeToTrainRun . getChild node

@@ -9,6 +9,14 @@ import TestUtils
 import Infrastructure.Node
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
+test_emptyNode = let n = makeNode "node" in do
+ assertEqual "node" $ getName n
+ assertEqual "" $ getConfig n "configKey"
+ assertEqual "" $ getCache n "cacheKey"
+ assertEqual [] $ getCacheKeys n
+ assertEqual True $ isNothing $ getChild n "childKey"
+ assertEqual [(["node"], n)] $ getKeys n
+
 prop_emptyNode name k = 
  let n = makeNode name
  in  "" == getConfig n k &&
@@ -17,6 +25,18 @@ prop_emptyNode name k =
     isNothing (getChild n k) &&
      name == getName n &&
      [([name], n)] == getKeys n
+
+test_getSetUnsetConfig = 
+ let n             = makeNode ""
+     absentAdd     = setConfig n "key" "v1"
+     presentAdd    = setConfig absentAdd "key" "v2"
+     presentRemove = unsetConfig absentAdd "key"
+     absentRemove  = unsetConfig n "key" in  do
+ assertEqual n presentRemove
+ assertEqual n absentRemove
+ assertEqual "" $ getConfig n "key" 
+ assertEqual "v1" $ getConfig absentAdd "key"
+ assertEqual "v2" $ getConfig presentAdd "key"
       
 prop_getSetUnsetConfig name = moo f
  where f ((key, v1, v2):rest) =                               
@@ -29,6 +49,22 @@ prop_getSetUnsetConfig name = moo f
             "" == getConfig n key && 
             v1 == getConfig absentAdd key &&
             v2 == getConfig presentAdd key
+
+
+test_getSetUnsetCache =                         
+ let n             = makeNode ""
+     absentAdd     = setCache n "key" "v1"
+     presentAdd    = setCache absentAdd "key" "v2"
+     presentRemove = unsetCache absentAdd "key"
+     absentRemove  = unsetCache n "key" in do
+ assertEqual n presentRemove
+ assertEqual n absentRemove
+ assertEqual [] $ getCacheKeys n
+ assertEqual ["key"] $ getCacheKeys absentAdd
+ assertEqual ["key"] $ getCacheKeys presentAdd
+ assertEqual "" $ getCache n "key"
+ assertEqual "v1" $ getCache absentAdd "key"
+ assertEqual "v2" $ getCache presentAdd "key"
 
 prop_getSetUnsetCache name = moo f . filter (\(a,b,c) -> "" `notElem` [a,b,c])
  where f ((key, v1, v2):rest) =                               
@@ -45,6 +81,24 @@ prop_getSetUnsetCache name = moo f . filter (\(a,b,c) -> "" `notElem` [a,b,c])
             v1 == getCache absentAdd key &&
             v2 == getCache presentAdd key
       
+
+test_getSetUnsetChildren = 
+ let n             = makeNode ""
+     c1            = makeNode "child" 
+     c2'            = setConfig c1 "key" "value"
+     absentAdd     = setChild n c1
+     presentAdd    = setChild absentAdd c2'
+     presentRemove = unsetChild absentAdd "child"
+     absentRemove  = unsetChild n "child" in do
+ assertEqual n presentRemove
+ assertEqual n absentRemove
+ assertEqual absentAdd presentAdd
+ assertEqual True $ isNothing $ getChild n "child"
+ assertEqual (Just c1) $ getChild absentAdd "child"
+ assertEqual [] $ getChildren n
+ assertEqual [c1] $ getChildren absentAdd
+ assertEqual [([""],absentAdd),(["","child"],c1)] $ getKeys absentAdd                 
+       
 prop_getSetUnsetChildren parentName ns = let ns' = nub ns
                                              nss = tails ns'
                                              nss' = filter (not.null) nss
@@ -61,9 +115,8 @@ prop_getSetUnsetChildren parentName ns = let ns' = nub ns
            absentAdd == presentAdd &&
            isNothing (getChild n name) &&
            Just c1 == getChild absentAdd name &&
-           name    == getName c1 &&
-           sameElements rest (getChildren n) &&
-           sameElements names (getChildren absentAdd) &&
+           sameElements rest (map getName $ getChildren n) &&
+           sameElements names (map getName $ getChildren absentAdd) &&
            sameElements (getKeysModel absentAdd) (getKeys absentAdd)
            
 buildNodeConfig name ts = let node = makeNode name in f node ts
@@ -80,7 +133,7 @@ buildNodeChildren parentName ns = let node = makeNode parentName
                                   
 getKeysModel = f []
  where f parentKey c = let key = parentKey ++ [getName c]
-                           rest = concatMap (f key.fromJust.getChild c) $ getChildren c
+                           rest = concatMap (f key.fromJust.getChild c) $ map getName $ getChildren c
                        in  (key,c):rest
 
 moo f ts = let ts' = nubBy (\(a,_,_)(b,_,_)->a==b) ts

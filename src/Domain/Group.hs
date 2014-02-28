@@ -31,7 +31,7 @@ removeProject :: Group -> String -> Group
 removeProject (G node) = G . unsetChild node
 
 getProjects :: Group -> [String]
-getProjects (G node) = getChildren node
+getProjects (G node) = map getName $ getChildren node
 
 getProject :: Group -> String -> Maybe Project
 getProject (G node) = fmap nodeToProject . getChild node

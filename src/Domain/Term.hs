@@ -28,7 +28,7 @@ removeCourse :: Term -> String -> Term
 removeCourse (T node) = T . unsetChild node
 
 getCourses :: Term -> [String]
-getCourses (T node) = getChildren node
+getCourses (T node) = map getName $ getChildren node
 
 getCourse :: Term -> String -> Maybe Course
 getCourse (T node) = fmap nodeToCourse . getChild node
