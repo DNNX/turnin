@@ -6,9 +6,12 @@ import {-@ HTF_TESTS @-} Interface.CommandLineParser.ConfigPropTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.ConfigUnitTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.RepoTermPropTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.RepoTermUnitTest
-import {-@ HTF_TESTS @-} Interface.CommandLineParser.CourseGroupTest
-import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectValidateTest
-import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectWorktrainSubmitTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.CourseGroupPropTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.CourseGroupUnitTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectValidatePropTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectValidateUnitTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectWorktrainSubmitPropTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectWorktrainSubmitUnitTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.SubmitWorktrainPropTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.SubmitWorktrainUnitTest
 

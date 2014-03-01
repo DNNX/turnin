@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -F -pgmF htfpp -fno-warn-incomplete-patterns#-}
-module Interface.CommandLineParser.ProjectWorktrainSubmitTest where
+module Interface.CommandLineParser.ProjectWorktrainSubmitPropTest where
 
 import Test.Framework
 import Interface.CommandLineParser.ParserTestUtils

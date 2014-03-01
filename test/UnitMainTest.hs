@@ -4,6 +4,9 @@ import Test.Framework
 
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.ConfigUnitTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.RepoTermUnitTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.CourseGroupUnitTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectValidateUnitTest
+import {-@ HTF_TESTS @-} Interface.CommandLineParser.ProjectWorktrainSubmitUnitTest
 import {-@ HTF_TESTS @-} Interface.CommandLineParser.SubmitWorktrainUnitTest
 
 import {-@ HTF_TESTS @-} Infrastructure.NodeUnitTest
