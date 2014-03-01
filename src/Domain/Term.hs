@@ -9,8 +9,6 @@ module Domain.Term
 , setStartDate
 , getEndDate
 , setEndDate
-, addTermTo
-, nodeToTerm
 ) where
 
 import Infrastructure.Node
@@ -22,7 +20,7 @@ makeTerm :: String -> Term
 makeTerm = T . makeNode
 
 addCourse :: Term -> Course -> Term
-addCourse (T node) = T . (`addCourseTo` node)
+addCourse (T node) = T . (`addTo` node)
 
 removeCourse :: Term -> String -> Term
 removeCourse (T node) = T . unsetChild node
@@ -31,7 +29,7 @@ getCourses :: Term -> [String]
 getCourses (T node) = map getName $ getChildren node
 
 getCourse :: Term -> String -> Maybe Course
-getCourse (T node) = fmap nodeToCourse . getChild node
+getCourse (T node) = fmap fromNode . getChild node
 
 getStartDate :: Term -> String
 getStartDate (T node) = getCache node startDate
@@ -45,11 +43,9 @@ getEndDate (T node) = getCache node endDate
 setEndDate :: Term -> String -> Term
 setEndDate (T node) = T . setCache node endDate
 
-addTermTo :: Term -> Node -> Node
-addTermTo (T node) = flip setChild node
-
-nodeToTerm :: Node -> Term
-nodeToTerm = T
+instance HasNode Term where
+ addTo (T n) p = setChild p n
+ fromNode = T
 
 startDate = "START_DATE"
 endDate = "END_DATE"

@@ -28,8 +28,6 @@ module Domain.Project
 , setTrainTimeLimit
 , getTrainSpaceLimit
 , setTrainSpaceLimit
-, addProjectTo
-, nodeToProject
 ) where
 
 import Infrastructure.Node
@@ -50,22 +48,22 @@ makeProject name = let p0 = P $ makeNode name
                    in  setTrainRunRepo p2 emptyTrainRunRepo
 
 getSubmitRepo :: Project -> SubmitRepo
-getSubmitRepo (P node) = nodeToSubmitRepo $ fromJust $ getChild node submitRepoName
+getSubmitRepo (P node) = fromNode $ fromJust $ getChild node submitRepoName
 
 setSubmitRepo :: Project -> SubmitRepo -> Project
-setSubmitRepo (P node) r = P $ addSubmitRepoTo r $ unsetChild node submitRepoName
+setSubmitRepo (P node) r = P $ addTo r $ unsetChild node submitRepoName
 
 getTrainFileRepo :: Project -> TrainFileRepo
-getTrainFileRepo (P node) = nodeToTrainFileRepo $ fromJust $ getChild node trainFileRepoName
+getTrainFileRepo (P node) = fromNode $ fromJust $ getChild node trainFileRepoName
 
 setTrainFileRepo :: Project -> TrainFileRepo -> Project
-setTrainFileRepo (P node) r = P $ addTrainFileRepoTo r $ unsetChild node trainFileRepoName
+setTrainFileRepo (P node) r = P $ addTo r $ unsetChild node trainFileRepoName
 
 getTrainRunRepo :: Project -> TrainRunRepo
-getTrainRunRepo (P node) = nodeToTrainRunRepo $ fromJust $ getChild node trainRunRepoName
+getTrainRunRepo (P node) = fromNode $ fromJust $ getChild node trainRunRepoName
 
 setTrainRunRepo :: Project -> TrainRunRepo -> Project
-setTrainRunRepo (P node) r = P $ addTrainRunRepoTo r $ unsetChild node trainRunRepoName
+setTrainRunRepo (P node) r = P $ addTo r $ unsetChild node trainRunRepoName
 
 getStartDate :: Project -> String
 getStartDate (P node) = getConfig node startDate
@@ -130,11 +128,9 @@ getTrainSpaceLimit (P node) = getConfig node trainSpaceLimit
 setTrainSpaceLimit :: Project -> String -> Project
 setTrainSpaceLimit (P node) = P . setConfig node trainSpaceLimit
 
-addProjectTo :: Project -> Node -> Node
-addProjectTo (P node) = flip setChild node
-
-nodeToProject :: Node -> Project
-nodeToProject = P
+instance HasNode Project where
+ addTo (P n) p = setChild p n
+ fromNode = P
 
 startDate = "START_DATE"
 endDate = "END_DATE"

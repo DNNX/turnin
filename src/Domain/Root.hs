@@ -44,7 +44,7 @@ makeRoot :: String -> Root
 makeRoot = R . makeNode
 
 addRepo :: Root -> Repo -> Root
-addRepo (R node) = R . (`addRepoTo` node)
+addRepo (R node) = R . (`addTo` node)
 
 removeRepo :: Root -> String -> Root
 removeRepo (R node) = R . unsetChild node
@@ -53,7 +53,7 @@ getRepos :: Root -> [String]
 getRepos (R node) = map getName $ getChildren node
 
 getRepo :: Root -> String -> Maybe Repo
-getRepo (R node) = fmap nodeToRepo . getChild node
+getRepo (R node) = fmap fromNode . getChild node
 
 getCurrentThreshold :: Root -> String
 getCurrentThreshold (R node) = getConfig node currentThreshold
@@ -135,7 +135,6 @@ removeCorrector (R node) = R . removeCsv node corrector . (:[])
 
 getCorrectors :: Root -> [String]
 getCorrectors (R node) = getCsv node corrector
-
 
 currentThreshold = "CURRENT_THRESHOLD"
 chooseThreshold = "CHOOSE_THRESHOLD"

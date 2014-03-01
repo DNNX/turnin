@@ -5,8 +5,6 @@ module Domain.TrainRun
 , removeResult
 , getResults
 , getResult
-, addTrainRunTo
-, nodeToTrainRun
 ) where
 
 import Infrastructure.Node
@@ -28,8 +26,6 @@ getResults (T node) = getCacheKeys node
 getResult :: TrainRun ->  String -> String
 getResult (T node) = getCache node
 
-addTrainRunTo :: TrainRun -> Node -> Node
-addTrainRunTo (T node) parentNode = setChild parentNode node
-
-nodeToTrainRun :: Node -> TrainRun
-nodeToTrainRun = T
+instance HasNode TrainRun where
+ addTo (T n) p = setChild p n
+ fromNode = T

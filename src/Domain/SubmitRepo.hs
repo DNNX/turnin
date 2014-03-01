@@ -8,13 +8,12 @@ module Domain.SubmitRepo
 , addLateSubmit
 , removeLateSubmit
 , getLateSubmits
-, addSubmitRepoTo
-, nodeToSubmitRepo
 , submitRepoName
 ) where
 
 import Infrastructure.Node
 import Infrastructure.CsvNode
+import Control.Applicative
 
 data SubmitRepo = R Node deriving (Show, Eq)
 
@@ -34,21 +33,17 @@ getSubmit :: SubmitRepo -> String -> String
 getSubmit (R node) = getCache node
 
 addLateSubmit :: SubmitRepo -> String -> SubmitRepo
-addLateSubmit (R node) = R . addCsv node lateSubmit . toList
+addLateSubmit (R node) = R . addCsv node lateSubmit . pure
 
 removeLateSubmit :: SubmitRepo -> String -> SubmitRepo
-removeLateSubmit (R node) = R . removeCsv node lateSubmit . toList
+removeLateSubmit (R node) = R . removeCsv node lateSubmit . pure
 
 getLateSubmits :: SubmitRepo -> [String]
 getLateSubmits (R node) = getCsv node lateSubmit
 
-addSubmitRepoTo :: SubmitRepo -> Node -> Node
-addSubmitRepoTo (R node) parentNode = setChild parentNode node
-
-nodeToSubmitRepo :: Node -> SubmitRepo
-nodeToSubmitRepo = R
-
-toList x = [x]
+instance HasNode SubmitRepo where
+ addTo (R n) p = setChild p n
+ fromNode = R
 
 submitRepoName = "SUBMIT"
 lateSubmit = "LATE_SUBMIT"

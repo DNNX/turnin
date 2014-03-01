@@ -5,8 +5,6 @@ module Domain.Repo
 , removeTerm
 , getTerms
 , getTerm
-, addRepoTo
-, nodeToRepo
 ) where
 
 import Infrastructure.Node
@@ -18,7 +16,7 @@ makeRepo :: String -> Repo
 makeRepo = R . makeNode
 
 addTerm :: Repo -> Term -> Repo
-addTerm (R node) = R . (`addTermTo` node)
+addTerm (R node) = R . (`addTo` node)
 
 removeTerm :: Repo -> String -> Repo
 removeTerm (R node) = R . unsetChild node
@@ -27,10 +25,8 @@ getTerms :: Repo -> [String]
 getTerms (R node) = map getName $ getChildren node
 
 getTerm :: Repo -> String -> Maybe Term
-getTerm (R node) = fmap nodeToTerm . getChild node
+getTerm (R node) = fmap fromNode . getChild node
 
-addRepoTo :: Repo -> Node -> Node
-addRepoTo (R node) = flip setChild node
-
-nodeToRepo :: Node -> Repo
-nodeToRepo = R
+instance HasNode Repo where
+ addTo (R n) p = setChild p n
+ fromNode = R

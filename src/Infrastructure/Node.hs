@@ -1,5 +1,6 @@
 module Infrastructure.Node
 ( Node(Node)
+, HasNode(addTo, fromNode)
 , makeNode
 , getName
 , getKeys
@@ -76,3 +77,7 @@ setChild parent@(Node name config cache children) child@(Node childName _ _ _) =
 
 unsetChild :: Node -> String -> Node
 unsetChild (Node name config cache children) childName = Node name config cache $ M.delete childName children
+
+class HasNode a where
+ addTo :: a -> Node -> Node 
+ fromNode :: Node -> a

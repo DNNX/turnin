@@ -5,8 +5,6 @@ module Domain.TrainFileRepo
 , removeTrainFile
 , getTrainFiles
 , getTrainFile
-, addTrainFileRepoTo
-, nodeToTrainFileRepo
 , trainFileRepoName
 ) where
 
@@ -29,10 +27,8 @@ getTrainFiles (R node) = getCacheKeys node
 getTrainFile :: TrainFileRepo -> String -> String
 getTrainFile (R node) = getCache node
 
-addTrainFileRepoTo :: TrainFileRepo -> Node -> Node
-addTrainFileRepoTo (R node) parentNode = setChild parentNode node
-
-nodeToTrainFileRepo :: Node -> TrainFileRepo
-nodeToTrainFileRepo = R
+instance HasNode TrainFileRepo where
+ addTo (R n) p = setChild p n
+ fromNode = R
 
 trainFileRepoName = "TRAIN_FILE"
