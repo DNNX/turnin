@@ -11,8 +11,10 @@ import Security.SecurityManager
 import Interface.CommandLineParser
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
-
 sampleSize = 7 -- Keep this many random option permutations, tests runtime is exponential in this number
+
+o = Nothing
+allRoles = [adminRole, teacherRole, correctorRole, studentRole]
 
 data Opt = O Char String | B Char String
 type Opts = ([Opt],[Maybe String])

@@ -74,9 +74,9 @@ data WorktrainOutputOpts = WorktrainOutputOpts
  , worktrainOutputGroupNN    :: Maybe String                
  , worktrainOutputProjectNN  :: Maybe String
  , worktrainOutputTrainRunNN :: Maybe String
- , worktrainOutputMerge      :: Bool
  , worktrainOutputDir        :: String
- , worktrainOutputKeys       :: [String]     }              deriving (Show, Eq)
+ , worktrainOutputKeys       :: [String]     
+ , worktrainOutputMerge      :: Bool          }              deriving (Show, Eq)
  
  
 submitInfo =           info (myHelper <*> submit)           (progDesc submitDesc)    
@@ -159,9 +159,9 @@ worktrainOutput = WorktrainOutput <$> (WorktrainOutputOpts
  <*> optional (strOption $ toMod groupNodeOpt <> metavar groupNodeMeta <> help groupNodeHelp)
  <*> optional (strOption $ toMod projectNodeOpt <> metavar projectNodeMeta <> help projectNodeHelp)
  <*> optional (strOption $ toMod trainRunNodeOpt <> metavar trainRunNodeMeta <> help trainRunNodeHelp)
- <*> switch (toMod mergeFlag <> metavar worktrainOutputMergeMeta <> help worktrainOutputMergeHelp)
  <*> argument str (metavar worktrainOutputDirMeta <> help worktrainOutputDirHelp)
- <*> some (argument str (metavar worktrainOutputKeysMeta <> help worktrainOutputKeysHelp)))
+ <*> some (argument str (metavar worktrainOutputKeysMeta <> help worktrainOutputKeysHelp))
+ <*> switch (toMod mergeFlag <> metavar worktrainOutputMergeMeta <> help worktrainOutputMergeHelp))
  
  
  

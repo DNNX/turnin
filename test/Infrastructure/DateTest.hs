@@ -67,16 +67,19 @@ prop_dateDeltaReadAndWrite y mo d h mi =
      first == second && second == third
 
 test_dateComparison = 
- forM_ [(1,1,1,0,0),(9998,11,27,22,58),(5000,6,15,12,30)] $ \(y, mo, d, h, mi) -> do 
+ forM_ [(1,1,1,0,0),(9998,11,27,22,58),(5000,6,15,12,30)] $ \(y, mo, d, h, mi) ->
    forM_ [(1,0,0,0,0),(0,1,0,0,0),(0,0,1,0,0),(0,0,0,1,0),(0,0,0,0,1)] $ \(dy, dmo, dd, dh, dmi) -> do
      let Right d1 = makeDate y mo d h mi
          Right d2 = makeDate (y+dy) (mo+dmo) (d+dd) (h+dh) (mi+dmi)
-     when (d1 == d2) $ assertBool (d2 == d1)
-     when (d1 /= d2) $  assertBool (d2 /= d1) 
-     when (d1 >= d2) $  assertBool (d2 < d1) 
-     when (d1 <= d2) $  assertBool (d2 > d1) 
-     when (d1 > d2) $ assertBool (d2 <= d1)
-     when (d1 < d2) $ assertBool (d2 >= d1) 
+     assertComparisons d1 d2
+     
+assertComparisons d1 d2 = do     
+ when (d1 == d2) $ assertBool (d2 == d1)
+ when (d1 /= d2) $ assertBool (d2 /= d1) 
+ when (d1 >= d2) $ assertBool (d2 < d1) 
+ when (d1 <= d2) $ assertBool (d2 > d1) 
+ when (d1 > d2) $ assertBool (d2 <= d1)
+ when (d1 < d2) $ assertBool (d2 >= d1) 
   
 prop_dateComparison y mo d h mi p = 
  let parts@[year, month, day, hour, minute] = map (fromTrip clampS) 
@@ -93,17 +96,12 @@ prop_dateComparison y mo d h mi p =
      (d1 < d2 && d2 >= d1)
 
 test_dateDeltaComparison = 
- forM_ [(1,1,1,0,0),(9998,98,98,98,98),(5000,50,50,50,50)] $ \(y, mo, d, h, mi) -> do 
+ forM_ [(1,1,1,0,0),(9998,98,98,98,98),(5000,50,50,50,50)] $ \(y, mo, d, h, mi) ->
    forM_ [(1,0,0,0,0),(0,1,0,0,0),(0,0,1,0,0),(0,0,0,1,0),(0,0,0,0,1)] $ \(dy, dmo, dd, dh, dmi) -> do
      let Right d1 = makeDateDelta y mo d h mi
          Right d2 = makeDateDelta (y+dy) (mo+dmo) (d+dd) (h+dh) (mi+dmi)
-     when (d1 == d2) $ assertBool (d2 == d1)
-     when (d1 /= d2) $  assertBool (d2 /= d1) 
-     when (d1 >= d2) $  assertBool (d2 < d1) 
-     when (d1 <= d2) $  assertBool (d2 > d1) 
-     when (d1 > d2) $ assertBool (d2 <= d1)
-     when (d1 < d2) $ assertBool (d2 >= d1)    
-      
+     assertComparisons d1 d2
+     
 prop_dateDeltaComparison dy dmo dd dh dmi p = 
  let parts@[dYear, dMonth, dDay, dHour, dMinute] = map (fromTrip clampS) 
       [(0,9999,dy),(0,99,dmo),(0,99,dd),(0,22,dh),(0,99,dmi)]
@@ -119,10 +117,10 @@ prop_dateDeltaComparison dy dmo dd dh dmi p =
      (dd1 < dd2 && dd2 >= dd1)
 
 test_additionNoOverflow = 
- forM_ [(1,1,1,0,0),(9998,11,27,22,58),(5000,6,15,12,30)] $ \(y, mo, d, h, mi) -> do 
+ forM_ [(1,1,1,0,0),(9998,11,27,22,58),(5000,6,15,12,30)] $ \(y, mo, d, h, mi) -> 
    forM_ [(1,0,0,0,0),(0,1,0,0,0),(0,0,1,0,0),(0,0,0,1,0),(0,0,0,0,1)] $ \(dy, dmo, dd, dh, dmi) -> do
-     let d1 = fromRight $ makeDate y mo d h mi
-         d2 = fromRight $ d1 `add` (fromRight $ makeDateDelta dy dmo dd dh dmi)
+     let Right d1 = makeDate y mo d h mi
+         Right d2 = d1 `add` fromRight (makeDateDelta dy dmo dd dh dmi)
      assertEqual (y + dy) $ getYear d2
      assertEqual (mo + dmo) $ getMonth d2
      assertEqual (d + dd) $ getDay d2
@@ -181,8 +179,7 @@ prop_dateAddition y mo d h mi dy dmo dd dh dmi =
                    minute' == getMinute d2
             
 test_nbDaysInMonth = do
- forM_ [1,3,5,7,8,10,12] $ \mo -> do
-   assertBool $ isRight $ makeDate 2000 mo 31 00 00
+ forM_ [1,3,5,7,8,10,12] $ \mo -> assertBool $ isRight $ makeDate 2000 mo 31 00 00
  forM_ [4,6,9,11] $ \mo -> do
    assertBool $ isRight $ makeDate 2003 mo 30 00 00
    assertBool $ isLeft $ makeDate 2003 mo 31 00 00
