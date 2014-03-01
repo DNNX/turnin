@@ -84,4 +84,3 @@ class HasNode a where
  
  addTo :: a -> Node -> Node 
  fromNode :: Node -> a
- 
