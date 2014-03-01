@@ -3,14 +3,15 @@ module Domain.TermUnitTest where
 
 import Test.Framework
 
+import Infrastructure.Node
 import Domain.Term
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-test_emptyTerm = let n = makeTerm "" in do
+test_emptyTerm = let n = make "" in do
  assertEqual "" $ getStartDate n
  assertEqual "" $ getEndDate n
 
-test_dates = let n = makeTerm "" in do
+test_dates = let n = make "" in do
  assertEqual "start" $ getStartDate $ setStartDate n "start"
  assertEqual "end" $ getEndDate $ setEndDate n "end"

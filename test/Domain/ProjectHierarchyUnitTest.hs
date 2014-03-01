@@ -4,6 +4,7 @@ module Domain.ProjectHierarchyUnitTest where
 import Test.Framework
 import Data.Maybe
 
+import Infrastructure.Node
 import Domain.Project
 import Domain.SubmitRepo
 import Domain.TrainFileRepo
@@ -13,10 +14,10 @@ import Domain.TrainRun
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 test_projectChildren =
- let p = makeProject "project"
+ let p = make "project"
      s = addSubmit emptySubmitRepo "submitKey" "submitValue"
      tf = addTrainFile emptyTrainFileRepo "trainFileKey" "trainFileValue"
-     tr = addTrainRun emptyTrainRunRepo $ makeTrainRun "trainRunName" in do
+     tr = addTrainRun emptyTrainRunRepo $ make "trainRunName" in do
  assertEqual emptySubmitRepo $ getSubmitRepo p
  assertEqual emptyTrainFileRepo $ getTrainFileRepo p
  assertEqual emptyTrainRunRepo $ getTrainRunRepo p
@@ -26,7 +27,7 @@ test_projectChildren =
 
 test_trainRunRepoChildren =
  let trr = emptyTrainRunRepo
-     tr = makeTrainRun "trainRunDate"
+     tr = make "trainRunDate"
      absentAdd = addTrainRun trr tr
      presentAdd = addTrainRun absentAdd tr
      presentRemove = removeTrainRun absentAdd "trainRunDate"
@@ -86,7 +87,7 @@ test_addRemoveGetTrainFiles =
  assertEqual "content" $ getTrainFile absentAdd "name"
 
 test_addRemoveGetTrainRuns =
- let fr = makeTrainRun ""
+ let fr = make ""
      absentAdd = addResult fr "key" "content"
      presentAdd = addResult absentAdd "key" ("content" ++ "suffix")
      presentRemove = removeResult absentAdd "key"

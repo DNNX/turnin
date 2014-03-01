@@ -3,11 +3,12 @@ module Domain.ProjectUnitTest where
 
 import Test.Framework
 
+import Infrastructure.Node
 import Domain.Project
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-test_emptyProject = let n = makeProject "" in do
+test_emptyProject = let n = make "" in do
  assertEqual "" $ getStartDate n
  assertEqual "" $ getEndDate n
  assertEqual "" $ getLateDate n
@@ -19,7 +20,7 @@ test_emptyProject = let n = makeProject "" in do
  assertEqual ("","") $ getTrainScript n
  assertEqual [] $ getNamesToValidate n
 
-test_getSet =  let n = makeProject "" in do
+test_getSet =  let n = make "" in do
  assertEqual "start" $ getStartDate $ setStartDate n "start"
  assertEqual "end" $ getEndDate $ setEndDate n "end"
  assertEqual "late" $ getLateDate $ setLateDate n "late"
@@ -31,7 +32,7 @@ test_getSet =  let n = makeProject "" in do
  assertEqual "spaceLimit" $ getTrainTimeLimit $ setTrainTimeLimit n "spaceLimit"
 
 test_addRemoveNamesToValidate =
- let p = makeProject ""
+ let p = make ""
      absentAdd = addNamesToValidate p ["n1", "n2"]
      presentAdd = addNamesToValidate absentAdd ["n1", "n2"]
      presentRemove = removeNamesToValidate absentAdd ["n1", "n2"]

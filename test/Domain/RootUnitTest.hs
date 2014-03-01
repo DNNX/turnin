@@ -3,11 +3,12 @@ module Domain.RootUnitTest where
 
 import Test.Framework
 
+import Infrastructure.Node
 import Domain.Root
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-test_emptyRoot = let n = makeRoot "" in do
+test_emptyRoot = let n = make "" in do
  assertEqual "" $ getCurrentThreshold n
  assertEqual "" $ getChooseThreshold n
  assertEqual "" $ getTerm1Date n
@@ -22,7 +23,7 @@ test_emptyRoot = let n = makeRoot "" in do
  assertEqual [] $ getTeacherGroups n
  assertEqual [] $ getCorrectors n
 
-test_getSetAddRemove =  let n = makeRoot "" in do
+test_getSetAddRemove =  let n = make "" in do
  assertEqual "current" $ getCurrentThreshold $ setCurrentThreshold n "current"
  assertEqual "choose" $ getChooseThreshold $ setChooseThreshold n "choose"
  assertEqual "term1" $ getTerm1Date $ setTerm1Date n "term1"

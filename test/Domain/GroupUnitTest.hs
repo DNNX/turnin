@@ -3,16 +3,17 @@ module Domain.GroupUnitTest where
 
 import Test.Framework
 
+import Infrastructure.Node
 import Domain.Group
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-test_emptyGroup = let n = makeGroup "" in do
+test_emptyGroup = let n = make "" in do
  assertEqual [] $ getTeachers n
  assertEqual [] $ getCorrectors n
 
 test_teachers =
-  let g = makeGroup ""
+  let g = make ""
       absentAdd = addTeachers g ["t1", "t2"]
       presentAdd = addTeachers absentAdd ["t1", "t2"]
       presentRemove = removeTeachers absentAdd ["t1", "t2"]
@@ -24,7 +25,7 @@ test_teachers =
  assertEqual ["t1", "t2"] $ getTeachers absentAdd
 
 test_correctors =
-  let g = makeGroup ""
+  let g = make ""
       absentAdd = addCorrectors g ["t1", "t2"]
       presentAdd = addCorrectors absentAdd ["t1", "t2"]
       presentRemove = removeCorrectors absentAdd ["t1", "t2"]

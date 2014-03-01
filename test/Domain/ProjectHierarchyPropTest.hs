@@ -5,6 +5,7 @@ import Test.Framework
 import TestUtils
 import Data.Maybe
 
+import Infrastructure.Node
 import Domain.Project
 import Domain.SubmitRepo
 import Domain.TrainFileRepo
@@ -15,10 +16,10 @@ import Domain.TrainRun
 
 prop_projectChildren projectName submit trainFile trainRun =
  length (filter (not.null) [submit,trainFile,trainRun]) == 3 ==>
- let p = makeProject projectName
+ let p = make projectName
      s = addSubmit emptySubmitRepo submit submit
      tf = addTrainFile emptyTrainFileRepo trainFile trainFile
-     tr = addTrainRun emptyTrainRunRepo $ makeTrainRun trainRun
+     tr = addTrainRun emptyTrainRunRepo $ make trainRun
  in  emptySubmitRepo == getSubmitRepo p &&
      emptyTrainFileRepo == getTrainFileRepo p &&
      emptyTrainRunRepo == getTrainRunRepo p &&
@@ -29,8 +30,8 @@ prop_projectChildren projectName submit trainFile trainRun =
 prop_trainRunRepoChildren rs = let trainRunDates = uniqueNonEmpty rs
                                in  trainRunDates /= [] ==> f trainRunDates
  where f dates@(trainRunDate:rest) =
-        let trr = foldl (\x d -> addTrainRun x (makeTrainRun d)) emptyTrainRunRepo rest
-            tr = makeTrainRun trainRunDate
+        let trr = foldl (\x d -> addTrainRun x (make d)) emptyTrainRunRepo rest
+            tr = make trainRunDate
             absentAdd = addTrainRun trr tr
             presentAdd = addTrainRun absentAdd tr
             presentRemove = removeTrainRun absentAdd trainRunDate
@@ -88,7 +89,7 @@ prop_addRemoveGetTrainFiles fs suffix = let fs' = uniqueNonEmpty fs in fs' /= []
 
 prop_addRemoveGetTrainRuns name rs suffix = let rs' = uniqueNonEmpty rs in rs' /= [] ==> f $ zip rs' $ map (++suffix) rs'
  where f ((key, content):rest) =
-        let fr = foldl (\r (k,c) -> addResult r k c) (makeTrainRun name) rest
+        let fr = foldl (\r (k,c) -> addResult r k c) (make name) rest
             absentAdd = addResult fr key content
             presentAdd = addResult absentAdd key (content ++ suffix)
             presentRemove = removeResult absentAdd key

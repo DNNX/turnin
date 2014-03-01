@@ -4,18 +4,18 @@ module Domain.HierarchyUnitTest where
 import Test.Framework
 import Data.Maybe
 
+import Infrastructure.Node
 import Domain.Root
 import Domain.Repo
 import Domain.Term
 import Domain.Course
 import Domain.Group
-import Domain.Project
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 test_rootChildren =
- let root = makeRoot ""
-     r = makeRepo "repo"
+ let root = make ""
+     r = make "repo"
      absentAdd = addRepo root r
      presentAdd = addRepo absentAdd r
      presentRemove = removeRepo absentAdd "repo"
@@ -29,8 +29,8 @@ test_rootChildren =
  assertEqual (Just r) $ getRepo absentAdd "repo"
 
 test_repoChildren =
- let repo = makeRepo ""
-     t = makeTerm "term"
+ let repo = make ""
+     t = make "term"
      absentAdd = addTerm repo t
      presentAdd = addTerm absentAdd t
      presentRemove = removeTerm absentAdd "term"
@@ -44,8 +44,8 @@ test_repoChildren =
  assertEqual (Just t) $ getTerm absentAdd "term"
 
 test_termChildren =
- let term = makeTerm ""
-     c = makeCourse "course"
+ let term = make ""
+     c = make "course"
      absentAdd = addCourse term c
      presentAdd = addCourse absentAdd c
      presentRemove = removeCourse absentAdd "course"
@@ -59,8 +59,8 @@ test_termChildren =
  assertEqual (Just c) $ getCourse absentAdd "course"
 
 test_courseChildren =
- let course = makeCourse ""
-     g = makeGroup "group"
+ let course = make ""
+     g = make "group"
      absentAdd = addGroup course g
      presentAdd = addGroup absentAdd g
      presentRemove = removeGroup absentAdd "group"
@@ -74,8 +74,8 @@ test_courseChildren =
  assertEqual (Just g) $ getGroup absentAdd "group"
 
 test_groupChildren =
- let grou = makeGroup ""
-     p = makeProject "project"
+ let grou = make ""
+     p = make "project"
      absentAdd = addProject grou p
      presentAdd = addProject absentAdd p
      presentRemove = removeProject absentAdd "project"

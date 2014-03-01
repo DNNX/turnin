@@ -5,20 +5,20 @@ import Test.Framework
 import Data.Maybe
 import TestUtils
 
+import Infrastructure.Node
 import Domain.Root
 import Domain.Repo
 import Domain.Term
 import Domain.Course
 import Domain.Group
-import Domain.Project
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 prop_rootChildren name rs = let repoNames = uniqueNonEmpty rs
                              in  repoNames /= [] ==> f repoNames
  where f names@(repoName:rest) =
-        let root = foldl (\x n -> addRepo x (makeRepo n)) (makeRoot name) rest
-            r = makeRepo repoName
+        let root = foldl (\x n -> addRepo x (make n)) (make name) rest
+            r = make repoName
             absentAdd = addRepo root r
             presentAdd = addRepo absentAdd r
             presentRemove = removeRepo absentAdd repoName
@@ -33,8 +33,8 @@ prop_rootChildren name rs = let repoNames = uniqueNonEmpty rs
 prop_repoChildren repoName ts = let termNames = uniqueNonEmpty ts
                                 in  termNames /= [] ==> f termNames
  where f names@(termName:rest) =
-        let r = foldl (\x n -> addTerm x (makeTerm n)) (makeRepo repoName) rest
-            t = makeTerm termName
+        let r = foldl (\x n -> addTerm x (make n)) (make repoName) rest
+            t = make termName
             absentAdd = addTerm r t
             presentAdd = addTerm absentAdd t
             presentRemove = removeTerm absentAdd termName
@@ -49,8 +49,8 @@ prop_repoChildren repoName ts = let termNames = uniqueNonEmpty ts
 prop_termChildren termName cs = let courseNames = uniqueNonEmpty cs
                                 in  courseNames /= [] ==> f courseNames
  where f names@(courseName:rest) =
-        let t = foldl (\x n -> addCourse x (makeCourse n)) (makeTerm termName) rest
-            c = makeCourse courseName
+        let t = foldl (\x n -> addCourse x (make n)) (make termName) rest
+            c = make courseName
             absentAdd = addCourse t c
             presentAdd = addCourse absentAdd c
             presentRemove = removeCourse absentAdd courseName
@@ -65,8 +65,8 @@ prop_termChildren termName cs = let courseNames = uniqueNonEmpty cs
 prop_courseChildren courseName gs = let groupNames = uniqueNonEmpty gs
                                     in  groupNames /= [] ==> f groupNames
  where f names@(groupName:rest) =
-        let c = foldl (\x n -> addGroup x (makeGroup n)) (makeCourse courseName) rest
-            g = makeGroup groupName
+        let c = foldl (\x n -> addGroup x (make n)) (make courseName) rest
+            g = make groupName
             absentAdd = addGroup c g
             presentAdd = addGroup absentAdd g
             presentRemove = removeGroup absentAdd groupName
@@ -81,8 +81,8 @@ prop_courseChildren courseName gs = let groupNames = uniqueNonEmpty gs
 prop_groupChildren groupName ps = let projectNames = uniqueNonEmpty ps
                                   in  projectNames /= [] ==> f projectNames
  where f names@(projectName:rest) =
-        let g = foldl (\x n -> addProject x (makeProject n)) (makeGroup groupName) rest
-            p = makeProject projectName
+        let g = foldl (\x n -> addProject x (make n)) (make groupName) rest
+            p = make projectName
             absentAdd = addProject g p
             presentAdd = addProject absentAdd p
             presentRemove = removeProject absentAdd projectName
