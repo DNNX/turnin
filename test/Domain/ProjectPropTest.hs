@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -F -pgmF htfpp -fno-warn-incomplete-patterns#-}
-module Domain.ProjectTest where
+module Domain.ProjectPropTest where
 
 import Test.Framework
 import TestUtils

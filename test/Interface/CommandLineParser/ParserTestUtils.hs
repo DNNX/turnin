@@ -57,14 +57,16 @@ noLeadingHyphens ('-':s) = noLeadingHyphens s
 noLeadingHyphens s       = s
 
 testSuccess :: (Eq a) => Int -> a -> (Global -> a) -> [String] -> Opts -> [String] -> Bool
-testSuccess securityLevel expected f cmd opts args = all func $ makeCmd cmd opts args 
+testSuccess securityLevel expected f cmd opts args = all func $ makeCmd cmd opts args
  where func cmd' = expected == g cmd' && securityTests securityLevel cmd'
        g = f . h . execParserMaybe (globalInfo adminRole)
        h (Just x) = x  
        h _ = error "Unexpectedly Nothing in testSuccess"
 
 makeCmd :: [String] -> Opts -> [String] -> [[String]]
-makeCmd cmd opts vars = [cmd ++ o ++ vars | o <- uncurry makeOpts opts]
+makeCmd cmd opts vars = [cmd ++ opt ++ vars | opt <- opts']
+ where opts' = let result = uncurry makeOpts opts
+               in  if null result then [[]] else result
 
 makeOpts :: [Opt] -> [Maybe String] -> [[String]]
 makeOpts os = take sampleSize.buildOpts.permutations.map f.filter (isJust.snd).zip os
@@ -75,7 +77,7 @@ buildOpts :: [[(Opt,String)]] -> [[String]]
 buildOpts = concatMap (filter (not.null).map concat.f)
  where f :: [(Opt, String)] -> [[[String]]]
        f [] = [[]]
-       f (o:os) = [s:ss  | s <- buildOpt o, ss <- f os]
+       f (opt:os) = [s:ss  | s <- buildOpt opt, ss <- f os]
 
 buildOpt :: (Opt, String) -> [[String]]
 buildOpt (O s l, v) = [['-':s:v],
@@ -88,7 +90,7 @@ securityTests level cmd = all f $ zip [1..] [adminRole, teacherRole, correctorRo
  
 security_failure cmd = isNothing . security_case cmd 
 security_success cmd = isJust . security_case cmd
-security_case cmd role = execParserMaybe (globalInfo role) cmd
+security_case cmd role = execParserMaybe (globalInfo role) cmd                         
 
 
 

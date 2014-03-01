@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -F -pgmF htfpp -fno-warn-incomplete-patterns#-}
-module Infrastructure.CsvNodeTest where
+module Infrastructure.CsvNodePropTest where
 
 import Test.Framework
 import Data.List
@@ -12,30 +12,8 @@ import Infrastructure.CsvNode
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-test_emptyCsvNode = assertEqual [] $ getCsv (makeNode "") "key"
 prop_emptyCsvNode name k = null (getCsv (makeNode name) k)
 
-test_addRemoveGetSetValues = 
- let n = makeNode ""     
-     absentAdd = addCsv n "k" ["v1", "v2"]
-     presentAdd = addCsv absentAdd "k" ["v1", "v2"]
-     presentRemove = removeCsv absentAdd "k" ["v1", "v2"]
-     absentRemove = removeCsv n "k" ["v2", "v1"]
-     
-     absentSet = setCsv n "k" ["v1", "v2"]
-     presentSet = setCsv absentSet "k" ["v1", "v2"]
-     presentUnset = setCsv absentSet "k" []
-     absentUnset = setCsv n "k" [] in do
- assertEqual [] $ getCsv n "k"
- assertEqual ["v1", "v2"] $ getCsv absentAdd "k"
- assertEqual n absentRemove
- assertEqual n presentRemove
- assertEqual n absentUnset
- assertEqual n presentUnset
- assertEqual absentAdd presentAdd
- assertEqual absentAdd absentSet
- assertEqual absentAdd presentSet
-          
 prop_addRemoveGetSetValues name ps = let ps' = nubBy ((==) `on` fst) ps 
                                          ps'' = map (second g) ps'
                                          g xs = nub $ filter (not.null) $ map (filter (/=',')) xs

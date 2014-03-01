@@ -12,9 +12,9 @@ import Interface.CommandLineParser.Project.Validate
 
 prop_projectAddSuccess repoNN termNN courseNN groupNN start end late n = let ns = validArgs [n]; [name] = ns in ns /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN, start, end, late] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, start, end, late, name) x
+  testSuccess 2 (repoNN, termNN, courseNN, groupNN, start, end, late, name) projectAddF
    [projectSub, addSub] (projectAddOpts repoNN termNN courseNN groupNN start end late) [name]
-   where x (Global(
+   where projectAddF (Global(
             Project(ProjectOpts(
              ProjectAdd(ProjectAddOpts a b c d e f g h))))) = (a,b,c,d,e,f,g,h)
 

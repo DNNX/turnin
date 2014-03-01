@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -F -pgmF htfpp -fno-warn-incomplete-patterns#-}
-module Domain.HierarchyTest where
+module Domain.HierarchyPropTest where
 
 import Test.Framework
 import Data.Maybe
@@ -13,21 +13,6 @@ import Domain.Group
 import Domain.Project
  
 {-# ANN module "HLint: ignore Use camelCase" #-}
-
-test_rootChildren =
- let root = makeRoot ""
-     r = makeRepo "repo" 
-     absentAdd = addRepo root r
-     presentAdd = addRepo absentAdd r
-     presentRemove = removeRepo absentAdd "repo"
-     absentRemove = removeRepo root "repo" in do
- assertEqual root presentRemove
- assertEqual root absentRemove
- assertEqual absentAdd presentAdd
- assertEqual [] $ getRepos root
- assertEqual ["repo"] $ getRepos absentAdd
- assertEqual True $ isNothing $ getRepo root "repo"
- assertEqual (Just r) $ getRepo absentAdd "repo" 
 
 prop_rootChildren name rs = let repoNames = uniqueNonEmpty rs
                              in  repoNames /= [] ==> f repoNames
@@ -44,21 +29,6 @@ prop_rootChildren name rs = let repoNames = uniqueNonEmpty rs
             sameElements names (getRepos absentAdd) &&
             isNothing (getRepo root repoName) &&
             Just r == getRepo absentAdd repoName
-            
-test_repoChildren =
- let repo = makeRepo ""
-     t = makeTerm "term" 
-     absentAdd = addTerm repo t
-     presentAdd = addTerm absentAdd t
-     presentRemove = removeTerm absentAdd "term"
-     absentRemove = removeTerm repo "term" in do
- assertEqual repo presentRemove
- assertEqual repo absentRemove
- assertEqual absentAdd presentAdd
- assertEqual [] $ getTerms repo
- assertEqual ["term"] $ getTerms absentAdd
- assertEqual True $ isNothing $ getTerm repo "term"
- assertEqual (Just t) $ getTerm absentAdd "term"             
              
 prop_repoChildren repoName ts = let termNames = uniqueNonEmpty ts
                                 in  termNames /= [] ==> f termNames
@@ -75,21 +45,6 @@ prop_repoChildren repoName ts = let termNames = uniqueNonEmpty ts
             sameElements names (getTerms absentAdd) &&
             isNothing (getTerm r termName) &&
             Just t == getTerm absentAdd termName
-                
-test_termChildren =
- let term = makeTerm ""
-     c = makeCourse "course" 
-     absentAdd = addCourse term c
-     presentAdd = addCourse absentAdd c
-     presentRemove = removeCourse absentAdd "course"
-     absentRemove = removeCourse term "course" in do
- assertEqual term presentRemove
- assertEqual term absentRemove
- assertEqual absentAdd presentAdd
- assertEqual [] $ getCourses term
- assertEqual ["course"] $ getCourses absentAdd
- assertEqual True $ isNothing $ getCourse term "course"
- assertEqual (Just c) $ getCourse absentAdd "course"        
         
 prop_termChildren termName cs = let courseNames = uniqueNonEmpty cs
                                 in  courseNames /= [] ==> f courseNames
@@ -106,22 +61,7 @@ prop_termChildren termName cs = let courseNames = uniqueNonEmpty cs
             sameElements names (getCourses absentAdd) &&
             isNothing (getCourse t courseName) &&
             Just c == getCourse absentAdd courseName
-                      
-test_courseChildren =
- let course = makeCourse ""
-     g = makeGroup "group" 
-     absentAdd = addGroup course g
-     presentAdd = addGroup absentAdd g
-     presentRemove = removeGroup absentAdd "group"
-     absentRemove = removeGroup course "group" in do
- assertEqual course presentRemove
- assertEqual course absentRemove
- assertEqual absentAdd presentAdd
- assertEqual [] $ getGroups course
- assertEqual ["group"] $ getGroups absentAdd
- assertEqual True $ isNothing $ getGroup course "group"
- assertEqual (Just g) $ getGroup absentAdd "group"        
- 
+            
 prop_courseChildren courseName gs = let groupNames = uniqueNonEmpty gs
                                     in  groupNames /= [] ==> f groupNames
  where f names@(groupName:rest) =  
@@ -137,22 +77,7 @@ prop_courseChildren courseName gs = let groupNames = uniqueNonEmpty gs
             sameElements names (getGroups absentAdd) &&
             isNothing (getGroup c groupName) &&
             Just g == getGroup absentAdd groupName     
-                      
-test_groupChildren =
- let grou = makeGroup ""
-     p = makeProject "project" 
-     absentAdd = addProject grou p
-     presentAdd = addProject absentAdd p
-     presentRemove = removeProject absentAdd "project"
-     absentRemove = removeProject grou "project" in do
- assertEqual grou presentRemove
- assertEqual grou absentRemove
- assertEqual absentAdd presentAdd
- assertEqual [] $ getProjects grou
- assertEqual ["project"] $ getProjects absentAdd
- assertEqual True $ isNothing $ getProject grou "project"
- assertEqual (Just p) $ getProject absentAdd "project"        
- 
+       
 prop_groupChildren groupName ps = let projectNames = uniqueNonEmpty ps
                                   in  projectNames /= [] ==> f projectNames
  where f names@(projectName:rest) =  

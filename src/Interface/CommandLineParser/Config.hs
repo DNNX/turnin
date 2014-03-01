@@ -217,8 +217,8 @@ configTeacherGroupsList = ConfigTeacherGroupsList <$> pure ConfigTeacherGroupsLi
 
 configCorrector role = ConfigCorrector <$> ConfigCorrectorOpts <$> subparser (
  hasConfigReadRights  role (command isSub     configCorrectorIsInfo) <>
- hasConfigWriteRights role (command addSub    configCorrectorAddInfo) <>
- hasConfigWriteRights role (command removeSub configCorrectorRemoveInfo))
+ hasConfigReadRights role (command addSub    configCorrectorAddInfo) <>
+ hasConfigReadRights role (command removeSub configCorrectorRemoveInfo))
 
 configCorrectorIs = ConfigCorrectorIs <$> (ConfigCorrectorIsOpts
  <$> argument str (metavar configCorrectorIsMeta <> help configCorrectorIsHelp))
