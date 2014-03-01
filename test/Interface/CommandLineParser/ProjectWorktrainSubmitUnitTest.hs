@@ -3,6 +3,9 @@ module Interface.CommandLineParser.ProjectWorktrainSubmitUnitTest where
 
 import Test.Framework
 import Interface.CommandLineParser.ParserTestUtils
+import Control.Monad
+import Options.Applicative
+import Security.SecurityManager
 
 import Interface.Lexicon
 import Interface.CommandLineParser
@@ -11,103 +14,155 @@ import Interface.CommandLineParser.Project.Worktrain
 import Interface.CommandLineParser.Project.Submit
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
-{-
-prop_projectWorktrainScriptSetSuccess repoNN termNN courseNN groupNN projectNN s = let ss = validArgs [s] in ss /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let scriptName = head ss in
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, scriptName) worktrainScriptSetF [projectSub, worktrainSub, scriptSub, setSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) [scriptName]
 
-prop_projectWorktrainScriptUnsetSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN)worktrainScriptUnsetF [projectSub, worktrainSub, scriptSub, unsetSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_projectWorktrain = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub]
+test_projectWorktrainScript = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub]
+test_projectWorktrainScriptSet = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, setSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptSet(ProjectWorktrainScriptSetOpts o o o o o "name")))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, setSub, "name"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, setSub, "name", "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, setSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, setSub, "name"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, setSub, "name", "v"]
 
-prop_projectWorktrainScriptListSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) worktrainScriptListF [projectSub, worktrainSub, scriptSub, listSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_projectWorktrainScriptUnset = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptUnset(ProjectWorktrainScriptUnsetOpts o o o o o)))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, unsetSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, unsetSub, "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, unsetSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, unsetSub, "v"]
 
-prop_projectWorktrainScriptExtractSuccess repoNN termNN courseNN groupNN projectNN di = let ds = validArgs [di] in ds /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let extractDir = head ds in
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN, extractDir) worktrainScriptExtractF [projectSub, worktrainSub, scriptSub, extractSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) [extractDir]
+test_projectWorktrainScriptList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptList(ProjectWorktrainScriptListOpts o o o o o)))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, scriptSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, scriptSub, listSub, "v"]
 
-prop_projectWorktrainFileAddSuccess repoNN termNN courseNN groupNN projectNN fs = let files = validArgs fs in files /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, files) worktrainFileAddF [projectSub, worktrainSub, fileSub, addSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) files
+test_projectWorktrainScriptExtract = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, extractSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptExtract(ProjectWorktrainScriptExtractOpts o o o o o "dir")))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, extractSub, "dir"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, scriptSub, extractSub, "dir", "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, scriptSub, extractSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, scriptSub, extractSub, "dir"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, scriptSub, extractSub, "dir", "v"]
 
-prop_projectWorktrainFileRemoveSuccess repoNN termNN courseNN groupNN projectNN fs = let files = validArgs fs in files /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, files) worktrainFileRemoveF [projectSub, worktrainSub, fileSub, removeSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) files
+test_projectWorktrainFile = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub]
+test_projectWorktrainFileAdd = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, addSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainFile(ProjectWorktrainFileOpts(ProjectWorktrainFileAdd(ProjectWorktrainFileAddOpts o o o o o ["file.."])))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, addSub, "file.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, addSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, addSub, "file.."]
 
-prop_projectWorktrainFileListSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) worktrainFileListSuccessF [projectSub, worktrainSub, fileSub, listSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_projectWorktrainFileRemove = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, removeSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainFile(ProjectWorktrainFileOpts(ProjectWorktrainFileRemove(ProjectWorktrainFileRemoveOpts o o o o o ["file.."])))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, removeSub, "file.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, removeSub, "file.."]
 
-prop_projectWorktrainFileExtractSuccess repoNN termNN courseNN groupNN projectNN di fs = let args = validArgs (di:fs) in length args >= 2 ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let (dir:files) = args in
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN, dir, files) worktrainFileExtractSuccessF [projectSub, worktrainSub, fileSub, extractSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) (dir:files)
+test_projectWorktrainFileList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainFile(ProjectWorktrainFileOpts(ProjectWorktrainFileList(ProjectWorktrainFileListOpts o o o o o)))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, fileSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, fileSub, listSub, "v"]
 
-prop_projectWorktrainTimeLimitSetSuccess repoNN termNN courseNN groupNN projectNN v = let args = validArgs [v] in args /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let val = head args in
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, val) worktrainTimeLimitSetF [projectSub, worktrainSub, timeLimitSub, setSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) [val]
+test_projectWorktrainFileExtract = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, extractSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, extractSub, "dir"]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainFile(ProjectWorktrainFileOpts(ProjectWorktrainFileExtract(ProjectWorktrainFileExtractOpts o o o o o "dir" ["file.."])))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, fileSub, extractSub, "dir", "file.."]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, fileSub, extractSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, fileSub, extractSub, "dir"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, fileSub, extractSub, "dir", "file.."]
 
-prop_projectWorktrainTimeLimitListSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) worktrainTimeLimitListF [projectSub, worktrainSub, timeLimitSub, listSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_projectWorktrainTimeLimit = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, timeLimitSub]
+test_projectWorktrainTimeLimitSet = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, timeLimitSub, setSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainTimeLimit(ProjectWorktrainTimeLimitOpts(ProjectWorktrainTimeLimitSet(ProjectWorktrainTimeLimitSetOpts o o o o o "timeLimit")))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, timeLimitSub, setSub, "timeLimit"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, timeLimitSub, setSub, "timeLimit", "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, timeLimitSub, setSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, timeLimitSub, setSub, "timeLimit"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, timeLimitSub, setSub, "timeLimit", "v"]
 
-prop_projectWorktrainSpaceLimitSetSuccess repoNN termNN courseNN groupNN projectNN v = let args = validArgs [v] in args /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let val = head args in
-  testSuccess 2  (repoNN, termNN, courseNN, groupNN, projectNN, val) worktrainSpaceLimitSetF [projectSub, worktrainSub, spaceLimitSub, setSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) [val]
+test_projectWorktrainTimeLimitList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainTimeLimit(ProjectWorktrainTimeLimitOpts(ProjectWorktrainTimeLimitList(ProjectWorktrainTimeLimitListOpts o o o o o)))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, timeLimitSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, timeLimitSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, timeLimitSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, timeLimitSub, listSub, "v"]
 
-prop_projectWorktrainSpaceLimitListSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) worktrainSpaceLimitListF [projectSub, worktrainSub, spaceLimitSub, listSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_projectWorktrainSpaceLimit = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, spaceLimitSub]
+test_projectWorktrainSpaceLimitSet = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, spaceLimitSub, setSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainSpaceLimit(ProjectWorktrainSpaceLimitOpts(ProjectWorktrainSpaceLimitSet(ProjectWorktrainSpaceLimitSetOpts o o o o o "spaceLimit")))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, spaceLimitSub, setSub, "spaceLimit"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, spaceLimitSub, setSub, "spaceLimit", "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, spaceLimitSub, setSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, spaceLimitSub, setSub, "spaceLimit"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, spaceLimitSub, setSub, "spaceLimit", "v"]
 
-prop_projectSubmitListSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) submitListF [projectSub, submitSub, listSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
-
-prop_projectSubmitLateSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) submitLateF [projectSub, submitSub, lateSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
-
-prop_projectSubmitInspectSuccess repoNN termNN courseNN groupNN projectNN ks = let keys = validArgs ks in keys /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN, keys) submitInspectF [projectSub, submitSub, inspectSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) keys
-prop_projectSubmitExtractSuccess repoNN termNN courseNN groupNN projectNN di ks = let args = validArgs (di:ks) in length args >= 2 ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let (dir:keys) = args in
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN, dir, keys) submitExtractF [projectSub, submitSub, extractSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) (dir:keys)
-
-
-worktrainScriptSetF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptSet(ProjectWorktrainScriptSetOpts a b c d e f))))))))) = (a,b,c,d,e,f)
-worktrainScriptUnsetF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptUnset(ProjectWorktrainScriptUnsetOpts a b c d e))))))))) = (a,b,c,d,e)
-worktrainScriptListF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptList(ProjectWorktrainScriptListOpts a b c d e))))))))) = (a,b,c,d,e)
-worktrainScriptExtractF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptExtract(ProjectWorktrainScriptExtractOpts a b c d e f))))))))) = (a,b,c,d,e,f)
-worktrainFileAddF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainFile(ProjectWorktrainFileOpts(ProjectWorktrainFileAdd(ProjectWorktrainFileAddOpts a b c d e f))))))))) = (a,b,c,d,e,f)
-worktrainFileRemoveF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainFile(ProjectWorktrainFileOpts(ProjectWorktrainFileRemove(ProjectWorktrainFileRemoveOpts a b c d e f))))))))) = (a,b,c,d,e,f)
-worktrainFileListSuccessF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainFile(ProjectWorktrainFileOpts(ProjectWorktrainFileList(ProjectWorktrainFileListOpts a b c d e))))))))) = (a,b,c,d,e)
-worktrainFileExtractSuccessF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainFile(ProjectWorktrainFileOpts(ProjectWorktrainFileExtract(ProjectWorktrainFileExtractOpts a b c d e f g))))))))) = (a,b,c,d,e,f,g)
-worktrainTimeLimitSetF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainTimeLimit(ProjectWorktrainTimeLimitOpts(ProjectWorktrainTimeLimitSet(ProjectWorktrainTimeLimitSetOpts a b c d e f))))))))) = (a,b,c,d,e,f)
-worktrainTimeLimitListF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainTimeLimit(ProjectWorktrainTimeLimitOpts(ProjectWorktrainTimeLimitList(ProjectWorktrainTimeLimitListOpts a b c d e))))))))) = (a,b,c,d,e)
-worktrainSpaceLimitSetF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainSpaceLimit(ProjectWorktrainSpaceLimitOpts(ProjectWorktrainSpaceLimitSet(ProjectWorktrainSpaceLimitSetOpts a b c d e f))))))))) = (a,b,c,d,e,f)
-worktrainSpaceLimitListF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainSpaceLimit(ProjectWorktrainSpaceLimitOpts(ProjectWorktrainSpaceLimitList(ProjectWorktrainSpaceLimitListOpts a b c d e))))))))) = (a,b,c,d,e)
-submitListF (Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitList(ProjectSubmitListOpts a b c d e))))))) = (a,b,c,d,e)
-submitLateF (Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitLate(ProjectSubmitLateOpts a b c d e))))))) = (a,b,c,d,e)
-submitInspectF (Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitInspect(ProjectSubmitInspectOpts a b c d e f))))))) = (a,b,c,d,e,f)
-submitExtractF (Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitExtract(ProjectSubmitExtractOpts a b c d e f g))))))) = (a,b,c,d,e,f,g)
+test_projectWorktrainSpaceLimitList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainSpaceLimit(ProjectWorktrainSpaceLimitOpts(ProjectWorktrainSpaceLimitList(ProjectWorktrainSpaceLimitListOpts o o o o o)))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, worktrainSub, spaceLimitSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, worktrainSub, spaceLimitSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, spaceLimitSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, worktrainSub, spaceLimitSub, listSub, "v"]
 
 
-                -}
+test_projectSubmit = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, submitSub]
+test_projectSubmitList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitList(ProjectSubmitListOpts o o o o o)))))))) $ execParserMaybe (globalInfo role) [projectSub, submitSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, submitSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, submitSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, submitSub, listSub, "v"]
+
+test_projectSubmitLate = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitLate(ProjectSubmitLateOpts o o o o o)))))))) $ execParserMaybe (globalInfo role) [projectSub, submitSub, lateSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, submitSub, lateSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, submitSub, lateSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, submitSub, lateSub, "v"]
+
+test_projectSubmitInspect = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, submitSub, inspectSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitInspect(ProjectSubmitInspectOpts o o o o o ["key.."])))))))) $
+                                                                                                execParserMaybe (globalInfo role) [projectSub, submitSub, inspectSub, "key.."]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, submitSub, lateSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, submitSub, lateSub, "key.."]
+
+test_projectSubmitExtract = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, submitSub, extractSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, submitSub, extractSub, "dir"]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitExtract(ProjectSubmitExtractOpts o o o o o "dir" ["key.."])))))))) $
+                                                                                                execParserMaybe (globalInfo role) [projectSub, submitSub, extractSub, "dir", "key.."]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, submitSub, extractSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, submitSub, extractSub, "dir"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, submitSub, extractSub, "dir", "key.."]
+  

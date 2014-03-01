@@ -3,6 +3,9 @@ module Interface.CommandLineParser.CourseGroupUnitTest where
 
 import Test.Framework
 import Interface.CommandLineParser.ParserTestUtils
+import Control.Monad
+import Security.SecurityManager
+import Options.Applicative
 
 import Interface.Lexicon
 import Interface.CommandLineParser
@@ -10,111 +13,173 @@ import Interface.CommandLineParser.Course
 import Interface.CommandLineParser.Group
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
-{-
+
 -- Course
-prop_courseAddSuccess repoNN termNN n = let name = noLeadingHyphens n in
- validOpts [repoNN, termNN] ==>
-  testSuccess 2 (repoNN, termNN, name) courseAddF [courseSub, addSub] (termOpts repoNN termNN) [name]
+test_course = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub]
+test_courseAdd = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, addSub]
+    assertEqual (Just(Global(Course(CourseOpts(CourseAdd(CourseAddOpts o o "name")))))) $ execParserMaybe (globalInfo role) [courseSub, addSub, "name"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, addSub, "name", "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, addSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, addSub, "name"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, addSub, "name", "v"]
 
-prop_courseRemoveSuccess repoNN termNN courseNN =
- validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN) courseRemoveF [courseSub, removeSub] (courseOpts repoNN termNN courseNN) noArgs
+test_courseRemove = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual (Just(Global(Course(CourseOpts(CourseRemove(CourseRemoveOpts o o o)))))) $ execParserMaybe (globalInfo role) [courseSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, removeSub, "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, removeSub, "v"]
 
-prop_courseListSuccess repoNN termNN =
- validOpts [repoNN, termNN] ==>
-  testSuccess 3 (repoNN, termNN) courseListF [courseSub, listSub] (termOpts repoNN termNN) noArgs
+test_courseList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Course(CourseOpts(CourseList(CourseListOpts o o)))))) $ execParserMaybe (globalInfo role) [courseSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [courseSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [courseSub, listSub, "v"]
 
-prop_courseTeacherAddSuccess repoNN termNN courseNN ns = let names = validArgs ns in names /= [] ==>
- validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, names) courseTeacherAddF [courseSub, teacherSub, addSub]
-   (courseOpts repoNN termNN courseNN) names
+test_courseTeacher = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, teacherSub]
+test_courseTeacherAdd = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, teacherSub, addSub]
+    assertEqual (Just(Global(Course(CourseOpts(CourseTeacher(CourseTeacherOpts(CourseTeacherAdd(CourseTeacherAddOpts o o o ["name.."])))))))) $
+                                                                                                        execParserMaybe (globalInfo role) [courseSub, teacherSub, addSub, "name.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, teacherSub, addSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, teacherSub, addSub, "name.."]
 
-prop_courseTeacherRemoveSuccess repoNN termNN courseNN ns = let names = validArgs ns in names /= [] ==>
- validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, names) courseTeacherRemoveF [courseSub, teacherSub, removeSub]
-   (courseOpts repoNN termNN courseNN) names
+test_courseTeacherRemove = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, teacherSub, addSub]
+    assertEqual (Just(Global(Course(CourseOpts(CourseTeacher(CourseTeacherOpts(CourseTeacherRemove(CourseTeacherRemoveOpts o o o ["name.."])))))))) $
+                                                                                                        execParserMaybe (globalInfo role) [courseSub, teacherSub, removeSub, "name.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, teacherSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, teacherSub, removeSub, "name.."]
 
-prop_courseTeacherListSuccess repoNN termNN courseNN =
- validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN) courseTeacherListF [courseSub, teacherSub, listSub]
-   (courseOpts repoNN termNN courseNN) noArgs
 
-prop_courseCorrectorAddSuccess repoNN termNN courseNN ns = let names = validArgs ns in names /= [] ==>
- validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, names) courseCorrectorAddF [courseSub, correctorSub, addSub]
-   (courseOpts repoNN termNN courseNN) names
+test_courseTeacherList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Course(CourseOpts(CourseTeacher(CourseTeacherOpts(CourseTeacherList(CourseTeacherListOpts o o o)))))))) $ execParserMaybe (globalInfo role) [courseSub, teacherSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, teacherSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [courseSub, teacherSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [courseSub, teacherSub, listSub, "v"]
 
-prop_courseCorrectorRemoveSuccess repoNN termNN courseNN ns = let names = validArgs ns in names /= [] ==>
- validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, names) courseCorrectorRemoveF [courseSub, correctorSub, removeSub]
-   (courseOpts repoNN termNN courseNN) names
+test_courseCorrector = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, teacherSub]
+test_courseCorrectorAdd = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, correctorSub, addSub]
+    assertEqual (Just(Global(Course(CourseOpts(CourseCorrector(CourseCorrectorOpts(CourseCorrectorAdd(CourseCorrectorAddOpts o o o ["name.."])))))))) $
+                                                                                                execParserMaybe (globalInfo role) [courseSub, correctorSub, addSub, "name.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, correctorSub, addSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, correctorSub, addSub, "name.."]
 
-prop_courseCorrectorListSuccess repoNN termNN courseNN =
- validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN) courseCorrectorListF [courseSub, correctorSub, listSub]
-   (courseOpts repoNN termNN courseNN) noArgs
+test_courseCorrectorRemove = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, teacherSub, addSub]
+    assertEqual (Just(Global(Course(CourseOpts(CourseCorrector(CourseCorrectorOpts(CourseCorrectorRemove(CourseCorrectorRemoveOpts o o o ["name.."])))))))) $
+                                                                                                execParserMaybe (globalInfo role) [courseSub, correctorSub, removeSub, "name.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, correctorSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, correctorSub, removeSub, "name.."]
+
+test_courseCorrectorList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Course(CourseOpts(CourseCorrector(CourseCorrectorOpts(CourseCorrectorList(CourseCorrectorListOpts o o o)))))))) $
+                                                                                                execParserMaybe (globalInfo role) [courseSub, correctorSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [courseSub, correctorSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [courseSub, correctorSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [courseSub, correctorSub, listSub, "v"]
 
 -- Group
-prop_groupAddSuccess repoNN termNN courseNN n = let name = noLeadingHyphens n in
- validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, name) groupAddF [groupSub, addSub]
-   (courseOpts repoNN termNN courseNN) [name]
+test_group = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub]
+test_groupAdd = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, addSub]
+    assertEqual (Just(Global(Group(GroupOpts(GroupAdd(GroupAddOpts o o o "name")))))) $ execParserMaybe (globalInfo role) [groupSub, addSub, "name"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, addSub, "name", "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, addSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, addSub, "name"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, addSub, "name", "v"]
 
-prop_groupRemoveSuccess repoNN termNN courseNN groupNN =
- validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN) groupRemoveF [groupSub, removeSub]
-   (groupOpts repoNN termNN courseNN groupNN) noArgs
+test_groupRemove = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual (Just(Global(Group(GroupOpts(GroupRemove(GroupRemoveOpts o o o o)))))) $ execParserMaybe (globalInfo role) [groupSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, removeSub, "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, removeSub, "v"]
 
-prop_groupListSuccess repoNN termNN courseNN =
- validOpts [repoNN, termNN, courseNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN) groupListF [groupSub, listSub] (courseOpts repoNN termNN courseNN) noArgs
+test_groupList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Group(GroupOpts(GroupList(GroupListOpts o o o)))))) $ execParserMaybe (globalInfo role) [groupSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [groupSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [groupSub, listSub, "v"]
 
-prop_groupTeacherAddSuccess repoNN termNN courseNN groupNN ns = let names = validArgs ns in names /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, names) groupTeacherAddF
-   [groupSub, teacherSub, addSub] (groupOpts repoNN termNN courseNN groupNN) names
 
-prop_groupTeacherRemoveSuccess repoNN termNN courseNN groupNN ns = let names = validArgs ns in names /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, names) groupTeacherRemoveF [groupSub, teacherSub, removeSub]
-   (groupOpts repoNN termNN courseNN groupNN) names
+test_groupTeacher = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, teacherSub]
+test_groupTeacherAdd = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, teacherSub, addSub]
+    assertEqual (Just(Global(Group(GroupOpts(GroupTeacher(GroupTeacherOpts(GroupTeacherAdd(GroupTeacherAddOpts o o o o ["name.."])))))))) $
+                                                                                                execParserMaybe (globalInfo role) [groupSub, teacherSub, addSub, "name.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, teacherSub, addSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, teacherSub, addSub, "name.."]
 
-prop_groupTeacherListSuccess repoNN termNN courseNN groupNN =
- validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN) groupTeacherListF [groupSub, teacherSub, listSub]
-   (groupOpts repoNN termNN courseNN groupNN) noArgs
+test_groupTeacherRemove = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, teacherSub, addSub]
+    assertEqual (Just(Global(Group(GroupOpts(GroupTeacher(GroupTeacherOpts(GroupTeacherRemove(GroupTeacherRemoveOpts o o o o ["name.."])))))))) $
+                                                                                                execParserMaybe (globalInfo role) [groupSub, teacherSub, removeSub, "name.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, teacherSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, teacherSub, removeSub, "name.."]
 
-prop_groupCorrectorAddSuccess repoNN termNN courseNN groupNN ns = let names = validArgs ns in names /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, names) groupCorrectorAddF [groupSub, correctorSub, addSub]
-   (groupOpts repoNN termNN courseNN groupNN) names
 
-prop_groupCorrectorRemoveSuccess repoNN termNN courseNN groupNN ns = let names = validArgs ns in names /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, names) groupCorrectorRemoveF [groupSub, correctorSub, removeSub]
-   (groupOpts repoNN termNN courseNN groupNN) names
+test_groupTeacherList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Group(GroupOpts(GroupTeacher(GroupTeacherOpts(GroupTeacherList(GroupTeacherListOpts o o o o)))))))) $
+                                                                                                execParserMaybe (globalInfo role) [groupSub, teacherSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, teacherSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [groupSub, teacherSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [groupSub, teacherSub, listSub, "v"]
 
-prop_groupCorrectorListSuccess repoNN termNN courseNN groupNN =
- validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN) groupCorrectorListF [groupSub, correctorSub, listSub]
-   (groupOpts repoNN termNN courseNN groupNN) noArgs
 
-courseAddF (Global(Course(CourseOpts(CourseAdd(CourseAddOpts a b c))))) = (a,b,c)
-courseRemoveF (Global(Course(CourseOpts(CourseRemove(CourseRemoveOpts a b c))))) = (a,b,c)
-courseListF (Global(Course(CourseOpts(CourseList(CourseListOpts a b))))) = (a,b)
-courseTeacherAddF (Global(Course(CourseOpts(CourseTeacher(CourseTeacherOpts(CourseTeacherAdd(CourseTeacherAddOpts a b c d))))))) = (a,b,c,d)
-courseTeacherRemoveF (Global(Course(CourseOpts(CourseTeacher(CourseTeacherOpts(CourseTeacherRemove(CourseTeacherRemoveOpts a b c d))))))) = (a,b,c,d)
-courseTeacherListF (Global(Course(CourseOpts(CourseTeacher(CourseTeacherOpts(CourseTeacherList(CourseTeacherListOpts a b c))))))) = (a,b,c)
-courseCorrectorAddF (Global(Course(CourseOpts(CourseCorrector(CourseCorrectorOpts(CourseCorrectorAdd(CourseCorrectorAddOpts a b c d))))))) = (a,b,c,d)
-courseCorrectorRemoveF (Global(Course(CourseOpts(CourseCorrector(CourseCorrectorOpts(CourseCorrectorRemove(CourseCorrectorRemoveOpts a b c d))))))) = (a,b,c,d)
-courseCorrectorListF (Global(Course(CourseOpts(CourseCorrector(CourseCorrectorOpts(CourseCorrectorList(CourseCorrectorListOpts a b c))))))) = (a,b,c)
-groupAddF (Global(Group(GroupOpts(GroupAdd(GroupAddOpts a b c d))))) = (a,b,c,d)
-groupRemoveF (Global(Group(GroupOpts(GroupRemove(GroupRemoveOpts a b c d))))) = (a,b,c,d)
-groupListF (Global(Group(GroupOpts(GroupList(GroupListOpts a b c))))) = (a,b,c)
-groupTeacherAddF (Global(Group(GroupOpts(GroupTeacher(GroupTeacherOpts(GroupTeacherAdd(GroupTeacherAddOpts a b c d e))))))) = (a,b,c,d, e)
-groupTeacherRemoveF (Global(Group(GroupOpts(GroupTeacher(GroupTeacherOpts(GroupTeacherRemove(GroupTeacherRemoveOpts a b c d e))))))) = (a,b,c,d,e)
-groupTeacherListF (Global(Group(GroupOpts(GroupTeacher(GroupTeacherOpts(GroupTeacherList(GroupTeacherListOpts a b c d))))))) = (a,b,c,d)
-groupCorrectorAddF (Global(Group(GroupOpts(GroupCorrector(GroupCorrectorOpts(GroupCorrectorAdd(GroupCorrectorAddOpts a b c d e))))))) = (a,b,c,d,e)
-groupCorrectorRemoveF (Global(Group(GroupOpts(GroupCorrector(GroupCorrectorOpts(GroupCorrectorRemove(GroupCorrectorRemoveOpts a b c d e))))))) = (a,b,c,d, e)
-groupCorrectorListF (Global(Group(GroupOpts(GroupCorrector(GroupCorrectorOpts(GroupCorrectorList(GroupCorrectorListOpts a b c d))))))) = (a,b,c,d)
--}
+test_groupCorrector = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, teacherSub]
+test_groupCorrectorAdd = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, correctorSub, addSub]
+    assertEqual (Just(Global(Group(GroupOpts(GroupCorrector(GroupCorrectorOpts(GroupCorrectorAdd(GroupCorrectorAddOpts o o o o ["name.."])))))))) $
+                                                                                                execParserMaybe (globalInfo role) [groupSub, correctorSub, addSub, "name.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, correctorSub, addSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, correctorSub, addSub, "name.."]
+
+test_groupCorrectorRemove = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, teacherSub, addSub]
+    assertEqual (Just(Global(Group(GroupOpts(GroupCorrector(GroupCorrectorOpts(GroupCorrectorRemove(GroupCorrectorRemoveOpts o o o o ["name.."])))))))) $
+                                                                                                execParserMaybe (globalInfo role) [groupSub, correctorSub, removeSub, "name.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, correctorSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, correctorSub, removeSub, "name.."]
+
+
+test_groupCorrectorList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Group(GroupOpts(GroupCorrector(GroupCorrectorOpts(GroupCorrectorList(GroupCorrectorListOpts o o o o)))))))) $
+                                                                                                execParserMaybe (globalInfo role) [groupSub, correctorSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [groupSub, correctorSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [groupSub, correctorSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [groupSub, correctorSub, listSub, "v"]
+
+
+
+          

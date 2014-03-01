@@ -2,6 +2,9 @@
 module Interface.CommandLineParser.ProjectValidateUnitTest where
 import Test.Framework
 import Interface.CommandLineParser.ParserTestUtils
+import Control.Monad
+import Security.SecurityManager
+import Options.Applicative
 
 import Interface.Lexicon
 import Interface.CommandLineParser
@@ -9,108 +12,163 @@ import Interface.CommandLineParser.Project
 import Interface.CommandLineParser.Project.Validate
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
-{-
-prop_projectAddSuccess repoNN termNN courseNN groupNN start end late n = let ns = validArgs [n]; [name] = ns in ns /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, start, end, late] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, start, end, late, name) addF
-   [projectSub, addSub] (projectAddOpts repoNN termNN courseNN groupNN start end late) [name]
 
-prop_projectRemoveSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN) removeF
-   [projectSub, removeSub] (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_project = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub]
+test_projectAdd = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, addSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectAdd(ProjectAddOpts o o o o o o o "name")))))) $ execParserMaybe (globalInfo role) [projectSub, addSub, "name"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, addSub, "name", "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, addSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, addSub, "name"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, addSub, "name", "v"]
 
-prop_projectListSuccess repoNN termNN courseNN groupNN =
- validOpts [repoNN, termNN, courseNN, groupNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN) listF
-   [projectSub, listSub] (groupOpts repoNN termNN courseNN groupNN) noArgs
+test_projectRemove = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectRemove(ProjectRemoveOpts o o o o o)))))) $ execParserMaybe (globalInfo role) [projectSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, removeSub, "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, removeSub, "v"]
 
-prop_projectDateSetSuccess repoNN termNN courseNN groupNN projectNN start end late =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN, start, end, late] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, start, end, late) dateSetF [projectSub, dateSub, setSub]
-  (projectDateOpts repoNN termNN courseNN groupNN projectNN start end late) noArgs
+test_projectList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectList(ProjectListOpts o o o o)))))) $ execParserMaybe (globalInfo role) [projectSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, listSub, "v"]
 
-prop_projectDateListSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) dateListF [projectSub, dateSub, listSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_projectDate = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, dateSub]
+test_projectDateSet = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectDate(ProjectDateOpts(ProjectDateSet(ProjectDateSetOpts o o o o o o o o)))))))) $ execParserMaybe (globalInfo role) [projectSub, dateSub, setSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, dateSub, setSub, "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, dateSub, setSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, dateSub, setSub, "v"]
 
-prop_projectValidateAcceptExecSetSuccess repoNN termNN courseNN groupNN projectNN v = let val = ["yYnN" !! (v `mod` 4)] in
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, val) validateAcceptExecSetF [projectSub, validateSub, acceptExecSub, setSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) [val]
+test_projectDateList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectDate(ProjectDateOpts(ProjectDateList(ProjectDateListOpts o o o o o)))))))) $ execParserMaybe (globalInfo role) [projectSub, dateSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, dateSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, dateSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, dateSub, listSub, "v"]
 
-prop_projectValidateAcceptExecListSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) validateAcceptExecListF [projectSub, validateSub, acceptExecSub, listSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
 
-prop_projectValidateNameAddSuccess repoNN termNN courseNN groupNN projectNN ns = let names = validArgs ns in names /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, names) validateNameAddF [projectSub, validateSub, nameSub, addSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) names
+test_projectValidate = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub]
+test_projectValidateAcceptexec = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, acceptExecSub]
+test_projectValidateAcceptExecSet = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, acceptExecSub, setSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateAcceptExec(ProjectValidateAcceptExecOpts(ProjectValidateAcceptExecSet(ProjectValidateAcceptExecSetOpts o o o o o "acceptExec")))))))))) $
+                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, acceptExecSub, setSub, "acceptExec"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, acceptExecSub, setSub, "acceptExec", "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, acceptExecSub, setSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, acceptExecSub, setSub, "v"]
 
-prop_projectValidateNameRemoveSuccess repoNN termNN courseNN groupNN projectNN ns = let names = validArgs ns in names /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, names) validateNameRemoveF [projectSub, validateSub, nameSub, removeSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) names
+test_projectValidateAcceptExecList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, acceptExecSub, setSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateAcceptExec(ProjectValidateAcceptExecOpts(ProjectValidateAcceptExecList(ProjectValidateAcceptExecListOpts o o o o o)))))))))) $
+                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, acceptExecSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, acceptExecSub, listSub, "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, dateSub, setSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, dateSub, setSub, "v"]
 
-prop_projectValidateNameListSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) validateNameListF [projectSub, validateSub, nameSub, listSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_projectValidateName = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, nameSub]
+test_projectValidateNameAdd = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, nameSub, addSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateName(ProjectValidateNameOpts(ProjectValidateNameAdd(ProjectValidateNameAddOpts o o o o o ["name.."])))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, nameSub, addSub, "name.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, nameSub, addSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, nameSub, addSub, "name.."]
 
-prop_projectValidateCommandSetSuccess repoNN termNN courseNN groupNN projectNN co = let cs = validArgs [co]; [command] = cs in cs /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, command) validateCommandSetF [projectSub, validateSub, commandSub, setSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) [command]
+test_projectValidateNameRemove = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, nameSub, removeSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateName(ProjectValidateNameOpts(ProjectValidateNameRemove(ProjectValidateNameRemoveOpts o o o o o ["name.."])))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, nameSub, removeSub, "name.."]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, nameSub, removeSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, nameSub, removeSub, "name.."]
 
-prop_projectValidateCommandUnsetSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN) validateCommandUnsetF [projectSub, validateSub, commandSub, unsetSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_projectValidateNameList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateName(ProjectValidateNameOpts(ProjectValidateNameList(ProjectValidateNameListOpts o o o o o)))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, nameSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, nameSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, validateSub, nameSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, validateSub, nameSub, listSub, "v"]
 
-prop_projectValidateCommandListSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) validateCommandListF [projectSub, validateSub, commandSub, listSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_projectValidateCommand = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub]
+test_projectValidateCommandSet = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, setSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateCommand(ProjectValidateCommandOpts(ProjectValidateCommandSet(ProjectValidateCommandSetOpts o o o o o "command")))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, setSub, "command"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, setSub, "command", "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, setSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, setSub, "command"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, setSub, "command", "v"]
 
-prop_projectValidateScriptSetSuccess repoNN termNN courseNN groupNN projectNN s = let ss = validArgs [s]; [scriptName] = ss in ss /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, scriptName) validateScriptSet [projectSub, validateSub, scriptSub, setSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) [scriptName]
+test_projectValidateCommandUnset = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateCommand(ProjectValidateCommandOpts(ProjectValidateCommandUnset(ProjectValidateCommandUnsetOpts o o o o o)))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, unsetSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, unsetSub, "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, unsetSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, unsetSub, "v"]
 
-prop_projectValidateScriptUnsetSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN) validateScriptUnsetF [projectSub, validateSub, scriptSub, unsetSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_projectValidateCommandList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateCommand(ProjectValidateCommandOpts(ProjectValidateCommandList(ProjectValidateCommandListOpts o o o o o)))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, commandSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, validateSub, commandSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, validateSub, commandSub, listSub, "v"]
 
-prop_projectValidateScriptListSuccess repoNN termNN courseNN groupNN projectNN =
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) validateScriptListF [projectSub, validateSub, scriptSub, listSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
+test_projectValidateScript = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub]
+test_projectValidateScriptSet = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, setSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateScript(ProjectValidateScriptOpts(ProjectValidateScriptSet(ProjectValidateScriptSetOpts o o o o o "name")))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, setSub, "name"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, setSub, "name", "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, setSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, setSub, "name"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, setSub, "name", "v"]
 
-prop_projectValidateScriptExtractSuccess repoNN termNN courseNN groupNN projectNN di = let ds = validArgs [di]; [extractDir] = ds in ds /= [] ==>
- validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
-  testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN, extractDir) validateScriptExtractF [projectSub, validateSub, scriptSub, extractSub]
-   (projectOpts repoNN termNN courseNN groupNN projectNN) [extractDir]
+test_projectValidateScriptUnset = do
+  forM_ [adminRole, teacherRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateScript(ProjectValidateScriptOpts(ProjectValidateScriptUnset(ProjectValidateScriptUnsetOpts o o o o o)))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, unsetSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, unsetSub, "v"]
+  forM_ [correctorRole, studentRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, unsetSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, unsetSub, "v"]
 
-addF (Global(Project(ProjectOpts(ProjectAdd(ProjectAddOpts a b c d e f g h))))) = (a,b,c,d,e,f,g,h)
-removeF (Global(Project(ProjectOpts(ProjectRemove(ProjectRemoveOpts a b c d e))))) = (a,b,c,d,e)
-listF (Global(Project(ProjectOpts(ProjectList(ProjectListOpts a b c d))))) = (a,b,c,d)
-dateSetF (Global(Project(ProjectOpts(ProjectDate(ProjectDateOpts(ProjectDateSet(ProjectDateSetOpts a b c d e f g h))))))) = (a,b,c,d,e,f,g,h)
-dateListF (Global(Project(ProjectOpts(ProjectDate(ProjectDateOpts(ProjectDateList(ProjectDateListOpts a b c d e))))))) = (a,b,c,d,e)
-validateAcceptExecSetF (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateAcceptExec(ProjectValidateAcceptExecOpts(ProjectValidateAcceptExecSet(ProjectValidateAcceptExecSetOpts a b c d e f))))))))) = (a,b,c,d,e,f)
-validateAcceptExecListF (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateAcceptExec(ProjectValidateAcceptExecOpts(ProjectValidateAcceptExecList(ProjectValidateAcceptExecListOpts a b c d e))))))))) = (a,b,c,d,e)
-validateNameAddF (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateName(ProjectValidateNameOpts(ProjectValidateNameAdd(ProjectValidateNameAddOpts a b c d e f))))))))) = (a,b,c,d,e,f)
-validateNameRemoveF (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateName(ProjectValidateNameOpts(ProjectValidateNameRemove(ProjectValidateNameRemoveOpts a b c d e f))))))))) = (a,b,c,d,e,f)
-validateNameListF (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateName(ProjectValidateNameOpts(ProjectValidateNameList(ProjectValidateNameListOpts a b c d e))))))))) = (a,b,c,d,e)
-validateCommandSetF (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateCommand(ProjectValidateCommandOpts(ProjectValidateCommandSet(ProjectValidateCommandSetOpts a b c d e f))))))))) = (a,b,c,d,e,f)
-validateCommandUnsetF (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateCommand(ProjectValidateCommandOpts(ProjectValidateCommandUnset(ProjectValidateCommandUnsetOpts a b c d e))))))))) = (a,b,c,d,e)
-validateCommandListF (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateCommand(ProjectValidateCommandOpts(ProjectValidateCommandList(ProjectValidateCommandListOpts a b c d e))))))))) = (a,b,c,d,e)
-validateScriptSet (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateScript(ProjectValidateScriptOpts(ProjectValidateScriptSet(ProjectValidateScriptSetOpts a b c d e f))))))))) = (a,b,c,d,e,f)
-validateScriptUnsetF (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateScript(ProjectValidateScriptOpts(ProjectValidateScriptUnset(ProjectValidateScriptUnsetOpts a b c d e))))))))) = (a,b,c,d,e)
-validateScriptListF (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateScript(ProjectValidateScriptOpts(ProjectValidateScriptList(ProjectValidateScriptListOpts a b c d e))))))))) = (a,b,c,d,e)
-validateScriptExtractF (Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateScript(ProjectValidateScriptOpts(ProjectValidateScriptExtract(ProjectValidateScriptExtractOpts a b c d e f))))))))) = (a,b,c,d,e,f)
+test_projectValidateScriptList = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateScript(ProjectValidateScriptOpts(ProjectValidateScriptList(ProjectValidateScriptListOpts o o o o o)))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, listSub]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, listSub, "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, validateSub, scriptSub, listSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, validateSub, scriptSub, listSub, "v"]
 
--}                
+test_projectValidateScriptExtract = do
+  forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, extractSub]
+    assertEqual (Just(Global(Project(ProjectOpts(ProjectValidate(ProjectValidateOpts(ProjectValidateScript(ProjectValidateScriptOpts(ProjectValidateScriptExtract(ProjectValidateScriptExtractOpts o o o o o "dir")))))))))) $
+                                                                                                                execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, extractSub, "dir"]
+    assertEqual Nothing $ execParserMaybe (globalInfo role) [projectSub, validateSub, scriptSub, extractSub, "dir", "v"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, validateSub, scriptSub, extractSub]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, validateSub, scriptSub, extractSub, "dir"]
+  assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [projectSub, validateSub, scriptSub, extractSub, "dir", "v"]
