@@ -8,12 +8,12 @@ import Data.Maybe
 import Domain.Project
 import Domain.SubmitRepo
 import Domain.TrainFileRepo
-import Domain.TrainRunRepo 
+import Domain.TrainRunRepo
 import Domain.TrainRun
- 
+
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-prop_projectChildren projectName submit trainFile trainRun = 
+prop_projectChildren projectName submit trainFile trainRun =
  length (filter (not.null) [submit,trainFile,trainRun]) == 3 ==>
  let p = makeProject projectName
      s = addSubmit emptySubmitRepo submit submit
@@ -28,19 +28,19 @@ prop_projectChildren projectName submit trainFile trainRun =
 
 prop_trainRunRepoChildren rs = let trainRunDates = uniqueNonEmpty rs
                                in  trainRunDates /= [] ==> f trainRunDates
- where f dates@(trainRunDate:rest) = 
+ where f dates@(trainRunDate:rest) =
         let trr = foldl (\x d -> addTrainRun x (makeTrainRun d)) emptyTrainRunRepo rest
             tr = makeTrainRun trainRunDate
             absentAdd = addTrainRun trr tr
             presentAdd = addTrainRun absentAdd tr
             presentRemove = removeTrainRun absentAdd trainRunDate
-            absentRemove = removeTrainRun trr trainRunDate 
+            absentRemove = removeTrainRun trr trainRunDate
         in  areEqual [presentRemove, absentRemove, trr] &&
             absentAdd == presentAdd &&
             sameElements rest (getTrainRuns trr) &&
             sameElements dates (getTrainRuns absentAdd) &&
             isNothing (getTrainRun trr trainRunDate) &&
-            Just tr == getTrainRun absentAdd trainRunDate                                                   
+            Just tr == getTrainRun absentAdd trainRunDate
 
 prop_emptySubmitRepo = [[]] == applyGets emptySubmitRepo [getSubmits, getLateSubmits]
 prop_emptyTrainFileRepo = [] == getTrainFiles emptyTrainFileRepo
@@ -61,33 +61,33 @@ prop_addRemoveGetSubmits ks suffix = let ks' = uniqueNonEmpty ks in ks' /= [] ==
               content == getSubmit absentAdd key
 
 prop_addRemoveGetLateSubmits ks = let ks' = uniqueNonEmptyNoComma ks in ks' /= [] ==> f ks'
- where f (key:rest) = 
+ where f (key:rest) =
         let sr = foldl addLateSubmit emptySubmitRepo rest
             absentAdd = addLateSubmit sr key
             presentAdd = addLateSubmit absentAdd key
             presentRemove = removeLateSubmit absentAdd key
             absentRemove = removeLateSubmit sr key
-        in  areEqual [presentRemove, absentRemove, sr] && 
+        in  areEqual [presentRemove, absentRemove, sr] &&
             absentAdd == presentAdd &&
             sameElements rest (getLateSubmits sr) &&
             sameElements (key:rest) (getLateSubmits absentAdd)
 
 prop_addRemoveGetTrainFiles fs suffix = let fs' = uniqueNonEmpty fs in fs' /= [] ==> f $ zip fs' $ map (++suffix) fs'
- where f ((name, content):rest) = 
+ where f ((name, content):rest) =
         let fr = foldl (\r (n,c) -> addTrainFile r n c) emptyTrainFileRepo rest
             absentAdd = addTrainFile fr name content
             presentAdd = addTrainFile absentAdd name (content ++ suffix)
             presentRemove = removeTrainFile absentAdd name
             absentRemove = removeTrainFile fr name
-        in  areEqual [presentRemove, absentRemove, fr] &&  
+        in  areEqual [presentRemove, absentRemove, fr] &&
             getTrainFile absentAdd name ++ suffix == getTrainFile presentAdd name &&
             sameElements (map fst rest) (getTrainFiles fr) &&
             sameElements (name: map fst rest) (getTrainFiles absentAdd) &&
             "" == getTrainFile fr name &&
             content == getTrainFile absentAdd name
-        
+
 prop_addRemoveGetTrainRuns name rs suffix = let rs' = uniqueNonEmpty rs in rs' /= [] ==> f $ zip rs' $ map (++suffix) rs'
- where f ((key, content):rest) = 
+ where f ((key, content):rest) =
         let fr = foldl (\r (k,c) -> addResult r k c) (makeTrainRun name) rest
             absentAdd = addResult fr key content
             presentAdd = addResult absentAdd key (content ++ suffix)
@@ -97,6 +97,6 @@ prop_addRemoveGetTrainRuns name rs suffix = let rs' = uniqueNonEmpty rs in rs' /
             getResult absentAdd key ++ suffix == getResult presentAdd key &&
             sameElements (map fst rest) (getResults fr) &&
             sameElements (key: map fst rest) (getResults absentAdd) &&
-            content == getResult absentAdd key      
-            
+            content == getResult absentAdd key
+
         

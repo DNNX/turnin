@@ -24,21 +24,21 @@ test_repoAdd = do
   forM_ [teacherRole, correctorRole, studentRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [repoSub, addSub, "name"]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [repoSub, addSub, "name", "v"]
- 
+
 test_repoRemove = do
   assertEqual (Just(Global(Repo(RepoOpts(RepoRemove(RepoRemoveOpts o)))))) $ execParserMaybe (globalInfo adminRole) [repoSub, removeSub]
   assertEqual Nothing $ execParserMaybe (globalInfo adminRole) [repoSub, removeSub, "v"]
   forM_ [teacherRole, correctorRole, studentRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [repoSub, removeSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [repoSub, removeSub, "v"]
- 
+
 test_repoList = do
   forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
     assertEqual (Just(Global(Repo(RepoOpts(RepoList RepoListOpts))))) $ execParserMaybe (globalInfo role) [repoSub, listSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [repoSub, listSub, "v"]
   assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [repoSub, listSub]
   assertEqual Nothing $ execParserMaybe (globalInfo studentRole) [repoSub, listSub, "v"]
- 
+
 -- Term
 test_term = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [termSub]
 
@@ -54,14 +54,14 @@ test_termAdd = do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [termSub, addSub, "name", "start"]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [termSub, addSub, "name", "start", "end"]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [termSub, addSub, "name", "start", "end", "v"]
- 
+
 test_termRemove = do
   assertEqual (Just(Global(Term(TermOpts(TermRemove(TermRemoveOpts o o)))))) $ execParserMaybe (globalInfo adminRole) [termSub, removeSub]
   assertEqual Nothing $ execParserMaybe (globalInfo adminRole) [termSub, removeSub, "v"]
   forM_ [teacherRole, correctorRole, studentRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [termSub, removeSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [termSub, removeSub, "v"]
- 
+
 test_termList = do
   forM_ [adminRole, teacherRole, correctorRole] $ \role -> do
     assertEqual (Just(Global(Term(TermOpts(TermList(TermListOpts o)))))) $ execParserMaybe (globalInfo role) [termSub, listSub]

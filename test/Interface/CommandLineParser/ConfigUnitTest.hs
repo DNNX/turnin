@@ -15,7 +15,7 @@ import Interface.CommandLineParser.Config
 
 test_empty = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) []
 test_config = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub]
-test_configThreshold = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, thresholdSub] 
+test_configThreshold = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, thresholdSub]
 
 test_configThresholdSet = do
   assertEqual (Just(Global(Config(ConfigOpts(ConfigThreshold(ConfigThresholdOpts(ConfigThresholdSet(ConfigThresholdSetOpts o o)))))))) $ execParserMaybe (globalInfo adminRole) [configSub, thresholdSub, setSub]
@@ -28,11 +28,11 @@ test_configThresholdList = do
   forM_ [adminRole, teacherRole] $ \role -> do
     assertEqual (Just(Global(Config(ConfigOpts(ConfigThreshold(ConfigThresholdOpts(ConfigThresholdList ConfigThresholdListOpts))))))) $ execParserMaybe (globalInfo role) [configSub, thresholdSub, listSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, thresholdSub, listSub, "v"]
-  forM_ [correctorRole, studentRole] $ \role -> do      
+  forM_ [correctorRole, studentRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, thresholdSub, setSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, thresholdSub, setSub, "v"]
 
-test_configTermDate = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, termDateSub] 
+test_configTermDate = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, termDateSub]
 test_configTermDateSet = do
   assertEqual (Just(Global(Config(ConfigOpts(ConfigTermDate(ConfigTermDateOpts(ConfigTermDateSet(ConfigTermDateSetOpts o o o)))))))) $ execParserMaybe (globalInfo adminRole) [configSub, termDateSub, setSub]
   assertEqual Nothing $ execParserMaybe (globalInfo adminRole) [configSub, termDateSub, setSub, "v"]
@@ -44,11 +44,11 @@ test_configTermDateList = do
   forM_ [adminRole, teacherRole] $ \role -> do
     assertEqual (Just(Global(Config(ConfigOpts(ConfigTermDate(ConfigTermDateOpts(ConfigTermDateList ConfigTermDateListOpts))))))) $ execParserMaybe (globalInfo role) [configSub, termDateSub, listSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, termDateSub, listSub, "v"]
-  forM_ [correctorRole, studentRole] $ \role -> do    
+  forM_ [correctorRole, studentRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, termDateSub, setSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, termDateSub, setSub, "v"]
 
-test_configProjectDate = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, projectDateSub] 
+test_configProjectDate = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, projectDateSub]
 test_configProjectDateSet = do
   assertEqual (Just(Global(Config(ConfigOpts(ConfigProjectDate(ConfigProjectDateOpts(ConfigProjectDateSet(ConfigProjectDateSetOpts o o)))))))) $ execParserMaybe (globalInfo adminRole) [configSub, projectDateSub, setSub]
   assertEqual Nothing $ execParserMaybe (globalInfo adminRole) [configSub, projectDateSub, setSub, "v"]
@@ -60,7 +60,7 @@ test_configProjectDateList = do
   forM_ [adminRole, teacherRole] $ \role -> do
     assertEqual (Just(Global(Config(ConfigOpts(ConfigProjectDate(ConfigProjectDateOpts(ConfigProjectDateList ConfigProjectDateListOpts))))))) $ execParserMaybe (globalInfo role) [configSub, projectDateSub, listSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, projectDateSub, listSub, "v"]
-  forM_ [correctorRole, studentRole] $ \role -> do    
+  forM_ [correctorRole, studentRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, projectDateSub, setSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, projectDateSub, setSub, "v"]
 
@@ -99,7 +99,7 @@ test_configTimeLimitList = do
   forM_ [correctorRole, studentRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, timeLimitSub, listSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, timeLimitSub, listSub, "v"]
-    
+
 test_configSpaceLimit = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, spaceLimitSub]
 test_configSpaceLimitSet = do
   assertEqual Nothing $ execParserMaybe (globalInfo adminRole) [configSub, spaceLimitSub, setSub]
@@ -109,7 +109,7 @@ test_configSpaceLimitSet = do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, spaceLimitSub, setSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, spaceLimitSub, setSub, "spaceLimit"]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, spaceLimitSub, setSub, "spaceLimit", "v"]
- 
+
 test_configSpaceLimitList = do
   forM_ [adminRole, teacherRole] $ \role -> do
     assertEqual (Just(Global(Config(ConfigOpts(ConfigSpaceLimit(ConfigSpaceLimitOpts(ConfigSpaceLimitList ConfigSpaceLimitListOpts))))))) $ execParserMaybe (globalInfo role) [configSub, spaceLimitSub, listSub]
@@ -125,7 +125,7 @@ test_configAdminGroupsSet = do
   forM_ [teacherRole, correctorRole, studentRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, adminGroupsSub, setSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, adminGroupsSub, setSub, "group.."]
- 
+
 test_configAdminGroupsList = do
   forM_ [adminRole, teacherRole] $ \role -> do
     assertEqual (Just(Global(Config(ConfigOpts(ConfigAdminGroups(ConfigAdminGroupsOpts(ConfigAdminGroupsList ConfigAdminGroupsListOpts))))))) $ execParserMaybe (globalInfo role) [configSub, adminGroupsSub, listSub]
@@ -136,14 +136,14 @@ test_configAdminGroupsList = do
 
 test_configTeacherGroups = forM_ allRoles $ \role -> assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, adminGroupsSub]
 test_configTeacherGroupsSet = do
-  assertEqual (Just(Global(Config(ConfigOpts(ConfigTeacherGroups(ConfigTeacherGroupsOpts(ConfigTeacherGroupsSet(ConfigTeacherGroupsSetOpts [])))))))) $  
+  assertEqual (Just(Global(Config(ConfigOpts(ConfigTeacherGroups(ConfigTeacherGroupsOpts(ConfigTeacherGroupsSet(ConfigTeacherGroupsSetOpts [])))))))) $
                                                                                                 execParserMaybe (globalInfo adminRole) [configSub, teacherGroupsSub, setSub]
-  assertEqual (Just(Global(Config(ConfigOpts(ConfigTeacherGroups(ConfigTeacherGroupsOpts(ConfigTeacherGroupsSet(ConfigTeacherGroupsSetOpts ["group.."])))))))) $ 
+  assertEqual (Just(Global(Config(ConfigOpts(ConfigTeacherGroups(ConfigTeacherGroupsOpts(ConfigTeacherGroupsSet(ConfigTeacherGroupsSetOpts ["group.."])))))))) $
                                                                                                 execParserMaybe (globalInfo adminRole) [configSub, teacherGroupsSub, setSub, "group.."]
   forM_ [teacherRole, correctorRole, studentRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, teacherGroupsSub, setSub]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, teacherGroupsSub, setSub, "group.."]
- 
+
 test_configTeacherGroupsList = do
   forM_ [adminRole, teacherRole] $ \role -> do
     assertEqual (Just(Global(Config(ConfigOpts(ConfigTeacherGroups(ConfigTeacherGroupsOpts(ConfigTeacherGroupsList ConfigTeacherGroupsListOpts))))))) $ execParserMaybe (globalInfo role) [configSub, teacherGroupsSub, listSub]
@@ -168,15 +168,15 @@ test_configCorrectorAdd = do
   forM_ [correctorRole, studentRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, correctorSub, addSub, "corr"]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, correctorSub, addSub]
-    
+
 test_configCorrectorRemove = do
-  forM_ [adminRole, teacherRole] $ \role -> do 
+  forM_ [adminRole, teacherRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, correctorSub, removeSub]
     assertEqual (Just(Global(Config(ConfigOpts(ConfigCorrector(ConfigCorrectorOpts(ConfigCorrectorRemove(ConfigCorrectorRemoveOpts "corr")))))))) $ execParserMaybe (globalInfo role) [configSub, correctorSub, removeSub, "corr"]
   forM_ [correctorRole, studentRole] $ \role -> do
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, correctorSub, removeSub, "corr"]
     assertEqual Nothing $ execParserMaybe (globalInfo role) [configSub, correctorSub, removeSub]
-         
+
 configThresholdSetF (Global(Config(ConfigOpts(ConfigThreshold(ConfigThresholdOpts(ConfigThresholdSet(ConfigThresholdSetOpts a b))))))) = (a,b)
 configThresholdListF (Global(Config(ConfigOpts(ConfigThreshold(ConfigThresholdOpts(ConfigThresholdList ConfigThresholdListOpts)))))) = noArgsToGet
 configTermDateSetF (Global(Config(ConfigOpts(ConfigTermDate(ConfigTermDateOpts(ConfigTermDateSet(ConfigTermDateSetOpts a b c))))))) = (a,b,c)

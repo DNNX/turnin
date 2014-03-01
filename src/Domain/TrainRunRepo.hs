@@ -19,7 +19,7 @@ emptyTrainRunRepo :: TrainRunRepo
 emptyTrainRunRepo = R $ makeNode trainRunRepoName
 
 addTrainRun :: TrainRunRepo -> TrainRun -> TrainRunRepo
-addTrainRun (R node) = R . (`addTrainRunTo` node) 
+addTrainRun (R node) = R . (`addTrainRunTo` node)
 
 removeTrainRun :: TrainRunRepo -> String -> TrainRunRepo
 removeTrainRun (R node) = R . unsetChild node

@@ -305,8 +305,8 @@ ls = M.fromList
     , " @@@@@@@"
     ])
  ]
- 
-notFound = 
+
+notFound =
     [ " x . . ."
     , " . . . ."
     , " . . . ."
@@ -318,11 +318,11 @@ notFound =
 
 toAsciiArt :: String -> String
 toAsciiArt s = let bigLetters = map toBigLetter s
-               in  unlines $ foldl concatElems (replicate height []) bigLetters 
+               in  unlines $ foldl concatElems (replicate height []) bigLetters
 
 -- private utils
 height = length $ fromJust $ M.lookup '0' ls
-width = length $ head $ fromJust $ M.lookup '0' ls 
+width = length $ head $ fromJust $ M.lookup '0' ls
 
 letters = let ls' = M.toList ls
               allHaveSameHeight = all (\(_,xs) -> length xs == height) ls'

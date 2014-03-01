@@ -94,7 +94,7 @@ prop_projectValidateScriptExtractSuccess repoNN termNN courseNN groupNN projectN
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
   testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN, extractDir) validateScriptExtractF [projectSub, validateSub, scriptSub, extractSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) [extractDir]
-    
+
 addF (Global(Project(ProjectOpts(ProjectAdd(ProjectAddOpts a b c d e f g h))))) = (a,b,c,d,e,f,g,h)
 removeF (Global(Project(ProjectOpts(ProjectRemove(ProjectRemoveOpts a b c d e))))) = (a,b,c,d,e)
 listF (Global(Project(ProjectOpts(ProjectList(ProjectListOpts a b c d))))) = (a,b,c,d)

@@ -4,7 +4,7 @@ import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 
 accents :: M.Map Char Char
-accents = M.fromList 
+accents = M.fromList
  [ ('Š','S')
  , ('Ž','Z')
  , ('š','s')
@@ -62,21 +62,21 @@ accents = M.fromList
  , ('ü','u')
  , ('ý','y')
  ]
- 
+
 accentsByClear :: M.Map Char String
 accentsByClear = M.foldlWithKey f M.empty accents
  where f m k c = case M.lookup c m of
                   Nothing -> M.insert c [k] m
                   Just ks -> M.insert c (k:ks) m
- 
+
 toAccents c = case M.lookup c accentsByClear of
                Nothing -> [c]
                Just cs  -> c:cs
 
-  
-fromAccent c = fromMaybe c $ M.lookup c accents        
-                 
-             
- 
- 
+
+fromAccent c = fromMaybe c $ M.lookup c accents
+
+
+
+
  

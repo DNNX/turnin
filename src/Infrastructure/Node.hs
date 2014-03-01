@@ -39,7 +39,7 @@ getKeys n@(Node name _ _ children) = let childrenKeys = concatMap getKeys $ M.el
                                          f (k,node) = (name:k,node)
                                      in  ([name],n):map f childrenKeys
 
-getConfig :: Node -> String -> String 
+getConfig :: Node -> String -> String
 getConfig (Node _ config _ _) key = fromMaybe "" $ M.lookup key config
 
 setConfig :: Node -> String -> String -> Node
@@ -48,19 +48,19 @@ setConfig (Node name config cache children) key value  = Node name (M.insert key
 
 unsetConfig :: Node -> String -> Node
 unsetConfig (Node name config cache children) key = Node name (M.delete key config) cache children
-                                
+
 getCacheKeys :: Node -> [String]
-getCacheKeys (Node _ _ cache _) = M.keys cache                                
-                                                  
+getCacheKeys (Node _ _ cache _) = M.keys cache
+
 getCache :: Node -> String -> String
 getCache (Node _ _ cache _) key = fromMaybe "" $ M.lookup key cache
 
 setCache :: Node -> String -> String -> Node
-setCache node                              key ""    = unsetCache node key 
-setCache (Node name config cache children) key value = Node name config (M.insert key value cache) children 
-                                                       
+setCache node                              key ""    = unsetCache node key
+setCache (Node name config cache children) key value = Node name config (M.insert key value cache) children
+
 unsetCache :: Node -> String -> Node
-unsetCache (Node name config cache children) key = Node name config (M.delete key cache) children                                                                                      
+unsetCache (Node name config cache children) key = Node name config (M.delete key cache) children
 
 getChildren :: Node -> [Node]
 getChildren (Node _ _ _ children) = M.elems children
@@ -75,4 +75,4 @@ setChild parent@(Node name config cache children) child@(Node childName _ _ _) =
   Just _  -> parent
 
 unsetChild :: Node -> String -> Node
-unsetChild (Node name config cache children) childName = Node name config cache $ M.delete childName children 
+unsetChild (Node name config cache children) childName = Node name config cache $ M.delete childName children

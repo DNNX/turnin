@@ -16,7 +16,7 @@ import Data.Maybe
 stripAccents :: String -> String
 stripAccents = map fromAccent
 
-formatLineEnds :: String -> String 
+formatLineEnds :: String -> String
 formatLineEnds [] = []
 formatLineEnds ('\r':s) = formatLineEnds s
 formatLineEnds (x:s) = x:formatLineEnds s
@@ -33,7 +33,7 @@ wrap n s = let (begin,rest) = splitAt n s
 addHeaderAndFooter :: String -> String -> String
 addHeaderAndFooter toFormat key = unlines [toAsciiArt key,key,begin,toFormat,end]
  where begin = " ============ output begin ============ "
-       end   = " ============  output end  ============ " 
+       end   = " ============  output end  ============ "
 
 mergeOutputs :: [String] -> String
 mergeOutputs = unlines
@@ -73,7 +73,7 @@ reduce :: [Tree] -> Int -> Int -> [Tree]
 reduce ts n m = let (first,second,rest) = pop ts n m
                     (first',second',merged) = merge first second
                     ts' = first' ++ second' ++ rest
-                in  if merged 
+                in  if merged
                     then reduce ts' 1 1
                     else if null second
                          then ts'
@@ -83,7 +83,7 @@ reduce ts n m = let (first,second,rest) = pop ts n m
 
 pop ts n m = let (first,ts') = splitAt n ts
                  (second,rest) = splitAt m ts'
-             in  (first,second,rest) 
+             in  (first,second,rest)
 
 merge :: [Tree] -> [Tree] -> ([Tree],[Tree],Bool)
 merge [] [] = ([],[],False)
@@ -103,27 +103,27 @@ merge xs ys = let mx = maxLevel xs
 
 getEffectiveLevel :: [Tree] -> Int
 getEffectiveLevel xs = let n = maxLevel xs
-                       in  n + if length xs == 1 then 0 else 1              
-              
+                       in  n + if length xs == 1 then 0 else 1
+
 maxLevel :: [Tree] -> Int
-maxLevel = maximum . map getLevel     
+maxLevel = maximum . map getLevel
 
 getLevel :: Tree -> Int
 getLevel (L _) = 0
-getLevel (N _ xs) = 1 + maxLevel xs      
+getLevel (N _ xs) = 1 + maxLevel xs
 
 toLevel :: Int -> Tree -> Tree
 toLevel n x = f (getLevel x) x
  where f m y | m == n    = y
              | otherwise = f (m+1) (N 1 [y])
-       
-extractSingleTree :: Int -> Int -> Int -> [Tree] -> Tree       
+
+extractSingleTree :: Int -> Int -> Int -> [Tree] -> Tree
 extractSingleTree n _ m [t] | n == m     = t
 extractSingleTree n _ m ts  | n == m + 1 = N 1 ts
 extractSingleTree n e m ts  | n > e      = extractSingleTree n e (m+1) [N 1 ts]
 extractSingleTree n e m ts               = error $ "Cannot extract single tree from n: " ++ show n ++ ",e: " ++ show e ++ ",m: " ++ show m ++ ",ts: " ++ show ts
-       
-merge' :: Tree -> Tree -> Maybe Tree       
+
+merge' :: Tree -> Tree -> Maybe Tree
 merge' (L x) (L y)       | x == y   = Just $ N 2 [L x]
 merge' (N i xs) (N j ys) | xs == ys = Just $ N (i+j) xs
 merge' _        _                   = Nothing
@@ -170,7 +170,7 @@ t2 = [a,b,a,b,a,b,a,b,a,b,c,
 t2Expected = N 10 [N 1 [c],N 5 [b,a]]
 
 t3 = replicate 10 a ++ replicate 10 b ++ replicate 10 c ++ [d] ++
-      concat (replicate 10 (replicate 10 a ++ replicate 10 b)) ++ [c] ++ 
+      concat (replicate 10 (replicate 10 a ++ replicate 10 b)) ++ [c] ++
        concat (replicate 10 (replicate 10 a ++ replicate 10 b ++ replicate 10 c))
 t3Expected = N 1 [N 10 [N 10 [c],N 10 [b],N 10 [a]],c,N 10 [N 10 [b],N 10 [a]],d,N 10 [c],N 10 [b],N 10 [a]]
 
@@ -182,12 +182,12 @@ t4 = [ a,b,b,c,c,c,c,c,c,c,c
      , a,b,b,c,c,c,c,c,c,c,c
      , a,b,b,c,c,c,c,c,c,c,c
      ]
-     
+
 t4Expected =  N 7 [N 8 [c],N 2 [b],N 1 [a]]
-   
+
 a = L "a"
 b = L "b"
 c = L "c"
 d = L "d"
-              
+
                     

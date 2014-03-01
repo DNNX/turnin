@@ -29,7 +29,7 @@ prop_configTeacherGroupsListSuccess = testSuccess 2 noArgsToGet configTeacherGro
 prop_configCorrectorIsSuccess n = let name = noLeadingHyphens n in testSuccess 2 name configCorrectorIsF [configSub, correctorSub, isSub] noOpts [name]
 prop_configCorrectorAddSuccess n = let name = noLeadingHyphens n in testSuccess 2 name configCorrectorAddF [configSub, correctorSub, addSub] noOpts [name]
 prop_configCorrectorRemoveSuccess n = let name = noLeadingHyphens n in  testSuccess 2 name configCorrectorRemoveF [configSub, correctorSub, removeSub] noOpts [name]
-             
+
 configThresholdSetF (Global(Config(ConfigOpts(ConfigThreshold(ConfigThresholdOpts(ConfigThresholdSet(ConfigThresholdSetOpts a b))))))) = (a,b)
 configThresholdListF (Global(Config(ConfigOpts(ConfigThreshold(ConfigThresholdOpts(ConfigThresholdList ConfigThresholdListOpts)))))) = noArgsToGet
 configTermDateSetF (Global(Config(ConfigOpts(ConfigTermDate(ConfigTermDateOpts(ConfigTermDateSet(ConfigTermDateSetOpts a b c))))))) = (a,b,c)

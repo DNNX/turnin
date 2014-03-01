@@ -19,7 +19,7 @@ import Infrastructure.CsvNode
 data SubmitRepo = R Node deriving (Show, Eq)
 
 emptySubmitRepo :: SubmitRepo
-emptySubmitRepo = R $ makeNode submitRepoName 
+emptySubmitRepo = R $ makeNode submitRepoName
 
 addSubmit :: SubmitRepo -> String -> String -> SubmitRepo
 addSubmit (R node) key = R . setCache node key

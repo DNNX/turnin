@@ -11,7 +11,7 @@ import Interface.CommandLineParser.Project.Worktrain
 import Interface.CommandLineParser.Project.Submit
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
- 
+
 prop_projectWorktrainScriptSetSuccess repoNN termNN courseNN groupNN projectNN s = let ss = validArgs [s] in ss /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let scriptName = head ss in
   testSuccess 2 (repoNN, termNN, courseNN, groupNN, projectNN, scriptName) worktrainScriptSetF [projectSub, worktrainSub, scriptSub, setSub]
@@ -71,7 +71,7 @@ prop_projectWorktrainSpaceLimitListSuccess repoNN termNN courseNN groupNN projec
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
   testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) worktrainSpaceLimitListF [projectSub, worktrainSub, spaceLimitSub, listSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
-   
+
 prop_projectSubmitListSuccess repoNN termNN courseNN groupNN projectNN =
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
   testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) submitListF [projectSub, submitSub, listSub]
@@ -81,7 +81,7 @@ prop_projectSubmitLateSuccess repoNN termNN courseNN groupNN projectNN =
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
   testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN) submitLateF [projectSub, submitSub, lateSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) noArgs
-               
+
 prop_projectSubmitInspectSuccess repoNN termNN courseNN groupNN projectNN ks = let keys = validArgs ks in keys /= [] ==>
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==>
   testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN, keys) submitInspectF [projectSub, submitSub, inspectSub]
@@ -90,11 +90,11 @@ prop_projectSubmitExtractSuccess repoNN termNN courseNN groupNN projectNN di ks 
  validOpts [repoNN, termNN, courseNN, groupNN, projectNN] ==> let (dir:keys) = args in
   testSuccess 3 (repoNN, termNN, courseNN, groupNN, projectNN, dir, keys) submitExtractF [projectSub, submitSub, extractSub]
    (projectOpts repoNN termNN courseNN groupNN projectNN) (dir:keys)
-               
-               
+
+
 worktrainScriptSetF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptSet(ProjectWorktrainScriptSetOpts a b c d e f))))))))) = (a,b,c,d,e,f)
 worktrainScriptUnsetF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptUnset(ProjectWorktrainScriptUnsetOpts a b c d e))))))))) = (a,b,c,d,e)
-worktrainScriptListF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptList(ProjectWorktrainScriptListOpts a b c d e))))))))) = (a,b,c,d,e)                
+worktrainScriptListF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptList(ProjectWorktrainScriptListOpts a b c d e))))))))) = (a,b,c,d,e)
 worktrainScriptExtractF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainScript(ProjectWorktrainScriptOpts(ProjectWorktrainScriptExtract(ProjectWorktrainScriptExtractOpts a b c d e f))))))))) = (a,b,c,d,e,f)
 worktrainFileAddF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainFile(ProjectWorktrainFileOpts(ProjectWorktrainFileAdd(ProjectWorktrainFileAddOpts a b c d e f))))))))) = (a,b,c,d,e,f)
 worktrainFileRemoveF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainFile(ProjectWorktrainFileOpts(ProjectWorktrainFileRemove(ProjectWorktrainFileRemoveOpts a b c d e f))))))))) = (a,b,c,d,e,f)
@@ -106,6 +106,6 @@ worktrainSpaceLimitSetF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWork
 worktrainSpaceLimitListF (Global(Project(ProjectOpts(ProjectWorktrain(ProjectWorktrainOpts(ProjectWorktrainSpaceLimit(ProjectWorktrainSpaceLimitOpts(ProjectWorktrainSpaceLimitList(ProjectWorktrainSpaceLimitListOpts a b c d e))))))))) = (a,b,c,d,e)
 submitListF (Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitList(ProjectSubmitListOpts a b c d e))))))) = (a,b,c,d,e)
 submitLateF (Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitLate(ProjectSubmitLateOpts a b c d e))))))) = (a,b,c,d,e)
-submitInspectF (Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitInspect(ProjectSubmitInspectOpts a b c d e f))))))) = (a,b,c,d,e,f)              
+submitInspectF (Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitInspect(ProjectSubmitInspectOpts a b c d e f))))))) = (a,b,c,d,e,f)
 submitExtractF (Global(Project(ProjectOpts(ProjectSubmit(ProjectSubmitOpts(ProjectSubmitExtract(ProjectSubmitExtractOpts a b c d e f g))))))) = (a,b,c,d,e,f,g)
                 

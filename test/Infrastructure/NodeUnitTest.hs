@@ -16,7 +16,7 @@ test_emptyNode = let n = makeNode "node" in do
  assertEqual True $ isNothing $ getChild n "childKey"
  assertEqual [(["node"], n)] $ getKeys n
 
-test_getSetUnsetConfig = 
+test_getSetUnsetConfig =
  let n             = makeNode ""
      absentAdd     = setConfig n "key" "v1"
      presentAdd    = setConfig absentAdd "key" "v2"
@@ -24,11 +24,11 @@ test_getSetUnsetConfig =
      absentRemove  = unsetConfig n "key" in  do
  assertEqual n presentRemove
  assertEqual n absentRemove
- assertEqual "" $ getConfig n "key" 
+ assertEqual "" $ getConfig n "key"
  assertEqual "v1" $ getConfig absentAdd "key"
  assertEqual "v2" $ getConfig presentAdd "key"
-  
-test_getSetUnsetCache =                         
+
+test_getSetUnsetCache =
  let n             = makeNode ""
      absentAdd     = setCache n "key" "v1"
      presentAdd    = setCache absentAdd "key" "v2"
@@ -43,9 +43,9 @@ test_getSetUnsetCache =
  assertEqual "v1" $ getCache absentAdd "key"
  assertEqual "v2" $ getCache presentAdd "key"
 
-test_getSetUnsetChildren = 
+test_getSetUnsetChildren =
  let n             = makeNode ""
-     c1            = makeNode "child" 
+     c1            = makeNode "child"
      c2'            = setConfig c1 "key" "value"
      absentAdd     = setChild n c1
      presentAdd    = setChild absentAdd c2'
@@ -58,20 +58,20 @@ test_getSetUnsetChildren =
  assertEqual (Just c1) $ getChild absentAdd "child"
  assertEqual [] $ getChildren n
  assertEqual [c1] $ getChildren absentAdd
- assertEqual [([""],absentAdd),(["","child"],c1)] $ getKeys absentAdd                 
-     
+ assertEqual [([""],absentAdd),(["","child"],c1)] $ getKeys absentAdd
+
 buildNodeConfig name ts = let node = makeNode name in f node ts
  where f n [] = n
        f n ((k,v1,_):xs) = f (setConfig n k v1) xs
-       
-buildNodeCache name ts = let node = makeNode name in f node ts 
+
+buildNodeCache name ts = let node = makeNode name in f node ts
  where f n [] = n
        f n ((k,v1,_):xs) = f (setCache n k v1) xs
-       
-buildNodeChildren parentName ns = let node = makeNode parentName 
+
+buildNodeChildren parentName ns = let node = makeNode parentName
                                       f = foldl (\m name -> setChild m (setConfig (makeNode name) name name))
                                   in  f node ns
-                                  
+
 getKeysModel = f []
  where f parentKey c = let key = parentKey ++ [getName c]
                            rest = concatMap (f key.fromJust.getChild c) $ map getName $ getChildren c
@@ -81,10 +81,10 @@ moo f ts = let ts' = nubBy (\(a,_,_)(b,_,_)->a==b) ts
                tss = tails ts'
                tss' = filter (not.null) tss
            in  tss' /= [] ==> all f tss'
-           
+
 first (a,_,_) = a
 
 
 
-                               
-                                     
+
+

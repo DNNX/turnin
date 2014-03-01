@@ -148,7 +148,7 @@ configThresholdSet = ConfigThresholdSet <$> (ConfigThresholdSetOpts
   <*> optional (strOption $ toMod configThresholdSetChooseOpt  <> metavar configThresholdSetChooseMeta  <> help configThresholdSetChooseHelp))
 
 configThresholdList = ConfigThresholdList <$> pure ConfigThresholdListOpts
-  
+
 configTermDate role = ConfigTermDate <$> ConfigTermDateOpts <$> subparser (
  hasConfigWriteRights role (command setSub  configTermDateSetInfo) <>
  hasConfigReadRights  role (command listSub configTermDateListInfo))

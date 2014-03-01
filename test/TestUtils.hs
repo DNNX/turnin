@@ -9,7 +9,7 @@ applyGets x = nub . map ($ x)
 
 applySets x = nub . map (foldl apply x) . permutations
  where apply y (g,d) = g y d
- 
+
 areEqual xs = [head xs] == nub xs
 sameElements xs ys = null(xs \\ ys) && null (ys \\ xs)
 
@@ -20,17 +20,17 @@ clampS minV maxV v = let [x,y] = sort [minV,maxV] in f x y $ abs v
  where f mi ma val
         | mi == ma  = mi
         | otherwise = ((val-mi) `mod` (ma-mi+1)) + mi
-        
+
 clampL :: Int -> Int -> [a] -> [a]
 clampL minL maxL l = let len = clampS minL maxL $ length l
-                     in  take len l        
-        
+                     in  take len l
+
 unclamp :: Int -> Int -> Int -> Int
 unclamp minV maxV v = let [x,y] = sort [minV,maxV] in f x y v
  where f mi ma val
         | mi == ma = ma + 1
         | mi <= val && val <= ma = if val `mod` 2 == 0 then mi - 1 else ma + 1
-        | otherwise              = val     
+        | otherwise              = val
 
 fromRight (Right x) = x
 fromRight _         = error "Should be right value"

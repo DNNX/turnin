@@ -10,13 +10,13 @@ import Infrastructure.CsvNode
 
 test_emptyCsvNode = assertEqual [] $ getCsv (makeNode "") "key"
 
-test_addRemoveGetSetValues = 
- let n = makeNode ""     
+test_addRemoveGetSetValues =
+ let n = makeNode ""
      absentAdd = addCsv n "k" ["v1", "v2"]
      presentAdd = addCsv absentAdd "k" ["v1", "v2"]
      presentRemove = removeCsv absentAdd "k" ["v1", "v2"]
      absentRemove = removeCsv n "k" ["v2", "v1"]
-     
+
      absentSet = setCsv n "k" ["v1", "v2"]
      presentSet = setCsv absentSet "k" ["v1", "v2"]
      presentUnset = setCsv absentSet "k" []
@@ -30,9 +30,9 @@ test_addRemoveGetSetValues =
  assertEqual absentAdd presentAdd
  assertEqual absentAdd absentSet
  assertEqual absentAdd presentSet
-       
-       
-       
-       
-       
+
+
+
+
+
        

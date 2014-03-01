@@ -29,7 +29,7 @@ test_getSet =  let n = makeProject "" in do
  assertEqual ("scriptName", "scriptContent") $ getTrainScript $ setTrainScript n "scriptName" "scriptContent"
  assertEqual "timeLimit" $ getTrainTimeLimit $ setTrainTimeLimit n "timeLimit"
  assertEqual "spaceLimit" $ getTrainTimeLimit $ setTrainTimeLimit n "spaceLimit"
-     
+
 test_addRemoveNamesToValidate =
  let p = makeProject ""
      absentAdd = addNamesToValidate p ["n1", "n2"]
@@ -40,8 +40,8 @@ test_addRemoveNamesToValidate =
  assertEqual p absentRemove
  assertEqual absentAdd presentAdd
  assertEqual [] $ getNamesToValidate p
- assertEqual ["n1", "n2"] $ getNamesToValidate absentAdd 
- 
- 
- 
+ assertEqual ["n1", "n2"] $ getNamesToValidate absentAdd
+
+
+
  

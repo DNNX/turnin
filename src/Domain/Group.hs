@@ -17,7 +17,7 @@ module Domain.Group
 
 import Infrastructure.Node
 import Infrastructure.CsvNode
-import Domain.Project 
+import Domain.Project
 
 data Group = G Node deriving (Show, Eq)
 

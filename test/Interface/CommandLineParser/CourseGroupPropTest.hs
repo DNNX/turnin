@@ -98,7 +98,7 @@ prop_groupCorrectorListSuccess repoNN termNN courseNN groupNN =
  validOpts [repoNN, termNN, courseNN, groupNN] ==>
   testSuccess 3 (repoNN, termNN, courseNN, groupNN) groupCorrectorListF [groupSub, correctorSub, listSub]
    (groupOpts repoNN termNN courseNN groupNN) noArgs
-                      
+
 courseAddF (Global(Course(CourseOpts(CourseAdd(CourseAddOpts a b c))))) = (a,b,c)
 courseRemoveF (Global(Course(CourseOpts(CourseRemove(CourseRemoveOpts a b c))))) = (a,b,c)
 courseListF (Global(Course(CourseOpts(CourseList(CourseListOpts a b))))) = (a,b)

@@ -5,11 +5,11 @@ import Test.Framework
 import TestUtils
 
 import Domain.Group
- 
+
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 prop_emptyGroup name = let g = makeGroup name in [[]] == applyGets g [getTeachers, getCorrectors]
- 
+
 prop_teachers name ts = let ts' = uniqueNonEmptyNoComma ts in ts' /= [] ==>
  let  (xs, teachers) = splitAt (length ts' `div` 2) ts'
       g = addTeachers (makeGroup name) xs
@@ -18,10 +18,10 @@ prop_teachers name ts = let ts' = uniqueNonEmptyNoComma ts in ts' /= [] ==>
       presentRemove = removeTeachers absentAdd teachers
       absentRemove = removeTeachers g teachers
  in areEqual [presentRemove, absentRemove, g] &&
-    absentAdd == presentAdd && 
+    absentAdd == presentAdd &&
     sameElements (teachers ++ xs) (getTeachers absentAdd) &&
     sameElements xs (getTeachers g)
-    
+
 prop_correctors name cs = let cs' = uniqueNonEmptyNoComma cs in cs' /= [] ==>
  let  (xs, correctors) = splitAt (length cs' `div` 2) cs'
       g = addCorrectors (makeGroup name) xs

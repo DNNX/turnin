@@ -76,8 +76,8 @@ project role = ProjectOpts <$> subparser (
  command dateSub      (projectDateInfo role) <>
  command validateSub  (ProjectValidate <$> projectValidateInfo role) <>
  command worktrainSub (ProjectWorktrain <$> projectWorktrainInfo role) <>
- command submitSub    (ProjectSubmit <$> projectSubmitInfo role))  
- 
+ command submitSub    (ProjectSubmit <$> projectSubmitInfo role))
+
 projectAdd = ProjectAdd <$> (ProjectAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> optional (strOption $ toMod termNodeOpt <> metavar termNodeMeta <> help termNodeHelp)

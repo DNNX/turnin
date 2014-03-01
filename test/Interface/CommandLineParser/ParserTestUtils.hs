@@ -30,7 +30,7 @@ groupOpts r t c g = (map z [repoNodeOpt, termNodeOpt, courseNodeOpt, groupNodeOp
 projectOpts r t c g p = (map z [repoNodeOpt, termNodeOpt, courseNodeOpt, groupNodeOpt, projectNodeOpt], [r, t, c, g, p])
 trainRunOpts r t c g p tr = (map z [repoNodeOpt, termNodeOpt, courseNodeOpt, groupNodeOpt, projectNodeOpt, trainRunNodeOpt], [r, t, c, g, p,tr])
 trainRunOutputOpts r t c g p tr m v = let l@(xs, ys) = trainRunOpts r t c g p tr
-                                      in  if m then (xs ++ [z' v], ys ++ [Just ""]) else l 
+                                      in  if m then (xs ++ [z' v], ys ++ [Just ""]) else l
 
 configThresholdOpts cu ch = (map z [configThresholdSetCurrentOpt, configThresholdSetChooseOpt], [cu, ch])
 configTermDateOpts t1 t2 t3 = (map z [configTermDateSetTerm1Opt, configTermDateSetTerm2Opt, configTermDateSetTerm3Opt], [t1,t2,t3])
@@ -60,7 +60,7 @@ testSuccess :: (Eq a) => Int -> a -> (Global -> a) -> [String] -> Opts -> [Strin
 testSuccess securityLevel expected f cmd opts args = all func $ makeCmd cmd opts args
  where func cmd' = expected == g cmd' && securityTests securityLevel cmd'
        g = f . h . execParserMaybe (globalInfo adminRole)
-       h (Just x) = x  
+       h (Just x) = x
        h _ = error "Unexpectedly Nothing in testSuccess"
 
 makeCmd :: [String] -> Opts -> [String] -> [[String]]
@@ -87,10 +87,10 @@ buildOpt (B s l, _)   = [['-':[s]], ["--" ++ l]]
 
 securityTests level cmd = all f $ zip [1..] [adminRole, teacherRole, correctorRole, studentRole]
  where f (n,role) = (if n <= level then security_success else security_failure) cmd role
- 
-security_failure cmd = isNothing . security_case cmd 
+
+security_failure cmd = isNothing . security_case cmd
 security_success cmd = isJust . security_case cmd
-security_case cmd role = execParserMaybe (globalInfo role) cmd                         
+security_case cmd role = execParserMaybe (globalInfo role) cmd
 
 
 

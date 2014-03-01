@@ -3,7 +3,7 @@ module Interface.CommandLineParser.Term where
 import Options.Applicative
 import Interface.Lexicon
 import Interface.CommandLineParser.Utils
-import Security.SecurityManager 
+import Security.SecurityManager
 
 data TermOpts = TermOpts   TermCmd                deriving (Show, Eq)
 data TermCmd  = TermAdd    TermAddOpts
@@ -51,7 +51,7 @@ term role = TermOpts <$> subparser (
  hasTermWriteRights role (command removeSub termRemoveInfo) <>
  hasTermReadRights  role (command listSub   termListInfo) <>
  command dateSub   (termDateInfo role))
- 
+
 termAdd = TermAdd <$> (TermAddOpts
  <$> optional (strOption $ toMod repoNodeOpt <> metavar repoNodeMeta <> help repoNodeHelp)
  <*> argument str (metavar termAddNameMeta <> help termAddNameHelp)

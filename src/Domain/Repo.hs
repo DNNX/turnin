@@ -27,7 +27,7 @@ getTerms :: Repo -> [String]
 getTerms (R node) = map getName $ getChildren node
 
 getTerm :: Repo -> String -> Maybe Term
-getTerm (R node) = fmap nodeToTerm . getChild node 
+getTerm (R node) = fmap nodeToTerm . getChild node
 
 addRepoTo :: Repo -> Node -> Node
 addRepoTo (R node) = flip setChild node

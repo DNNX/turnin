@@ -7,12 +7,12 @@ import Data.Maybe
 import Domain.Project
 import Domain.SubmitRepo
 import Domain.TrainFileRepo
-import Domain.TrainRunRepo 
+import Domain.TrainRunRepo
 import Domain.TrainRun
- 
+
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-test_projectChildren = 
+test_projectChildren =
  let p = makeProject "project"
      s = addSubmit emptySubmitRepo "submitKey" "submitValue"
      tf = addTrainFile emptyTrainFileRepo "trainFileKey" "trainFileValue"
@@ -24,27 +24,27 @@ test_projectChildren =
  assertEqual tf $ getTrainFileRepo $ setTrainFileRepo p tf
  assertEqual tr $ getTrainRunRepo $ setTrainRunRepo p tr
 
-test_trainRunRepoChildren = 
+test_trainRunRepoChildren =
  let trr = emptyTrainRunRepo
      tr = makeTrainRun "trainRunDate"
      absentAdd = addTrainRun trr tr
      presentAdd = addTrainRun absentAdd tr
      presentRemove = removeTrainRun absentAdd "trainRunDate"
-     absentRemove = removeTrainRun trr "trainRunDate" in do 
+     absentRemove = removeTrainRun trr "trainRunDate" in do
  assertEqual trr presentRemove
  assertEqual trr absentRemove
  assertEqual absentAdd presentAdd
  assertEqual [] $ getTrainRuns trr
  assertEqual ["trainRunDate"] $ getTrainRuns absentAdd
  assertEqual True $ isNothing $ getTrainRun trr "trainRunDate"
- assertEqual (Just tr) $ getTrainRun absentAdd "trainRunDate"       
+ assertEqual (Just tr) $ getTrainRun absentAdd "trainRunDate"
 
-test_emptyRepos = do 
+test_emptyRepos = do
  assertEqual [] $ getSubmits emptySubmitRepo
  assertEqual [] $ getLateSubmits emptySubmitRepo
  assertEqual [] $ getTrainFiles emptyTrainFileRepo
  assertEqual [] $ getTrainRuns emptyTrainRunRepo
- 
+
 test_addRemoveGetSubmits =
  let sr = emptySubmitRepo
      absentAdd = addSubmit sr "key" "content"
@@ -59,8 +59,8 @@ test_addRemoveGetSubmits =
  assertEqual "" $ getSubmit sr "key"
  assertEqual "content" $ getSubmit absentAdd "key"
 
-test_addRemoveGetLateSubmits = 
- let sr = emptySubmitRepo 
+test_addRemoveGetLateSubmits =
+ let sr = emptySubmitRepo
      absentAdd = addLateSubmit sr "key"
      presentAdd = addLateSubmit absentAdd "key"
      presentRemove = removeLateSubmit absentAdd "key"
@@ -69,9 +69,9 @@ test_addRemoveGetLateSubmits =
  assertEqual sr absentRemove
  assertEqual absentAdd presentAdd
  assertEqual [] $ getLateSubmits sr
- assertEqual ["key"] $ getLateSubmits absentAdd           
-       
-test_addRemoveGetTrainFiles = 
+ assertEqual ["key"] $ getLateSubmits absentAdd
+
+test_addRemoveGetTrainFiles =
  let fr = emptyTrainFileRepo
      absentAdd = addTrainFile fr "name" "content"
      presentAdd = addTrainFile absentAdd "name" ("content" ++ "suffix")
@@ -96,5 +96,5 @@ test_addRemoveGetTrainRuns =
  assertEqual (getResult absentAdd "key" ++ "suffix") $ getResult presentAdd "key"
  assertEqual [] $ getResults fr
  assertEqual ["key"] $ getResults absentAdd
- assertEqual "content" $ getResult absentAdd "key"          
+ assertEqual "content" $ getResult absentAdd "key"
         
