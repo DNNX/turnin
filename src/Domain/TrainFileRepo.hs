@@ -10,6 +10,8 @@ import Infrastructure.Node
 
 data TrainFileRepo = R Node deriving (Show, Eq)
 
+instance HasNode TrainFileRepo where toNode (R n) = wrap n; fromNode = R
+
 addTrainFile :: TrainFileRepo -> String -> String -> TrainFileRepo
 addTrainFile (R node) name = R . setCache node name
 
@@ -22,6 +24,3 @@ getTrainFiles (R node) = getCacheKeys node
 getTrainFile :: TrainFileRepo -> String -> String
 getTrainFile (R node) = getCache node
 
-instance HasNode TrainFileRepo where
- toNode (R n) = wrap n
- fromNode = R

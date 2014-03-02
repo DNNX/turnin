@@ -14,35 +14,6 @@ executable turnin
                    split >=0.2.2 && <0.3,
                    text >=0.11.1 && <0.12
   ghc-options:     -Wall -fno-warn-missing-signatures
-  other-modules:
-                   Interface.Lexicon,
-                   Interface.CommandLineParser.Config,
-                   Interface.CommandLineParser.Utils,
-                   Interface.CommandLineParser.Repo,
-                   Interface.CommandLineParser.Term,
-                   Interface.CommandLineParser.Project.Validate,
-                   Interface.CommandLineParser.Project.Worktrain,
-                   Interface.CommandLineParser.Project.Submit,
-                   Interface.CommandLineParser.SubmitWorktrain,
-                   Infrastructure.Node,
-                   Infrastructure.CsvNode,
-                   Domain.Project,
-                   Domain.Repo,
-                   Domain.Term,
-                   Domain.Course,
-                   Domain.Group,
-                   Domain.Root,
-                   Domain.SubmitRepo,
-                   Domain.TrainFileRepo,
-                   Domain.TrainRunRepo,
-                   Domain.TrainRun,
-                   Security.SecurityManager,
-                   Infrastructure.Date,
-                   Service.AutomaticTermNames,
-                   Service.WorktrainOutputFormatter,
-                   Service.Accents,
-                   Service.AsciiArt,
-                   Infrastructure.Finder
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -57,32 +28,3 @@ test-suite turnin-tests
   hs-source-dirs:
                  src,
                  test
-  other-modules:
-                   Interface.Lexicon,
-                   Interface.CommandLineParser.Config,
-                   Interface.CommandLineParser.Repo,
-                   Interface.CommandLineParser.Term,
-                   Interface.CommandLineParser.Project.Validate,
-                   Interface.CommandLineParser.Project.Worktrain,
-                   Interface.CommandLineParser.Project.Submit,
-                   Interface.CommandLineParser.SubmitWorktrain,
-                   Infrastructure.Node,
-                   Infrastructure.CsvNode,
-                   Domain.Project,
-                   Domain.Repo,
-                   Domain.Term,
-                   Domain.Course,
-                   Domain.Group,
-                   Domain.Root,
-                   Domain.SubmitRepo,
-                   Domain.TrainFileRepo,
-                   Domain.TrainRunRepo,
-                   Domain.TrainRun,
-                   Security.SecurityManager,
-                   Infrastructure.Date,
-                   Service.AutomaticTermNames,
-                   Service.WorktrainOutputFormatter,
-                   Service.Accents,
-                   Service.AsciiArt,
-                   Infrastructure.Finder
-

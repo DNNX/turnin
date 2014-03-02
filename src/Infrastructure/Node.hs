@@ -1,6 +1,8 @@
+{-# LANGUAGE MultiParamTypeClasses, FunctionalDependencies #-}
 module Infrastructure.Node
 ( Node(Node)
-, HasNode(make, addTo, toNode, fromNode)
+, Succ
+, HasNode(make, addTo, addChild, removeChild, getChildren, getChild, getChildrenNames, toNode, fromNode)
 , wrap
 , getName
 , getKeys
@@ -11,10 +13,6 @@ module Infrastructure.Node
 , getCache
 , setCache
 , unsetCache
-, addChild
-, removeChild
-, getChildren
-, getChild
 ) where
 
 import qualified Data.Map as M
@@ -29,6 +27,54 @@ type Cache = M.Map String String
 type Children = M.Map String Node
 
 data Node = Node Name Config Cache Children deriving (Show, Eq)
+
+data NodeWrap = W Node
+wrap :: Node -> NodeWrap
+wrap = W
+
+class Succ a b | a -> b where
+class HasNode a where
+  make :: String -> a
+  make = fromNode . make
+
+  addTo :: a -> Node -> Node
+  addTo c parentNode = let (W childNode) = toNode c in  addChild parentNode childNode
+
+  addChild :: (Succ a b, HasNode a, HasNode b) => a -> b -> a
+  addChild p c = let (W m) = toNode p; (W n) = toNode c; in  fromNode $ addChild m n
+
+  removeChild :: HasNode a => a -> String -> a
+  removeChild p = let (W n) = toNode p in  fromNode . removeChild n
+
+  getChildrenNames :: a -> [String]
+  getChildrenNames p = let (W n) = toNode p in  getChildrenNames n
+  
+  getChildren :: (Succ a b, HasNode b) => a -> [b]
+  getChildren p = let (W n) = toNode p in  map fromNode $ getChildren n
+  
+  getChild :: (Succ a b, HasNode b) => a -> String -> Maybe b
+  getChild p s = let (W n) = toNode p in  fromNode <$> getChild n s
+  
+  toNode :: a -> NodeWrap
+  fromNode :: Node -> a
+
+instance Succ Node Node where
+instance HasNode Node where
+  make name = Node name M.empty M.empty M.empty
+  
+  addChild parent@(Node name config cache children) child =
+   let (W n) = toNode child; childName = getName n
+   in  case M.lookup childName children of
+    Nothing -> Node name config cache $ M.insert childName n children
+    Just _  -> parent
+  
+  removeChild (Node name config cache children) childName = Node name config cache $ M.delete childName children
+  getChildrenNames (Node _ _ _ children) = M.keys children
+  getChildren (Node _ _ _ children) = map fromNode $ M.elems children
+  getChild (Node _ _ _ children) key = fromNode <$> M.lookup key children
+  
+  toNode = W
+  fromNode = id
 
 getName :: Node -> String
 getName (Node name _ _ _) = name
@@ -61,41 +107,4 @@ setCache (Node name config cache children) key value = Node name config (M.inser
 unsetCache :: Node -> String -> Node
 unsetCache (Node name config cache children) key = Node name config (M.delete key cache) children
 
-addChild :: Node -> Node -> Node
-addChild parent@(Node name config cache children) child = 
- let (W n) = toNode child
-     childName = getName n 
- in  case M.lookup childName children of
-  Nothing -> Node name config cache $ M.insert childName n children
-  Just _  -> parent
-
-removeChild :: Node -> String -> Node
-removeChild (Node name config cache children) childName = Node name config cache $ M.delete childName children
-
-getChildren :: Node -> [Node]
-getChildren (Node _ _ _ children) = map fromNode $ M.elems children
-
-getChild :: Node -> String -> Maybe Node
-getChild (Node _ _ _ children) key = fromNode <$> M.lookup key children
-
-class HasNode a where
- make :: String -> a
- make = fromNode . make
-
- addTo :: a -> Node -> Node
- addTo c parentNode = let (W childNode) = toNode c
-                      in  fromNode $ addChild parentNode childNode
-
- toNode :: a -> NodeWrap
- fromNode :: Node -> a
- 
-instance HasNode Node where
- make name = Node name M.empty M.empty M.empty
- toNode = W
- fromNode = id 
-
-data NodeWrap = W Node
-
-wrap :: Node -> NodeWrap
-wrap = W
 

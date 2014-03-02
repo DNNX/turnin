@@ -1,3 +1,4 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 module Domain.Group
 ( Group()
 , addProject
@@ -17,6 +18,9 @@ import Infrastructure.CsvNode
 import Domain.Project
 
 data Group = G Node deriving (Show, Eq)
+
+instance Succ Group Project where
+instance HasNode Group where toNode (G n) = wrap n; fromNode = G
 
 addProject :: Group -> Project -> Group
 addProject (G node) = G . (`addTo` node)
@@ -47,10 +51,6 @@ removeCorrectors (G node) = G . removeCsv node correctors
 
 getCorrectors :: Group -> [String]
 getCorrectors (G node) = getCsv node correctors
-
-instance HasNode Group where
- toNode (G n) = wrap n
- fromNode = G
 
 teachers = "TEACHERS"
 correctors = "CORRECTORS"

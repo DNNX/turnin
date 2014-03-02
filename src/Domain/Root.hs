@@ -1,9 +1,6 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 module Domain.Root
 ( Root()
-, addRepo
-, removeRepo
-, getRepos
-, getRepo
 , getCurrentThreshold
 , setCurrentThreshold
 , getChooseThreshold
@@ -39,17 +36,8 @@ import Domain.Repo
 
 data Root = R Node deriving (Show, Eq)
 
-addRepo :: Root -> Repo -> Root
-addRepo (R node) = R . (`addTo` node)
-
-removeRepo :: Root -> String -> Root
-removeRepo (R node) = R . removeChild node
-
-getRepos :: Root -> [String]
-getRepos (R node) = map getName $ getChildren node
-
-getRepo :: Root -> String -> Maybe Repo
-getRepo (R node) = fmap fromNode . getChild node
+instance Succ Root Repo where
+instance HasNode Root where toNode (R n) = wrap n; fromNode = R
 
 getCurrentThreshold :: Root -> String
 getCurrentThreshold (R node) = getConfig node currentThreshold
@@ -131,10 +119,6 @@ removeCorrector (R node) = R . removeCsv node corrector . (:[])
 
 getCorrectors :: Root -> [String]
 getCorrectors (R node) = getCsv node corrector
-
-instance HasNode Root where
- toNode (R n) = wrap n
- fromNode = R
 
 currentThreshold = "CURRENT_THRESHOLD"
 chooseThreshold = "CHOOSE_THRESHOLD"

@@ -43,6 +43,15 @@ import Data.Maybe
 
 data Project = P Node deriving (Show, Eq)
 
+instance HasNode Project where
+ make name = let p0 = fromNode $ make name
+                 p1 = setSubmitRepo p0 emptySubmitRepo
+                 p2 = setTrainFileRepo p1 emptyTrainFileRepo
+             in  setTrainRunRepo p2 emptyTrainRunRepo
+
+ toNode (P n) = wrap n
+ fromNode = P 
+
 getSubmitRepo :: Project -> SubmitRepo
 getSubmitRepo (P node) = fromNode $ fromJust $ getChild node submitRepoName
 
@@ -127,15 +136,6 @@ setTrainSpaceLimit (P node) = P . setConfig node trainSpaceLimit
 emptySubmitRepo = make submitRepoName
 emptyTrainFileRepo = make trainFileRepoName
 emptyTrainRunRepo = make trainRunRepoName
-
-instance HasNode Project where
- make name = let p0 = fromNode $ make name
-                 p1 = setSubmitRepo p0 emptySubmitRepo
-                 p2 = setTrainFileRepo p1 emptyTrainFileRepo
-             in  setTrainRunRepo p2 emptyTrainRunRepo
-
- toNode (P n) = wrap n
- fromNode = P 
 
 submitRepoName = "SUBMIT"
 trainFileRepoName = "TRAIN_FILE"

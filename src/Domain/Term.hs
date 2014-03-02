@@ -1,9 +1,6 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 module Domain.Term
 ( Term()
-, addCourse
-, removeCourse
-, getCourses
-, getCourse
 , getStartDate
 , setStartDate
 , getEndDate
@@ -15,18 +12,9 @@ import Domain.Course
 
 data Term = T Node deriving (Show, Eq)
 
-addCourse :: Term -> Course -> Term
-addCourse (T node) = T . (`addTo` node)
-
-removeCourse :: Term -> String -> Term
-removeCourse (T node) = T . removeChild node
-
-getCourses :: Term -> [String]
-getCourses (T node) = map getName $ getChildren node
-
-getCourse :: Term -> String -> Maybe Course
-getCourse (T node) = fmap fromNode . getChild node
-
+instance Succ Term Course where
+instance HasNode Term where toNode (T n) = wrap n; fromNode = T
+ 
 getStartDate :: Term -> String
 getStartDate (T node) = getCache node startDate
 
@@ -38,10 +26,6 @@ getEndDate (T node) = getCache node endDate
 
 setEndDate :: Term -> String -> Term
 setEndDate (T node) = T . setCache node endDate
-
-instance HasNode Term where
- toNode (T n) = wrap n
- fromNode = T
 
 startDate = "START_DATE"
 endDate = "END_DATE"

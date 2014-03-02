@@ -9,7 +9,6 @@ import Infrastructure.Node
 import Domain.Project
 import Domain.SubmitRepo
 import Domain.TrainFileRepo
-import Domain.TrainRunRepo
 import Domain.TrainRun
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
@@ -19,7 +18,7 @@ prop_projectChildren projectName submit trainFile trainRun =
  let p = make projectName
      s = addSubmit emptySubmitRepo submit submit
      tf = addTrainFile emptyTrainFileRepo trainFile trainFile
-     tr = addTrainRun emptyTrainRunRepo $ make trainRun
+     tr = addChild emptyTrainRunRepo $ make trainRun
  in  emptySubmitRepo == getSubmitRepo p &&
      emptyTrainFileRepo == getTrainFileRepo p &&
      emptyTrainRunRepo == getTrainRunRepo p &&
@@ -30,22 +29,22 @@ prop_projectChildren projectName submit trainFile trainRun =
 prop_trainRunRepoChildren rs = let trainRunDates = uniqueNonEmpty rs
                                in  trainRunDates /= [] ==> f trainRunDates
  where f dates@(trainRunDate:rest) =
-        let trr = foldl (\x d -> addTrainRun x (make d)) emptyTrainRunRepo rest
+        let trr = foldl (\x d -> addChild x (make d)) emptyTrainRunRepo rest
             tr = make trainRunDate
-            absentAdd = addTrainRun trr tr
-            presentAdd = addTrainRun absentAdd tr
-            presentRemove = removeTrainRun absentAdd trainRunDate
-            absentRemove = removeTrainRun trr trainRunDate
+            absentAdd = addChild trr tr
+            presentAdd = addChild absentAdd tr
+            presentRemove = removeChild absentAdd trainRunDate
+            absentRemove = removeChild trr trainRunDate
         in  areEqual [presentRemove, absentRemove, trr] &&
             absentAdd == presentAdd &&
-            sameElements rest (getTrainRuns trr) &&
-            sameElements dates (getTrainRuns absentAdd) &&
-            isNothing (getTrainRun trr trainRunDate) &&
-            Just tr == getTrainRun absentAdd trainRunDate
+            sameElements rest (getChildrenNames trr) &&
+            sameElements dates (getChildrenNames absentAdd) &&
+            isNothing (getChild trr trainRunDate) &&
+            Just tr == getChild absentAdd trainRunDate
 
 prop_emptySubmitRepo = [[]] == applyGets emptySubmitRepo [getSubmits, getLateSubmits]
 prop_emptyTrainFileRepo = [] == getTrainFiles emptyTrainFileRepo
-prop_emptyTrainRunRepo = [] == getTrainRuns emptyTrainRunRepo
+prop_emptyTrainRunRepo = [] == getChildrenNames emptyTrainRunRepo
 
 prop_addRemoveGetSubmits ks suffix = let ks' = uniqueNonEmpty ks in ks' /= [] ==> f $ zip ks' $ map (++suffix) ks'
  where f ((key, content):rest) =

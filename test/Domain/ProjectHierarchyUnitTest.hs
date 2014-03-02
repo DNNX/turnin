@@ -8,7 +8,6 @@ import Infrastructure.Node
 import Domain.Project
 import Domain.SubmitRepo
 import Domain.TrainFileRepo
-import Domain.TrainRunRepo
 import Domain.TrainRun
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
@@ -17,7 +16,7 @@ test_projectChildren =
  let p = make "project"
      s = addSubmit emptySubmitRepo "submitKey" "submitValue"
      tf = addTrainFile emptyTrainFileRepo "trainFileKey" "trainFileValue"
-     tr = addTrainRun emptyTrainRunRepo $ make "trainRunName" in do
+     tr = addChild emptyTrainRunRepo $ make "trainRunName" in do
  assertEqual emptySubmitRepo $ getSubmitRepo p
  assertEqual emptyTrainFileRepo $ getTrainFileRepo p
  assertEqual emptyTrainRunRepo $ getTrainRunRepo p
@@ -28,23 +27,23 @@ test_projectChildren =
 test_trainRunRepoChildren =
  let trr = emptyTrainRunRepo
      tr = make "trainRunDate"
-     absentAdd = addTrainRun trr tr
-     presentAdd = addTrainRun absentAdd tr
-     presentRemove = removeTrainRun absentAdd "trainRunDate"
-     absentRemove = removeTrainRun trr "trainRunDate" in do
+     absentAdd = addChild trr tr
+     presentAdd = addChild absentAdd tr
+     presentRemove = removeChild absentAdd "trainRunDate"
+     absentRemove = removeChild trr "trainRunDate" in do
  assertEqual trr presentRemove
  assertEqual trr absentRemove
  assertEqual absentAdd presentAdd
- assertEqual [] $ getTrainRuns trr
- assertEqual ["trainRunDate"] $ getTrainRuns absentAdd
- assertEqual True $ isNothing $ getTrainRun trr "trainRunDate"
- assertEqual (Just tr) $ getTrainRun absentAdd "trainRunDate"
+ assertEqual [] $ getChildrenNames trr
+ assertEqual ["trainRunDate"] $ getChildrenNames absentAdd
+ assertEqual True $ isNothing $ getChild trr "trainRunDate"
+ assertEqual (Just tr) $ getChild absentAdd "trainRunDate"
 
 test_emptyRepos = do
  assertEqual [] $ getSubmits emptySubmitRepo
  assertEqual [] $ getLateSubmits emptySubmitRepo
  assertEqual [] $ getTrainFiles emptyTrainFileRepo
- assertEqual [] $ getTrainRuns emptyTrainRunRepo
+ assertEqual [] $ getChildrenNames emptyTrainRunRepo
 
 test_addRemoveGetSubmits =
  let sr = emptySubmitRepo

@@ -14,83 +14,30 @@ import Domain.Group
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-prop_rootChildren name rs = let repoNames = uniqueNonEmpty rs
-                             in  repoNames /= [] ==> f repoNames
- where f names@(repoName:rest) =
-        let root = foldl (\x n -> addRepo x (make n)) (make name) rest
-            r = make repoName
-            absentAdd = addRepo root r
-            presentAdd = addRepo absentAdd r
-            presentRemove = removeRepo absentAdd repoName
-            absentRemove = removeRepo root repoName
-        in  areEqual [presentRemove, absentRemove, root] &&
+prop_rootChildren   name = childrenCase (make name :: Root)
+prop_repoChildren   name = childrenCase (make name :: Repo)
+prop_termChildren   name = childrenCase (make name :: Term)
+prop_courseChildren name = childrenCase (make name :: Course)
+prop_groupChildren  name = childrenCase (make name :: Group)
+            
+childrenCase p ns = let ns' = uniqueNonEmpty ns in  ns' /= [] ==> f ns'
+ where f names@(childName:rest) =
+        let (parent, children) = buildFamily p rest
+            child = make childName
+            absentAdd = addChild parent child
+            presentAdd = addChild absentAdd child
+            presentRemove = removeChild absentAdd childName
+            absentRemove = removeChild parent childName
+        in  areEqual [presentRemove, absentRemove, parent] &&
             absentAdd == presentAdd &&
-            sameElements rest (getRepos root) &&
-            sameElements names (getRepos absentAdd) &&
-            isNothing (getRepo root repoName) &&
-            Just r == getRepo absentAdd repoName
-
-prop_repoChildren repoName ts = let termNames = uniqueNonEmpty ts
-                                in  termNames /= [] ==> f termNames
- where f names@(termName:rest) =
-        let r = foldl (\x n -> addTerm x (make n)) (make repoName) rest
-            t = make termName
-            absentAdd = addTerm r t
-            presentAdd = addTerm absentAdd t
-            presentRemove = removeTerm absentAdd termName
-            absentRemove = removeTerm r termName
-        in  areEqual [presentRemove, absentRemove, r] &&
-            absentAdd == presentAdd &&
-            sameElements rest (getTerms r) &&
-            sameElements names (getTerms absentAdd) &&
-            isNothing (getTerm r termName) &&
-            Just t == getTerm absentAdd termName
-
-prop_termChildren termName cs = let courseNames = uniqueNonEmpty cs
-                                in  courseNames /= [] ==> f courseNames
- where f names@(courseName:rest) =
-        let t = foldl (\x n -> addCourse x (make n)) (make termName) rest
-            c = make courseName
-            absentAdd = addCourse t c
-            presentAdd = addCourse absentAdd c
-            presentRemove = removeCourse absentAdd courseName
-            absentRemove = removeCourse t courseName
-        in  areEqual [presentRemove, absentRemove, t] &&
-            absentAdd == presentAdd &&
-            sameElements rest (getCourses t) &&
-            sameElements names (getCourses absentAdd) &&
-            isNothing (getCourse t courseName) &&
-            Just c == getCourse absentAdd courseName
-
-prop_courseChildren courseName gs = let groupNames = uniqueNonEmpty gs
-                                    in  groupNames /= [] ==> f groupNames
- where f names@(groupName:rest) =
-        let c = foldl (\x n -> addGroup x (make n)) (make courseName) rest
-            g = make groupName
-            absentAdd = addGroup c g
-            presentAdd = addGroup absentAdd g
-            presentRemove = removeGroup absentAdd groupName
-            absentRemove = removeGroup c groupName
-        in  areEqual [presentRemove, absentRemove, c] &&
-            absentAdd == presentAdd &&
-            sameElements rest (getGroups c) &&
-            sameElements names (getGroups absentAdd) &&
-            isNothing (getGroup c groupName) &&
-            Just g == getGroup absentAdd groupName
-
-prop_groupChildren groupName ps = let projectNames = uniqueNonEmpty ps
-                                  in  projectNames /= [] ==> f projectNames
- where f names@(projectName:rest) =
-        let g = foldl (\x n -> addProject x (make n)) (make groupName) rest
-            p = make projectName
-            absentAdd = addProject g p
-            presentAdd = addProject absentAdd p
-            presentRemove = removeProject absentAdd projectName
-            absentRemove = removeProject g projectName
-        in  areEqual [presentRemove, absentRemove, g] &&
-            absentAdd == presentAdd &&
-            sameElements rest (getProjects g) &&
-            sameElements names (getProjects absentAdd) &&
-            isNothing (getProject g projectName) &&
-            Just p == getProject absentAdd projectName
-               
+            sameElements rest (getChildrenNames parent) &&
+            sameElements names (getChildrenNames absentAdd) &&
+            sameElements children (getChildren parent) &&
+            sameElements (child:children) (getChildren absentAdd) &&
+            isNothing (getChild parent childName) &&
+            Just child == getChild absentAdd childName
+            
+buildFamily parent rest = f (parent,[]) rest
+ where f acc    []           = acc
+       f (p,cs) (name:names) = let child = make name
+                               in  f (addChild p child, child:cs) names

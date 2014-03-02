@@ -15,6 +15,8 @@ import Control.Applicative
 
 data SubmitRepo = R Node deriving (Show, Eq)
 
+instance HasNode SubmitRepo where toNode (R n) = wrap n; fromNode = R
+
 addSubmit :: SubmitRepo -> String -> String -> SubmitRepo
 addSubmit (R node) key = R . setCache node key
 
@@ -35,9 +37,5 @@ removeLateSubmit (R node) = R . removeCsv node lateSubmit . pure
 
 getLateSubmits :: SubmitRepo -> [String]
 getLateSubmits (R node) = getCsv node lateSubmit
-
-instance HasNode SubmitRepo where
- toNode (R n) = wrap n
- fromNode = R
  
 lateSubmit = "LATE_SUBMIT"
