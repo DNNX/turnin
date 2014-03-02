@@ -22,7 +22,7 @@ addProject :: Group -> Project -> Group
 addProject (G node) = G . (`addTo` node)
 
 removeProject :: Group -> String -> Group
-removeProject (G node) = G . unsetChild node
+removeProject (G node) = G . removeChild node
 
 getProjects :: Group -> [String]
 getProjects (G node) = map getName $ getChildren node

@@ -47,19 +47,19 @@ getSubmitRepo :: Project -> SubmitRepo
 getSubmitRepo (P node) = fromNode $ fromJust $ getChild node submitRepoName
 
 setSubmitRepo :: Project -> SubmitRepo -> Project
-setSubmitRepo (P node) r = P $ addTo r $ unsetChild node submitRepoName
+setSubmitRepo (P node) r = P $ addTo r $ removeChild node submitRepoName
 
 getTrainFileRepo :: Project -> TrainFileRepo
 getTrainFileRepo (P node) = fromNode $ fromJust $ getChild node trainFileRepoName
 
 setTrainFileRepo :: Project -> TrainFileRepo -> Project
-setTrainFileRepo (P node) r = P $ addTo r $ unsetChild node trainFileRepoName
+setTrainFileRepo (P node) r = P $ addTo r $ removeChild node trainFileRepoName
 
 getTrainRunRepo :: Project -> TrainRunRepo
 getTrainRunRepo (P node) = fromNode $ fromJust $ getChild node trainRunRepoName
 
 setTrainRunRepo :: Project -> TrainRunRepo -> Project
-setTrainRunRepo (P node) r = P $ addTo r $ unsetChild node trainRunRepoName
+setTrainRunRepo (P node) r = P $ addTo r $ removeChild node trainRunRepoName
 
 getStartDate :: Project -> String
 getStartDate (P node) = getConfig node startDate
@@ -129,7 +129,7 @@ emptyTrainFileRepo = make trainFileRepoName
 emptyTrainRunRepo = make trainRunRepoName
 
 instance HasNode Project where
- make name = let p0 = fromNode $ makeNode name
+ make name = let p0 = fromNode $ make name
                  p1 = setSubmitRepo p0 emptySubmitRepo
                  p2 = setTrainFileRepo p1 emptyTrainFileRepo
              in  setTrainRunRepo p2 emptyTrainRunRepo

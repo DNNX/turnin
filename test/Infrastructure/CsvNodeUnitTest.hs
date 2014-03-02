@@ -8,10 +8,10 @@ import Infrastructure.CsvNode
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-test_emptyCsvNode = assertEqual [] $ getCsv (makeNode "") "key"
+test_emptyCsvNode = assertEqual [] $ getCsv (make "") "key"
 
 test_addRemoveGetSetValues =
- let n = makeNode ""
+ let n = make ""
      absentAdd = addCsv n "k" ["v1", "v2"]
      presentAdd = addCsv absentAdd "k" ["v1", "v2"]
      presentRemove = removeCsv absentAdd "k" ["v1", "v2"]

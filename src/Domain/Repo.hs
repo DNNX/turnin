@@ -15,7 +15,7 @@ addTerm :: Repo -> Term -> Repo
 addTerm (R node) = R . (`addTo` node)
 
 removeTerm :: Repo -> String -> Repo
-removeTerm (R node) = R . unsetChild node
+removeTerm (R node) = R . removeChild node
 
 getTerms :: Repo -> [String]
 getTerms (R node) = map getName $ getChildren node

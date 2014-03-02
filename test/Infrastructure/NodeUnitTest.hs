@@ -8,7 +8,7 @@ import Data.List
 import Infrastructure.Node
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-test_emptyNode = let n = makeNode "node" in do
+test_emptyNode = let n = make "node" in do
  assertEqual "node" $ getName n
  assertEqual "" $ getConfig n "configKey"
  assertEqual "" $ getCache n "cacheKey"
@@ -17,7 +17,7 @@ test_emptyNode = let n = makeNode "node" in do
  assertEqual [(["node"], n)] $ getKeys n
 
 test_getSetUnsetConfig =
- let n             = makeNode ""
+ let n             = make ""
      absentAdd     = setConfig n "key" "v1"
      presentAdd    = setConfig absentAdd "key" "v2"
      presentRemove = unsetConfig absentAdd "key"
@@ -29,7 +29,7 @@ test_getSetUnsetConfig =
  assertEqual "v2" $ getConfig presentAdd "key"
 
 test_getSetUnsetCache =
- let n             = makeNode ""
+ let n             = make ""
      absentAdd     = setCache n "key" "v1"
      presentAdd    = setCache absentAdd "key" "v2"
      presentRemove = unsetCache absentAdd "key"
@@ -44,13 +44,13 @@ test_getSetUnsetCache =
  assertEqual "v2" $ getCache presentAdd "key"
 
 test_getSetUnsetChildren =
- let n             = makeNode ""
-     c1            = makeNode "child"
+ let n             = make ""
+     c1            = make "child"
      c2'            = setConfig c1 "key" "value"
-     absentAdd     = setChild n c1
-     presentAdd    = setChild absentAdd c2'
-     presentRemove = unsetChild absentAdd "child"
-     absentRemove  = unsetChild n "child" in do
+     absentAdd     = addChild n c1 
+     presentAdd    = addChild absentAdd c2'
+     presentRemove = removeChild absentAdd "child"
+     absentRemove  = removeChild n "child" in do
  assertEqual n presentRemove
  assertEqual n absentRemove
  assertEqual absentAdd presentAdd
@@ -60,16 +60,16 @@ test_getSetUnsetChildren =
  assertEqual [c1] $ getChildren absentAdd
  assertEqual [([""],absentAdd),(["","child"],c1)] $ getKeys absentAdd
 
-buildNodeConfig name ts = let node = makeNode name in f node ts
+buildNodeConfig name ts = let node = make name in f node ts
  where f n [] = n
        f n ((k,v1,_):xs) = f (setConfig n k v1) xs
 
-buildNodeCache name ts = let node = makeNode name in f node ts
+buildNodeCache name ts = let node = make name in f node ts
  where f n [] = n
        f n ((k,v1,_):xs) = f (setCache n k v1) xs
 
-buildNodeChildren parentName ns = let node = makeNode parentName
-                                      f = foldl (\m name -> setChild m (setConfig (makeNode name) name name))
+buildNodeChildren parentName ns = let node = make parentName
+                                      f = foldl (\m name -> addChild m (setConfig (make name) name name))
                                   in  f node ns
 
 getKeysModel = f []

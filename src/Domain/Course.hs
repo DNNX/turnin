@@ -15,7 +15,7 @@ addGroup :: Course -> Group -> Course
 addGroup (C node) = C . (`addTo` node)
 
 removeGroup :: Course -> String -> Course
-removeGroup (C node) = C . unsetChild node
+removeGroup (C node) = C . removeChild node
 
 getGroups :: Course -> [String]
 getGroups (C node) = map getName $ getChildren node

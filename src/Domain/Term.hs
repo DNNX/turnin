@@ -19,7 +19,7 @@ addCourse :: Term -> Course -> Term
 addCourse (T node) = T . (`addTo` node)
 
 removeCourse :: Term -> String -> Term
-removeCourse (T node) = T . unsetChild node
+removeCourse (T node) = T . removeChild node
 
 getCourses :: Term -> [String]
 getCourses (T node) = map getName $ getChildren node

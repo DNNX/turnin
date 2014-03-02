@@ -43,7 +43,7 @@ addRepo :: Root -> Repo -> Root
 addRepo (R node) = R . (`addTo` node)
 
 removeRepo :: Root -> String -> Root
-removeRepo (R node) = R . unsetChild node
+removeRepo (R node) = R . removeChild node
 
 getRepos :: Root -> [String]
 getRepos (R node) = map getName $ getChildren node

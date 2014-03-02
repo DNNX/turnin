@@ -12,7 +12,7 @@ import Infrastructure.CsvNode
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-prop_emptyCsvNode name k = null (getCsv (makeNode name) k)
+prop_emptyCsvNode name k = null (getCsv (make name) k)
 
 prop_addRemoveGetSetValues name ps = let ps' = nubBy ((==) `on` fst) ps
                                          ps'' = map (second g) ps'
@@ -37,7 +37,7 @@ prop_addRemoveGetSetValues name ps = let ps' = nubBy ((==) `on` fst) ps
             areEqual [presentRemove, absentRemove, presentUnset, absentUnset, n] &&
             areEqual [absentAdd, presentAdd, presentSet, absentSet]
 
-buildCsvNode name ps = let node = makeNode name in f node ps
+buildCsvNode name ps = let node = make name in f node ps
  where f n [] = n
        f n ((k,vs):rest) = f (setCsv n k vs) rest
 
