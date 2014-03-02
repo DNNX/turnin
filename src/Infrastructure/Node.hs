@@ -1,6 +1,7 @@
 module Infrastructure.Node
 ( Node(Node)
-, HasNode(make, addTo, fromNode)
+, HasNode(make, addTo, toNode, fromNode)
+, wrap
 , makeNode
 , getName
 , getKeys
@@ -82,5 +83,15 @@ class HasNode a where
  make :: String -> a
  make = fromNode . makeNode
  
- addTo :: a -> Node -> Node 
- fromNode :: Node -> a
+ addTo :: a -> Node -> Node
+ addTo x p = let (W n) = toNode x
+             in  setChild p n
+ 
+ toNode :: a -> NodeWrap
+ fromNode :: Node -> a 
+ 
+data NodeWrap = W Node
+
+wrap :: Node -> NodeWrap
+wrap = W
+

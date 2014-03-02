@@ -24,5 +24,5 @@ getTrainRun :: TrainRunRepo -> String -> Maybe TrainRun
 getTrainRun (R node) = fmap fromNode . getChild node
 
 instance HasNode TrainRunRepo where
- addTo (R n) p = setChild p n
+ toNode (R n) = wrap n
  fromNode = R

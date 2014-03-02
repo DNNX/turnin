@@ -24,5 +24,5 @@ getGroup :: Course -> String -> Maybe Group
 getGroup (C node) = fmap fromNode . getChild node
 
 instance HasNode Course where
- addTo (C n) p = setChild p n
+ toNode (C n) = wrap n
  fromNode = C

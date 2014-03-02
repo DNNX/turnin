@@ -49,7 +49,7 @@ getCorrectors :: Group -> [String]
 getCorrectors (G node) = getCsv node correctors
 
 instance HasNode Group where
- addTo (G n) p = setChild p n
+ toNode (G n) = wrap n
  fromNode = G
 
 teachers = "TEACHERS"

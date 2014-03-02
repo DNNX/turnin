@@ -133,7 +133,7 @@ getCorrectors :: Root -> [String]
 getCorrectors (R node) = getCsv node corrector
 
 instance HasNode Root where
- addTo (R n) p = setChild p n
+ toNode (R n) = wrap n
  fromNode = R
 
 currentThreshold = "CURRENT_THRESHOLD"

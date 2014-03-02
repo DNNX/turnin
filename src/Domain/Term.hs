@@ -40,7 +40,7 @@ setEndDate :: Term -> String -> Term
 setEndDate (T node) = T . setCache node endDate
 
 instance HasNode Term where
- addTo (T n) p = setChild p n
+ toNode (T n) = wrap n
  fromNode = T
 
 startDate = "START_DATE"

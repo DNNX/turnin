@@ -23,5 +23,5 @@ getTrainFile :: TrainFileRepo -> String -> String
 getTrainFile (R node) = getCache node
 
 instance HasNode TrainFileRepo where
- addTo (R n) p = setChild p n
+ toNode (R n) = wrap n
  fromNode = R

@@ -23,5 +23,5 @@ getResult :: TrainRun ->  String -> String
 getResult (T node) = getCache node
 
 instance HasNode TrainRun where
- addTo (T n) p = setChild p n
+ toNode (T n) = wrap n
  fromNode = T

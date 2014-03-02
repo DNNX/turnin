@@ -24,5 +24,5 @@ getTerm :: Repo -> String -> Maybe Term
 getTerm (R node) = fmap fromNode . getChild node
 
 instance HasNode Repo where
- addTo (R n) p = setChild p n
+ toNode (R n) = wrap n
  fromNode = R

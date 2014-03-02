@@ -134,7 +134,7 @@ instance HasNode Project where
                  p2 = setTrainFileRepo p1 emptyTrainFileRepo
              in  setTrainRunRepo p2 emptyTrainRunRepo
 
- addTo (P n) p = setChild p n
+ toNode (P n) = wrap n
  fromNode = P 
 
 submitRepoName = "SUBMIT"
