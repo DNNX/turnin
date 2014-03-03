@@ -37,7 +37,7 @@ childrenCase p ns = let ns' = uniqueNonEmpty ns in  ns' /= [] ==> f ns'
             isNothing (getChild parent childName) &&
             Just child == getChild absentAdd childName
             
-buildFamily parent rest = f (parent,[]) rest
+buildFamily parent = f (parent,[]) 
  where f acc    []           = acc
        f (p,cs) (name:names) = let child = make name
                                in  f (addChild p child, child:cs) names

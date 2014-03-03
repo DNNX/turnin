@@ -15,8 +15,7 @@ prop_emptyNode name k =
      "" == getCache n k &&
      [] == getCacheKeys n &&
     isNothing (getChild n k) &&
-     name == getName n &&
-     [([name], n)] == getKeys n
+     name == getName n
 
 prop_getSetUnsetConfig name = moo f
  where f ((key, v1, v2):rest) =
@@ -50,7 +49,7 @@ prop_getSetUnsetChildren parentName ns = let ns' = nub ns
                                              nss' = filter (not.null) nss
                                          in  nss' /= [] ==> all f nss'
  where f names@(name:rest) =
-        let n             = buildNodeChildren parentName rest
+        let n             = buildNodeChildren parentName rest :: Node
             c1            = make name
             c2            = setConfig c1 "key" "value"
             absentAdd     = addChild n c1
@@ -62,8 +61,7 @@ prop_getSetUnsetChildren parentName ns = let ns' = nub ns
            isNothing (getChild n name) &&
            Just c1 == getChild absentAdd name &&
            sameElements rest (map getName $ getChildren n) &&
-           sameElements names (map getName $ getChildren absentAdd) &&
-           sameElements (getKeysModel absentAdd) (getKeys absentAdd)
+           sameElements names (map getName $ getChildren absentAdd)
 
 buildNodeConfig name ts = let node = make name in f node ts
  where f n [] = n

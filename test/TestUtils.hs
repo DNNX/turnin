@@ -2,6 +2,7 @@ module TestUtils where
 
 import Data.List
 
+
 uniqueNonEmpty = nub . filter (not.null)
 uniqueNonEmptyNoComma = uniqueNonEmpty . map (filter (/=','))
 

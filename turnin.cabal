@@ -12,8 +12,10 @@ executable turnin
                    optparse-applicative >=0.7.0 && <0.8,
                    containers >=0.4.2 && <0.5,
                    split >=0.2.2 && <0.3,
-                   text >=0.11.1 && <0.12
+                   text >=0.11.1 && <0.12,
+                   filepath >=1.3.0 && <1.4
   ghc-options:     -Wall -fno-warn-missing-signatures
+  other-modules:   Infrastructure.Persister
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -24,7 +26,15 @@ test-suite turnin-tests
                    optparse-applicative >=0.7.0 && <0.8,
                    containers >=0.4.2 && <0.5,
                    split >=0.2.2 && <0.3,
-                   text >=0.11.1 && <0.12
+                   text >=0.11.1 && <0.12,
+                   temporary >=1.1.2 && <1.2,
+                   directory >=1.1.0 && <1.2,
+                   strict >=0.3.2 && <0.4,
+                   random >=1.0.1 && <1.1,
+                   filepath >=1.3.0 && <1.4
   hs-source-dirs:
                  src,
                  test
+  other-modules:   
+                   IOTestUtils,
+                   Infrastructure.Persister

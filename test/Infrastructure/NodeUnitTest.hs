@@ -8,18 +8,17 @@ import Data.List
 import Infrastructure.Node
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-test_emptyNode = let n = make "node" in do
+test_emptyNode = let n = make "node" :: Node in do
  assertEqual "node" $ getName n
  assertEqual "" $ getConfig n "configKey"
  assertEqual "" $ getCache n "cacheKey"
  assertEqual [] $ getCacheKeys n
  assertEqual True $ isNothing $ getChild n "childKey"
- assertEqual [(["node"], n)] $ getKeys n
 
 test_getSetUnsetConfig =
- let n             = make ""
+ let n             = make "" :: Node
      absentAdd     = setConfig n "key" "v1"
-     presentAdd    = setConfig absentAdd "key" "v2"
+     presentAdd    = setConfig absentAdd "key" "v2" 
      presentRemove = unsetConfig absentAdd "key"
      absentRemove  = unsetConfig n "key" in  do
  assertEqual n presentRemove
@@ -29,7 +28,7 @@ test_getSetUnsetConfig =
  assertEqual "v2" $ getConfig presentAdd "key"
 
 test_getSetUnsetCache =
- let n             = make ""
+ let n             = make "" :: Node
      absentAdd     = setCache n "key" "v1"
      presentAdd    = setCache absentAdd "key" "v2"
      presentRemove = unsetCache absentAdd "key"
@@ -44,7 +43,7 @@ test_getSetUnsetCache =
  assertEqual "v2" $ getCache presentAdd "key"
 
 test_getSetUnsetChildren =
- let n             = make ""
+ let n             = make "" :: Node
      c1            = make "child"
      c2'            = setConfig c1 "key" "value"
      absentAdd     = addChild n c1 
@@ -58,7 +57,6 @@ test_getSetUnsetChildren =
  assertEqual (Just c1) $ getChild absentAdd "child"
  assertEqual [] $ getChildren n
  assertEqual [c1] $ getChildren absentAdd
- assertEqual [([""],absentAdd),(["","child"],c1)] $ getKeys absentAdd
 
 buildNodeConfig name ts = let node = make name in f node ts
  where f n [] = n

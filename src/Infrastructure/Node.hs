@@ -5,7 +5,6 @@ module Infrastructure.Node
 , HasNode(make, addTo, addChild, removeChild, getChildren, getChild, getChildrenNames, toNode, fromNode)
 , wrap
 , getName
-, getKeys
 , getConfig
 , setConfig
 , unsetConfig
@@ -20,7 +19,6 @@ import Control.Applicative
 import Data.Maybe
 
 type Name = String
-type Key = [Name]
 
 type Config = M.Map String String
 type Cache = M.Map String String
@@ -78,11 +76,6 @@ instance HasNode Node where
 
 getName :: Node -> String
 getName (Node name _ _ _) = name
-
-getKeys :: Node -> [(Key, Node)]
-getKeys n@(Node name _ _ children) = let childrenKeys = concatMap getKeys $ M.elems children
-                                         f (k,node) = (name:k,node)
-                                     in  ([name],n):map f childrenKeys
 
 getConfig :: Node -> String -> String
 getConfig (Node _ config _ _) key = fromMaybe "" $ M.lookup key config
