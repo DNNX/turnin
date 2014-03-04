@@ -3,42 +3,37 @@ module Infrastructure.PersisterUnitTest where
 
 import Test.Framework
 import IOTestUtils
+import System.Directory
+import System.FilePath
 
+import Infrastructure.Node
 import Infrastructure.Persister
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-test_saveAndLoadingEmpty = inTmpDir $ do
-  c0 <- load []
-  assertEqual Nothing c0
-
-  save [] "content"
-  c1 <- load []
-  assertEqual Nothing c1
-
-  delete []
-  c2 <- load []
-  assertEqual Nothing c2
-
-test_saveAndLoading = inTmpDir $ do
-  c0 <- load ["file"]
-  assertEqual Nothing c0
-
-  save ["file"] "content"
-  c1 <- load ["file"]
-  assertEqual (Just "content") c1
+test_saveLoad = inTmpDir $ do
+  let n0 = make "node"
+      n1 = setCache n0 "cacheKey" "cacheValue"
+      n2 = setConfig n1 "configKey" "configValue"
+      n3 = addChild n2 $ make "child"
+      n4 = setCache (setConfig (addChild n0 (make "child2")) "configKey" "configValue2") "cacheKey" "cacheValue2"
+  rootKey <- getRootKey  
+  notFound <- load rootKey n0
+  assertEqual Nothing notFound
+                    
+  success <- save rootKey n3
+  assertBool success
   
-  c2 <- load ["dir", "file"]
-  assertEqual Nothing c2
-
-  save ["dir", "file"] "sub content"
-  c3 <- load ["dir", "file"]
-  assertEqual (Just "sub content") c3
+  n <- load rootKey n0
+  assertEqual (Just n3) n
   
-  delete ["dir"]
-  c4 <- load ["dir", "file"]
-  assertEqual Nothing c4
+  success' <- save rootKey n4
+  assertBool success'
   
-  delete ["file"]
-  c5 <- load ["file"]
-  assertEqual Nothing c5
+  n' <- load rootKey n0
+  assertEqual (Just n4) n'
+  
+getRootKey = do
+  dir <- getCurrentDirectory
+  let rootKey = splitPath dir
+  return rootKey

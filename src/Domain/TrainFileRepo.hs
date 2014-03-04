@@ -19,7 +19,7 @@ removeTrainFile :: TrainFileRepo -> String -> TrainFileRepo
 removeTrainFile (R node) = R . flip (setCache node) ""
 
 getTrainFiles :: TrainFileRepo -> [String]
-getTrainFiles (R node) = getCacheKeys node
+getTrainFiles (R node) = map fst $ getCachePairs node
 
 getTrainFile :: TrainFileRepo -> String -> String
 getTrainFile (R node) = getCache node

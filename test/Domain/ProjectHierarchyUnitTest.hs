@@ -2,7 +2,6 @@
 module Domain.ProjectHierarchyUnitTest where
 
 import Test.Framework
-import Data.Maybe
 
 import Infrastructure.Node
 import Domain.Project
@@ -34,16 +33,16 @@ test_trainRunRepoChildren =
  assertEqual trr presentRemove
  assertEqual trr absentRemove
  assertEqual absentAdd presentAdd
- assertEqual [] $ getChildrenNames trr
- assertEqual ["trainRunDate"] $ getChildrenNames absentAdd
- assertEqual True $ isNothing $ getChild trr "trainRunDate"
+ assertEqual [] $ getChildren trr
+ assertEqual [tr] $ getChildren absentAdd
+ assertEqual Nothing $ getChild trr "trainRunDate"
  assertEqual (Just tr) $ getChild absentAdd "trainRunDate"
 
 test_emptyRepos = do
  assertEqual [] $ getSubmits emptySubmitRepo
  assertEqual [] $ getLateSubmits emptySubmitRepo
  assertEqual [] $ getTrainFiles emptyTrainFileRepo
- assertEqual [] $ getChildrenNames emptyTrainRunRepo
+ assertEqual [] $ getChildren emptyTrainRunRepo
 
 test_addRemoveGetSubmits =
  let sr = emptySubmitRepo

@@ -1,10 +1,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 module Domain.Group
 ( Group()
-, addProject
-, removeProject
-, getProjects
-, getProject
 , addTeachers
 , removeTeachers
 , getTeachers
@@ -21,18 +17,6 @@ data Group = G Node deriving (Show, Eq)
 
 instance Succ Group Project where
 instance HasNode Group where toNode (G n) = wrap n; fromNode = G
-
-addProject :: Group -> Project -> Group
-addProject (G node) = G . (`addTo` node)
-
-removeProject :: Group -> String -> Group
-removeProject (G node) = G . removeChild node
-
-getProjects :: Group -> [String]
-getProjects (G node) = map getName $ getChildren node
-
-getProject :: Group -> String -> Maybe Project
-getProject (G node) = fmap fromNode . getChild node
 
 addTeachers :: Group -> [String] -> Group
 addTeachers (G node) = G . addCsv node teachers

@@ -30,8 +30,8 @@ childrenCase p ns = let ns' = uniqueNonEmpty ns in  ns' /= [] ==> f ns'
             absentRemove = removeChild parent childName
         in  areEqual [presentRemove, absentRemove, parent] &&
             absentAdd == presentAdd &&
-            sameElements rest (getChildrenNames parent) &&
-            sameElements names (getChildrenNames absentAdd) &&
+            sameElements rest (map getName $ getChildren parent) &&
+            sameElements names (map getName $ getChildren absentAdd) &&
             sameElements children (getChildren parent) &&
             sameElements (child:children) (getChildren absentAdd) &&
             isNothing (getChild parent childName) &&

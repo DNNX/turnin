@@ -2,13 +2,13 @@
 module Infrastructure.Node
 ( Node(Node)
 , Succ
-, HasNode(make, addTo, addChild, removeChild, getChildren, getChild, getChildrenNames, toNode, fromNode)
+, HasNode(make, getName, addTo, addChild, removeChild, getChildren, getChild, toNode, fromNode)
 , wrap
-, getName
+, getConfigPairs
 , getConfig
 , setConfig
 , unsetConfig
-, getCacheKeys
+, getCachePairs
 , getCache
 , setCache
 , unsetCache
@@ -30,28 +30,30 @@ data NodeWrap = W Node
 wrap :: Node -> NodeWrap
 wrap = W
 
+get hn = let (W n) = toNode hn in n
+
 class Succ a b | a -> b where
 class HasNode a where
   make :: String -> a
   make = fromNode . make
+  
+  addTo :: HasNode b => Node -> a -> b
+  addTo p = fromNode . addChild p . get
 
-  addTo :: a -> Node -> Node
-  addTo c parentNode = let (W childNode) = toNode c in  addChild parentNode childNode
-
+  getName :: a -> String
+  getName =  getName . get
+  
   addChild :: (Succ a b, HasNode a, HasNode b) => a -> b -> a
-  addChild p c = let (W m) = toNode p; (W n) = toNode c; in  fromNode $ addChild m n
+  addChild p c = fromNode $ addChild (get p) (get c)
 
   removeChild :: HasNode a => a -> String -> a
-  removeChild p = let (W n) = toNode p in  fromNode . removeChild n
+  removeChild p = fromNode . removeChild (get p)
 
-  getChildrenNames :: a -> [String]
-  getChildrenNames p = let (W n) = toNode p in  getChildrenNames n
-  
   getChildren :: (Succ a b, HasNode b) => a -> [b]
-  getChildren p = let (W n) = toNode p in  map fromNode $ getChildren n
+  getChildren = map fromNode . getChildren . get
   
   getChild :: (Succ a b, HasNode b) => a -> String -> Maybe b
-  getChild p s = let (W n) = toNode p in  fromNode <$> getChild n s
+  getChild p s = fromNode <$> getChild (get p) s
   
   toNode :: a -> NodeWrap
   fromNode :: Node -> a
@@ -67,15 +69,15 @@ instance HasNode Node where
     Just _  -> parent
   
   removeChild (Node name config cache children) childName = Node name config cache $ M.delete childName children
-  getChildrenNames (Node _ _ _ children) = M.keys children
   getChildren (Node _ _ _ children) = map fromNode $ M.elems children
   getChild (Node _ _ _ children) key = fromNode <$> M.lookup key children
   
+  getName (Node name _ _ _) = name
   toNode = W
   fromNode = id
 
-getName :: Node -> String
-getName (Node name _ _ _) = name
+getConfigPairs :: Node -> [(String,String)]
+getConfigPairs (Node _ config _ _) = M.toList config
 
 getConfig :: Node -> String -> String
 getConfig (Node _ config _ _) key = fromMaybe "" $ M.lookup key config
@@ -87,8 +89,8 @@ setConfig (Node name config cache children) key value  = Node name (M.insert key
 unsetConfig :: Node -> String -> Node
 unsetConfig (Node name config cache children) key = Node name (M.delete key config) cache children
 
-getCacheKeys :: Node -> [String]
-getCacheKeys (Node _ _ cache _) = M.keys cache
+getCachePairs :: Node -> [(String,String)]
+getCachePairs (Node _ _ cache _) = M.toList cache
 
 getCache :: Node -> String -> String
 getCache (Node _ _ cache _) key = fromMaybe "" $ M.lookup key cache

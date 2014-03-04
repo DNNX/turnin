@@ -7,25 +7,31 @@ import Data.List
 import TestUtils
 
 import Infrastructure.Node
+
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 prop_emptyNode name k =
  let n = make name
  in  "" == getConfig n k &&
+     [] == getConfigPairs n &&
      "" == getCache n k &&
-     [] == getCacheKeys n &&
+     [] == getCachePairs n &&
     isNothing (getChild n k) &&
+    [] == getChildren n &&
      name == getName n
 
-prop_getSetUnsetConfig name = moo f
- where f ((key, v1, v2):rest) =
+prop_getSetUnsetConfig name = moo f . filter (\(a,b,c) -> "" `notElem` [a,b,c])
+ where f ((key, v1, v2):rest) = 
         let n             = buildNodeConfig name rest
             absentAdd     = setConfig n key v1
             presentAdd    = setConfig absentAdd key v2
             presentRemove = unsetConfig absentAdd key
             absentRemove  = unsetConfig n key
         in  areEqual [presentRemove, absentRemove, n] &&
-            "" == getConfig n key &&
+            sameElements (map toPair rest) (getConfigPairs n) &&
+            sameElements ((key,v1):map toPair rest) (getConfigPairs absentAdd) &&
+            sameElements ((key,v2):map toPair rest) (getConfigPairs presentAdd) &&
+            "" == getConfig n key && 
             v1 == getConfig absentAdd key &&
             v2 == getConfig presentAdd key
 
@@ -37,12 +43,12 @@ prop_getSetUnsetCache name = moo f . filter (\(a,b,c) -> "" `notElem` [a,b,c])
             presentRemove = unsetCache absentAdd key
             absentRemove  = unsetCache n key
         in  areEqual [presentRemove, absentRemove, n] &&
-            sameElements (map first rest) (getCacheKeys n) &&
-            sameElements (filter (not.null) $ key:map first rest) (getCacheKeys absentAdd) &&
-            sameElements (filter (not.null) $ key:map first rest) (getCacheKeys presentAdd) &&
+            sameElements (map toPair rest) (getCachePairs n) &&
+            sameElements ((key,v1):map toPair rest) (getCachePairs absentAdd) &&
+            sameElements ((key,v2):map toPair rest) (getCachePairs presentAdd) &&
             "" == getCache n key &&
             v1 == getCache absentAdd key &&
-            v2 == getCache presentAdd key
+            v2 == getCache presentAdd key 
 
 prop_getSetUnsetChildren parentName ns = let ns' = nub ns
                                              nss = tails ns'
@@ -75,17 +81,13 @@ buildNodeChildren parentName ns = let node = make parentName
                                       f = foldl (\m name -> addChild m (setConfig (make name) name name))
                                   in  f node ns
 
-getKeysModel = f []
- where f parentKey c = let key = parentKey ++ [getName c]
-                           rest = concatMap (f key.fromJust.getChild c) $ map getName $ getChildren c
-                       in  (key,c):rest
-
 moo f ts = let ts' = nubBy (\(a,_,_)(b,_,_)->a==b) ts
                tss = tails ts'
                tss' = filter (not.null) tss
            in  tss' /= [] ==> all f tss'
 
 first (a,_,_) = a
+toPair (x,y,_) = (x,y)
 
 
 

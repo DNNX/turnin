@@ -28,8 +28,8 @@ childrenCase parent childName =
  assertEqual parent presentRemove
  assertEqual parent absentRemove
  assertEqual absentAdd presentAdd
- assertEqual [] $ getChildrenNames parent
- assertEqual [childName] $ getChildrenNames absentAdd
+ assertEqual [] $ getChildren parent
+ assertEqual [child] $ getChildren absentAdd
  assertEqual [] $ getChildren parent
  assertEqual [child] $ getChildren absentAdd
  assertEqual True $ isNothing $ getChild parent childName

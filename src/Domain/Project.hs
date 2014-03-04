@@ -1,3 +1,4 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 module Domain.Project
 ( Project()
 , getSubmitRepo
@@ -42,7 +43,6 @@ import Domain.TrainRunRepo
 import Data.Maybe
 
 data Project = P Node deriving (Show, Eq)
-
 instance HasNode Project where
  make name = let p0 = fromNode $ make name
                  p1 = setSubmitRepo p0 emptySubmitRepo
@@ -56,19 +56,19 @@ getSubmitRepo :: Project -> SubmitRepo
 getSubmitRepo (P node) = fromNode $ fromJust $ getChild node submitRepoName
 
 setSubmitRepo :: Project -> SubmitRepo -> Project
-setSubmitRepo (P node) r = P $ addTo r $ removeChild node submitRepoName
+setSubmitRepo (P node) = addTo (removeChild node submitRepoName) 
 
 getTrainFileRepo :: Project -> TrainFileRepo
 getTrainFileRepo (P node) = fromNode $ fromJust $ getChild node trainFileRepoName
 
 setTrainFileRepo :: Project -> TrainFileRepo -> Project
-setTrainFileRepo (P node) r = P $ addTo r $ removeChild node trainFileRepoName
+setTrainFileRepo (P node) = addTo (removeChild node trainFileRepoName)
 
 getTrainRunRepo :: Project -> TrainRunRepo
 getTrainRunRepo (P node) = fromNode $ fromJust $ getChild node trainRunRepoName
 
 setTrainRunRepo :: Project -> TrainRunRepo -> Project
-setTrainRunRepo (P node) r = P $ addTo r $ removeChild node trainRunRepoName
+setTrainRunRepo (P node) = addTo (removeChild node trainRunRepoName)
 
 getStartDate :: Project -> String
 getStartDate (P node) = getConfig node startDate
@@ -133,9 +133,9 @@ getTrainSpaceLimit (P node) = getConfig node trainSpaceLimit
 setTrainSpaceLimit :: Project -> String -> Project
 setTrainSpaceLimit (P node) = P . setConfig node trainSpaceLimit
 
-emptySubmitRepo = make submitRepoName
-emptyTrainFileRepo = make trainFileRepoName
-emptyTrainRunRepo = make trainRunRepoName
+emptySubmitRepo = make submitRepoName :: SubmitRepo
+emptyTrainFileRepo = make trainFileRepoName :: TrainFileRepo
+emptyTrainRunRepo = make trainRunRepoName :: TrainRunRepo
 
 submitRepoName = "SUBMIT"
 trainFileRepoName = "TRAIN_FILE"

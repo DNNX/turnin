@@ -8,7 +8,7 @@ import System.Random
 
 nbRepeats = 100
 
-testRepeat = replicateM_ nbRepeats :: IO () -> IO ()
+repeatTest = replicateM_ nbRepeats :: IO () -> IO ()
 
 inTmpDir f = withSystemTempDirectory "tmp" $ \tempPath -> bracket
  (do previous <- getCurrentDirectory; setCurrentDirectory tempPath; return previous)

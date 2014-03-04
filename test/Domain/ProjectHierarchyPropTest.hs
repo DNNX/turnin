@@ -32,19 +32,19 @@ prop_trainRunRepoChildren rs = let trainRunDates = uniqueNonEmpty rs
         let trr = foldl (\x d -> addChild x (make d)) emptyTrainRunRepo rest
             tr = make trainRunDate
             absentAdd = addChild trr tr
-            presentAdd = addChild absentAdd tr
+            presentAdd = addChild absentAdd tr 
             presentRemove = removeChild absentAdd trainRunDate
             absentRemove = removeChild trr trainRunDate
         in  areEqual [presentRemove, absentRemove, trr] &&
             absentAdd == presentAdd &&
-            sameElements rest (getChildrenNames trr) &&
-            sameElements dates (getChildrenNames absentAdd) &&
+            sameElements rest (map getName $ getChildren trr) &&
+            sameElements dates (map getName $ getChildren absentAdd) &&
             isNothing (getChild trr trainRunDate) &&
             Just tr == getChild absentAdd trainRunDate
 
 prop_emptySubmitRepo = [[]] == applyGets emptySubmitRepo [getSubmits, getLateSubmits]
 prop_emptyTrainFileRepo = [] == getTrainFiles emptyTrainFileRepo
-prop_emptyTrainRunRepo = [] == getChildrenNames emptyTrainRunRepo
+prop_emptyTrainRunRepo = [] == getChildren emptyTrainRunRepo
 
 prop_addRemoveGetSubmits ks suffix = let ks' = uniqueNonEmpty ks in ks' /= [] ==> f $ zip ks' $ map (++suffix) ks'
  where f ((key, content):rest) =

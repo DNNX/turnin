@@ -24,7 +24,7 @@ removeSubmit :: SubmitRepo -> String -> SubmitRepo
 removeSubmit (R node) = R . flip (setCache node) ""
 
 getSubmits :: SubmitRepo -> [String]
-getSubmits (R node) = getCacheKeys node
+getSubmits (R node) = map fst $ getCachePairs node
 
 getSubmit :: SubmitRepo -> String -> String
 getSubmit (R node) = getCache node
