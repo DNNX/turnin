@@ -17,15 +17,14 @@ type FileName = String
 
 save :: Key -> Node -> IO Bool
 save key node = let dirPath = joinPath key; nodePath = combine dirPath $ getName node in do
-  putStrLn $ "Saving..."
   exists <- doesDirectoryExist dirPath
   if not exists then return False else do
   nodeExists <- doesDirectoryExist nodePath
   (if nodeExists then updateNode else createNode) nodePath node
   return True
   
-load :: Key -> Node -> IO (Maybe Node)
-load key node = let nodeKey = key ++ [getName node]; nodePath = joinPath nodeKey in do
+load :: Key -> FileName -> IO (Maybe Node)
+load key nodeName = let nodeKey = key ++ [nodeName]; nodePath = joinPath nodeKey in do
   nodeExists <- doesDirectoryExist nodePath
   if not nodeExists then return Nothing else do
   loadedNode <- getFilesAndDirectories nodePath >>= buildNodeCacheAndChildren nodeKey

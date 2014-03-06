@@ -1,9 +1,3 @@
-module Infrastructure.Finder
-( findNode
-) where
+module Infrastructure.Finder where
 
-import Infrastructure.Node
-
-findNode :: Node -> [(Maybe String, [Node] -> Maybe String)] -> Maybe Node
-findNode = undefined
 
