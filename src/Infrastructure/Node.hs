@@ -21,16 +21,21 @@ import Data.Maybe
 type Name = String
 
 type Config = M.Map String String
-type Cache = M.Map String String
-type Children = M.Map String Node
+type Bag = M.Map String (Either String Node)
 
-data Node = Node Name Config Cache Children deriving (Show, Eq)
+data Node = Node Name Config Bag deriving (Show, Eq)
 
 data NodeWrap = W Node
 wrap :: Node -> NodeWrap
 wrap = W
 
 get hn = let (W n) = toNode hn in n
+
+isRight (Right _) = True
+isRight _         = False
+
+fromRight (Right x) = x
+fromRight _         = error "fromRight: Left"
 
 class Succ a b | a -> b where
 class HasNode a where
@@ -60,46 +65,63 @@ class HasNode a where
 
 instance Succ Node Node where
 instance HasNode Node where
-  make name = Node name M.empty M.empty M.empty
+  make name = Node name M.empty M.empty
   
-  addChild parent@(Node name config cache children) child =
-   let (W n) = toNode child; childName = getName n
-   in  case M.lookup childName children of
-    Nothing -> Node name config cache $ M.insert childName n children
+  addChild parent@(Node name config bag) child =
+   let n = get child; childName = getName child
+   in  if childName == "" then parent else case M.lookup childName bag of
     Just _  -> parent
+    Nothing -> Node name config $ M.insert childName (Right n) bag
   
-  removeChild (Node name config cache children) childName = Node name config cache $ M.delete childName children
-  getChildren (Node _ _ _ children) = map fromNode $ M.elems children
-  getChild (Node _ _ _ children) key = fromNode <$> M.lookup key children
+  removeChild n@(Node name config bag) childName = case M.lookup childName bag of
+                                                    Just (Right _) -> Node name config $ M.delete childName bag
+                                                    _              -> n
+                                                    
+  getChildren (Node _ _ bag) = map (fromNode.fromRight) $ filter isRight $ M.elems bag
+  getChild (Node _ _ bag) key = f $  M.lookup key bag
+   where f (Just (Right x)) = Just $ fromNode x
+         f _                = Nothing
   
-  getName (Node name _ _ _) = name
+  getName (Node name _ _) = name
   toNode = W
   fromNode = id
 
 getConfigPairs :: Node -> [(String,String)]
-getConfigPairs (Node _ config _ _) = M.toList config
+getConfigPairs (Node _ config _) = M.toList config
 
 getConfig :: Node -> String -> String
-getConfig (Node _ config _ _) key = fromMaybe "" $ M.lookup key config
+getConfig (Node _ config _) key = fromMaybe "" $ M.lookup key config
 
 setConfig :: Node -> String -> String -> Node
-setConfig node                              key ""     = unsetConfig node key
-setConfig (Node name config cache children) key value  = Node name (M.insert key value config) cache children
+setConfig node                   "" _       = node
+setConfig node                   key ""     = unsetConfig node key
+setConfig (Node name config bag) key value  = Node name (M.insert key value config) bag
 
 unsetConfig :: Node -> String -> Node
-unsetConfig (Node name config cache children) key = Node name (M.delete key config) cache children
+unsetConfig (Node name config bag) key = Node name (M.delete key config) bag
 
 getCachePairs :: Node -> [(String,String)]
-getCachePairs (Node _ _ cache _) = M.toList cache
+getCachePairs (Node _ _ bag) = map g $ filter f $ M.toList bag
+ where f (_,Left _) = True
+       f _          = False
+       g (x,Left y) = (x,y)
+       g _          = error "Node::getCachePairs: error, shouldn't encounter Right value"
 
 getCache :: Node -> String -> String
-getCache (Node _ _ cache _) key = fromMaybe "" $ M.lookup key cache
+getCache (Node _ _ bag) key = case M.lookup key bag of
+                               Just (Left x) -> x
+                               _             -> ""
 
 setCache :: Node -> String -> String -> Node
-setCache node                              key ""    = unsetCache node key
-setCache (Node name config cache children) key value = Node name config (M.insert key value cache) children
+setCache node                     ""  _     = node
+setCache node                     key ""    = unsetCache node key
+setCache n@(Node name config bag) key value = case M.lookup key bag of
+                                             Just (Right _) -> n
+                                             _              -> Node name config $ M.insert key (Left value) bag
 
 unsetCache :: Node -> String -> Node
-unsetCache (Node name config cache children) key = Node name config (M.delete key cache) children
+unsetCache n@(Node name config bag) key = case M.lookup key bag of
+                                           Just (Left _) -> Node name config $ M.delete key bag
+                                           _             -> n
 
 

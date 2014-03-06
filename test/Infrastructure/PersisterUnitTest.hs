@@ -3,8 +3,6 @@ module Infrastructure.PersisterUnitTest where
 
 import Test.Framework
 import IOTestUtils
-import System.Directory
-import System.FilePath
 
 import Infrastructure.Node
 import Infrastructure.Persister
@@ -12,28 +10,24 @@ import Infrastructure.Persister
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 test_saveLoad = inTmpDir $ do
-  let n0 = make "node"
-      n1 = setCache n0 "cacheKey" "cacheValue"
-      n2 = setConfig n1 "configKey" "configValue"
-      n3 = addChild n2 $ make "child"
-      n4 = setCache (setConfig (addChild n0 (make "child2")) "configKey" "configValue2") "cacheKey" "cacheValue2"
+  let root0 = setConfig (setCache (addChild (make "root") (addChild (make "child") (make "grandChild"))) "cacheKey" "cacheValue") "configKey" "configValue" 
+      root1 = setConfig (setCache (addChild (make "root")           (make "child")                     ) "cacheKey" "cacheValue") "configKey" "configValue"
+      root2 = setConfig (setCache (addChild (make "root")           (make "child")                     ) "cacheKey" "cacheValue1") "configKey" "configValue1"
   rootKey <- getRootKey  
-  notFound <- load rootKey n0
+  notFound <- load rootKey root0
   assertEqual Nothing notFound
                     
-  success <- save rootKey n3
+  s <- save ["/" | null rootKey] root0
+  assertBool $ not s
+                    
+  success <- save rootKey root0
   assertBool success
   
-  n <- load rootKey n0
-  assertEqual (Just n3) n
+  n <- load rootKey $ make "root"
+  assertEqual (Just root1) n
   
-  success' <- save rootKey n4
+  success' <- save rootKey root2
   assertBool success'
   
-  n' <- load rootKey n0
-  assertEqual (Just n4) n'
-  
-getRootKey = do
-  dir <- getCurrentDirectory
-  let rootKey = splitPath dir
-  return rootKey
+  n' <- load rootKey $ make "root"
+  assertEqual (Just root2) n'

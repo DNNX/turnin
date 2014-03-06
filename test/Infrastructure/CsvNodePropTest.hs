@@ -14,7 +14,7 @@ import Infrastructure.CsvNode
 
 prop_emptyCsvNode name k = null (getCsv (make name) k)
 
-prop_addRemoveGetSetValues name ps = let ps' = nubBy ((==) `on` fst) ps
+prop_addRemoveGetSetValues name ps = let ps' = filter ((/="").fst) $ nubBy ((==) `on` fst) ps
                                          ps'' = map (second g) ps'
                                          g xs = nub $ filter (not.null) $ map (filter (/=',')) xs
                                      in  ps'' /= [] ==> f ps''
@@ -34,7 +34,7 @@ prop_addRemoveGetSetValues name ps = let ps' = nubBy ((==) `on` fst) ps
 
         in  sameElements (ys++vs) (getCsv absentAdd k) &&
             sameElements ys (getCsv n k) &&
-            areEqual [presentRemove, absentRemove, presentUnset, absentUnset, n] &&
+            areEqual [presentRemove, absentRemove, presentUnset, absentUnset, n, addCsv n "" (vs++ys)] &&
             areEqual [absentAdd, presentAdd, presentSet, absentSet]
 
 buildCsvNode name ps = let node = make name in f node ps

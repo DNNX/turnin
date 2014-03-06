@@ -17,11 +17,19 @@ type FileName = String
 
 save :: Key -> Node -> IO Bool
 save key node = let dirPath = joinPath key; nodePath = combine dirPath $ getName node in do
+  putStrLn $ "Saving..."
   exists <- doesDirectoryExist dirPath
   if not exists then return False else do
   nodeExists <- doesDirectoryExist nodePath
   (if nodeExists then updateNode else createNode) nodePath node
   return True
+  
+load :: Key -> Node -> IO (Maybe Node)
+load key node = let nodeKey = key ++ [getName node]; nodePath = joinPath nodeKey in do
+  nodeExists <- doesDirectoryExist nodePath
+  if not nodeExists then return Nothing else do
+  loadedNode <- getFilesAndDirectories nodePath >>= buildNodeCacheAndChildren nodeKey
+  return $ Just $ moveConfigFromCache loadedNode
   
 updateNode :: FilePath -> Node -> IO ()
 updateNode path node = do
@@ -30,22 +38,15 @@ updateNode path node = do
   let (p1a2Children, a1p2Children) = listDiff dirs $ map getName $ getChildren node -- present in 1 but absent from 2, absent from 1 but present in 2
   forM_ (getCachePairs node) $ \(k,v) -> writeFile (combine path k) v
   forM_ p1a2Children $ \k -> removeDirectoryRecursive (combine path k)
-  forM_ a1p2Children $ \k -> createNode (combine path k) $ fromJust $ getChild node k 
+  forM_ a1p2Children $ \k -> createNode (combine path k) $ fromJust $ getChild node k
   
 createNode :: FilePath -> Node -> IO ()
 createNode path node = let n = moveConfigToCache node in do
   createDirectory path
+  putStrLn $ "Path: " ++ show path
   forM_ (getCachePairs n) $ \(key,content) -> writeFile (combine path key) content
   forM_ (getChildren n) $ \child -> createNode (combine path $ getName child) child
 
-load :: Key -> Node -> IO (Maybe Node)
-load key node = let nodeKey = key ++ [getName node]; nodePath = joinPath nodeKey in do
-  nodeExists <- doesDirectoryExist nodePath
-  if not nodeExists then return Nothing else do
-  loadedNode <- getFilesAndDirectories nodePath >>= buildNodeCacheAndChildren nodeKey
-  return $ Just $ moveConfigFromCache loadedNode
-  
--- Utils
 listDiff :: Eq a => [a] -> [a] -> ([a],[a]) -- xs -> ys -> ('Present in xs but absent in ys', 'Absent in xs but present in ys')
 listDiff xs ys = (filter (not.(`elem` ys)) xs, filter (not.(`elem` xs)) ys)
   
@@ -63,7 +64,7 @@ getFilesAndDirectories path = getDirectoryContents path >>= f [] []
 buildNodeCacheAndChildren :: Key -> ([FileName],[FileName]) -> IO Node
 buildNodeCacheAndChildren nodeKey (files,dirs) = foldM f (make $ last nodeKey) files >>= \n -> foldM g n dirs
  where f acc fileName = liftM (setCache acc fileName) $ readFile (joinPath $ nodeKey ++ [fileName])
-       g acc dirName  = liftM (addChild acc.fromJust) $ load nodeKey (make dirName)
+       g acc dirName  = return $ addChild acc $ make dirName
 
 moveConfigToCache :: Node -> Node
 moveConfigToCache node = setCache node configFileName $ serializeConfig $ getConfigPairs node

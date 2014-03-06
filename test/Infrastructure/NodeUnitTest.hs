@@ -23,6 +23,7 @@ test_getSetUnsetConfig =
      absentRemove  = unsetConfig n "key" in  do
  assertEqual n presentRemove
  assertEqual n absentRemove
+ assertEqual n $ setConfig n "" "value"
  assertEqual [] $ getConfigPairs n
  assertEqual [("key","v1")] $ getConfigPairs absentAdd
  assertEqual [("key","v2")] $ getConfigPairs presentAdd
@@ -38,6 +39,7 @@ test_getSetUnsetCache =
      absentRemove  = unsetCache n "key" in do
  assertEqual n presentRemove
  assertEqual n absentRemove
+ assertEqual n $ setCache n "" "value"
  assertEqual [] $ getCachePairs n
  assertEqual [("key","v1")] $ getCachePairs absentAdd 
  assertEqual [("key","v2")] $ getCachePairs presentAdd
@@ -55,9 +57,28 @@ test_getSetUnsetChildren =
      absentRemove  = removeChild n "child" in do
  assertEqual n presentRemove
  assertEqual n absentRemove
+ assertEqual n $ addChild n $ make ""
  assertEqual absentAdd presentAdd
  assertEqual Nothing $ getChild n "child"
  assertEqual (Just c1) $ getChild absentAdd "child"
  assertEqual [] $ getChildren n
  assertEqual [c1] $ getChildren absentAdd
 
+test_cacheAndChildrenShareKeys =
+ let n0              = make "" :: Node
+     c              = make "key"
+     n1             = addChild n0 c
+     n1'            = setCache n1 "key" "value"
+     n2             = setCache n0 "key" "value"
+     n2'            = addChild n2 c in do
+ assertEqual n1 n1'
+ assertEqual n2 n2'
+ assertEqual "" $ getCache n1 "key"
+ assertEqual [] $ getCachePairs n1
+ assertEqual (Just c) $ getChild n1 "key"
+ assertEqual [c] $ getChildren n1
+ assertEqual "value" $ getCache n2 "key"
+ assertEqual [("key","value")] $ getCachePairs n2
+ assertEqual Nothing $ getChild n2 "key"
+ assertEqual [] $ getChildren n2
+     
