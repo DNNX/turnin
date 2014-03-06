@@ -12,30 +12,30 @@ import Infrastructure.Persister
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
 test_saveLoad = repeatTest $ inTmpDir $ do
-  rootName <- randString 0 100
-  nbChildren <- randInt 3 3
-  maxDepth <- randInt 3 3
+  rootName <- randString 1 100
+  nbChildren <- randInt 0 4
+  maxDepth <- randInt 0 4
   
   n0 <- randNodeTree rootName nbChildren maxDepth
-  n1 <- modifyTree nbChildren maxDepth n0
+  n1 <- modifyTree n0 nbChildren maxDepth
   
   rootKey <- getRootKey
-  notFound <- load rootKey n0
+  notFound <- load rootKey rootName
   assertEqual Nothing notFound
-         
+  
   s <- save ["/" | null rootKey] n0
   assertBool $ not s
-                    
+                      
   success <- save rootKey n0
   assertBool success
-  
-  n <- load rootKey n0
+    
+  n <- load rootKey rootName
   assertNodeEqualLocalRecursive rootKey n0 $ fromJust n
   
   success' <- save rootKey n1
   assertBool success'
- 
-  n' <- load rootKey n0
+  
+  n' <- load rootKey rootName
   assertNodeEqualLocalRecursive rootKey n1 $ fromJust n'
   
 assertNodeEqualLocalRecursive key expected actual = do
@@ -47,7 +47,7 @@ assertNodeEqualLocalRecursive key expected actual = do
     assertEqual [] $ getConfigPairs child
     assertEqual [] $ getCachePairs child
     assertEqual [] $ getChildren child  
-  forM_ (getChildren expected) $ \expectedChild -> let key' = (key ++ [name]); name = getName expected in do                                                 
-    actualChild <- load key $ fromJust $ getChild actual name
+  forM_ (getChildren expected) $ \expectedChild -> let key' = key ++ [getName expected] in do                                                 
+    actualChild <- load key' $ getName expectedChild
     assertNodeEqualLocalRecursive key' expectedChild $ fromJust actualChild
-  
+                      

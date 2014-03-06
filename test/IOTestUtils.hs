@@ -71,26 +71,40 @@ randSubset (x:xs) = do
 randNodeTree s n d = addRandConfig (make s) >>= addRandCache >>= addRandChildren n d
 addRandConfig = addRandMappings setConfig   
 addRandCache = addRandMappings setCache
-addRandMappings f n = randListS 0 100 0 100 >>= foldM g n
- where g acc key = f acc key <$> randString 0 100
+addRandMappings f n = randListS 0 10 0 10 >>= foldM g n
+ where g acc key = f acc key <$> randString 0 10
  
 addRandChildren 0 _ p = return p
 addRandChildren _ 0 p = return p 
 addRandChildren n d p = randListS n n 0 100 >>= foldM f p
  where f acc childName = liftM (addChild acc) $ randNodeTree childName (n-1) (d-1)
 
-modifyTree n d p = modifyConfig p >>= modifyCache >>= modifyChildren n d
-modifyConfig = modifyMappings setConfig unsetConfig getConfigPairs
-modifyCache = modifyMappings setCache unsetCache getCachePairs
-
-modifyMappings setF unsetF getF n = do
-  keys <- randListS 0 100 0 100
-  n' <- foldM g n $ keys ++ map fst (getF n) 
-  keysToUnset <- randSubset $ map fst $ getF n'
-  foldM h n' keysToUnset
- where g acc key = liftM (setF acc key) $  randString 0 100
-       h acc key = return $ unsetF acc key
-       
+modifyTree p n d = addRandConfig p >>= addRandCache >>= addRandChildren n d >>=
+                    removeRandConfig >>= removeRandCache >>= removeRandChildren >>=
+                    modifyRandConfig >>= modifyRandCache >>= modifyRandChildren
+                    
+removeRandConfig = removeRandMappings (map fst . getConfigPairs) unsetConfig
+removeRandCache = removeRandMappings (map fst . getCachePairs) unsetCache
+removeRandChildren = removeRandMappings (map getName . getChildren) removeChild
+removeRandMappings getKeysF unsetF n = foldM f n $ getKeysF n
+ where f acc k = randBool >>= \b -> return $ if b then unsetF acc k else acc
+ 
+modifyRandConfig = modifyRandMappings (map fst . getConfigPairs) setConfig
+modifyRandCache = modifyRandMappings (map fst . getCachePairs) setCache
+modifyRandMappings getKeysF setF n = foldM f n $ getKeysF n
+ where f acc k = do
+        b <- randBool
+        v <- randString 0 100
+        return $ if b then setF acc k v else acc
+        
+modifyRandChildren n = foldM f n $ getChildren n
+ where f acc child = do
+        b <- randBool
+        child' <- modifyRandChildren child
+        if b then return acc else do
+          let n' = removeChild n $ getName child
+          return $ addChild n' child'
+        
 modifyChildren :: Int -> Int -> Node -> IO Node       
 modifyChildren n d p = do
   ls <- randListS n n 0 100 

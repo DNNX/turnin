@@ -8,7 +8,6 @@ import System.FilePath
 import Control.Monad
 import Data.List
 import Data.List.Split
-import Data.Maybe
 
 import Infrastructure.Node
 
@@ -16,11 +15,11 @@ type Key = [String]
 type FileName = String
 
 save :: Key -> Node -> IO Bool
-save key node = let dirPath = joinPath key; nodePath = combine dirPath $ getName node in do
+save key node = let dirPath = joinPath key; nodeKey = key ++ [getName node]; nodePath = joinPath nodeKey in do
   exists <- doesDirectoryExist dirPath
   if not exists then return False else do
   nodeExists <- doesDirectoryExist nodePath
-  (if nodeExists then updateNode else createNode) nodePath node
+  if nodeExists then updateNode nodeKey node else createNode nodePath node
   return True
   
 load :: Key -> FileName -> IO (Maybe Node)
@@ -30,24 +29,31 @@ load key nodeName = let nodeKey = key ++ [nodeName]; nodePath = joinPath nodeKey
   loadedNode <- getFilesAndDirectories nodePath >>= buildNodeCacheAndChildren nodeKey
   return $ Just $ moveConfigFromCache loadedNode
   
-updateNode :: FilePath -> Node -> IO ()
-updateNode path node = do
-  (_,dirs) <- getFilesAndDirectories path
-  writeFile (combine path configFileName) $ serializeConfig $ getConfigPairs node
-  let (p1a2Children, a1p2Children) = listDiff dirs $ map getName $ getChildren node -- present in 1 but absent from 2, absent from 1 but present in 2
-  forM_ (getCachePairs node) $ \(k,v) -> writeFile (combine path k) v
-  forM_ p1a2Children $ \k -> removeDirectoryRecursive (combine path k)
-  forM_ a1p2Children $ \k -> createNode (combine path k) $ fromJust $ getChild node k
+updateNode :: Key -> Node -> IO ()
+updateNode key node = let path = joinPath key; n = moveConfigToCache node in do
+  (files,dirs) <- getFilesAndDirectories path
+  let cacheToRemove    = elemsToRemove [configFileName] files $ map fst $ getCachePairs n
+      childrenToRemove = elemsToRemove [] dirs $ map getName $ getChildren n
+
+--  putStrLn $ "files: " ++ show files
+--  putStrLn $ "dir: " ++ show dirs
+--  putStrLn $ "cacheToRemove: " ++ show cacheToRemove
+--  putStrLn $ "childrenToRemove: " ++ show childrenToRemove
+--  putStrLn ""
+      
+  forM_ cacheToRemove $ \k -> removeFile $ combine path k
+  forM_ childrenToRemove $ \k -> removeDirectoryRecursive $ combine path k
+  forM_ (getCachePairs n) $ \(k,v) -> writeFile (combine path k) v
+  forM_ (getChildren n) $ \child -> save key child
   
 createNode :: FilePath -> Node -> IO ()
 createNode path node = let n = moveConfigToCache node in do
   createDirectory path
-  putStrLn $ "Path: " ++ show path
   forM_ (getCachePairs n) $ \(key,content) -> writeFile (combine path key) content
   forM_ (getChildren n) $ \child -> createNode (combine path $ getName child) child
 
-listDiff :: Eq a => [a] -> [a] -> ([a],[a]) -- xs -> ys -> ('Present in xs but absent in ys', 'Absent in xs but present in ys')
-listDiff xs ys = (filter (not.(`elem` ys)) xs, filter (not.(`elem` xs)) ys)
+elemsToRemove :: Eq a => [a] -> [a] -> [a] -> [a] -- ignores -> xs -> ys -> 'Present in xs but absent in ys AND absent in ignores'
+elemsToRemove ignores xs ys = filter (not.(`elem` ignores ++ ys)) xs
   
 getFilesAndDirectories :: FilePath -> IO ([FileName],[FileName])
 getFilesAndDirectories path = getDirectoryContents path >>= f [] []
@@ -73,12 +79,16 @@ moveConfigFromCache node =
   in  foldl f (unsetCache node configFileName) configPairs
 
 serializeConfig :: [(String,String)] -> String
-serializeConfig = unlines . map (\(x,y) -> x ++ "=" ++ y)
+serializeConfig [] = emptyConfigFlag
+serializeConfig ps = unlines $ map (\(x,y) -> x ++ "=" ++ y) ps
 
 deserializeConfig :: String -> [(String,String)]
-deserializeConfig raw = f [] $ lines raw
+deserializeConfig raw
+ | raw == emptyConfigFlag = []
+ | otherwise              = f [] $ lines raw
  where f acc [] = acc
        f acc (l:ls) = let (key:value) = splitOn "=" l
                       in  f ((key, intercalate "=" value):acc) ls
 
+emptyConfigFlag = "EMPTY_CONFIG"
 configFileName = ".config"

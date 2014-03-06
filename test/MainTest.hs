@@ -12,7 +12,7 @@ import {-@ HTF_TESTS @-} Interface.CommandLineParser.SubmitWorktrainUnitTest
 import {-@ HTF_TESTS @-} Infrastructure.NodeUnitTest
 import {-@ HTF_TESTS @-} Infrastructure.CsvNodeUnitTest
 import {-@ HTF_TESTS @-} Infrastructure.DateUnitTest
---import {-@ HTF_TESTS @-} Infrastructure.PersisterPropTest
+import {-@ HTF_TESTS @-} Infrastructure.PersisterPropTest
 
 import {-@ HTF_TESTS @-} Domain.HierarchyUnitTest
 import {-@ HTF_TESTS @-} Domain.RootUnitTest
