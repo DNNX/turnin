@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
 module Domain.Course
 ( Course()
 ) where
@@ -8,6 +8,7 @@ import Domain.Group
 
 data Course = C Node deriving (Show, Eq)
 
-instance Succ Course Group where
-instance HasNode Course where toNode (C n) = wrap n; fromNode = C
+instance HasNode Course where
+ type ChildType Course = Group
+ toNode (C n) = wrap n; fromNode = C
 

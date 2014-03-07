@@ -7,14 +7,15 @@ import Data.Maybe
 
 import Infrastructure.Node
 import Domain.Project
+import Domain.ProjectRepo
 import Domain.SubmitRepo
 import Domain.TrainFileRepo
 import Domain.TrainRun
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 
-prop_projectChildren projectName submit trainFile trainRun =
- length (filter (not.null) [submit,trainFile,trainRun]) == 3 ==>
+prop_projectChildren projectName submitRepo submit trainFileRepo trainFile trainRunRepo trainRun =
+ length (filter (not.null) [submitRepo,submit,trainFileRepo,trainFile,trainRunRepo,trainRun]) == 6 ==>
  let p = make projectName
      s = addSubmit emptySubmitRepo submit submit
      tf = addTrainFile emptyTrainFileRepo trainFile trainFile
@@ -24,7 +25,14 @@ prop_projectChildren projectName submit trainFile trainRun =
      emptyTrainRunRepo == getTrainRunRepo p &&
      s == getSubmitRepo (setSubmitRepo p s) &&
      tf == getTrainFileRepo (setTrainFileRepo p tf) &&
-     tr == getTrainRunRepo (setTrainRunRepo p tr)
+     tr == getTrainRunRepo (setTrainRunRepo p tr) &&
+    [makeProjectSubmitRepo emptySubmitRepo,  makeProjectTrainFileRepo emptyTrainFileRepo, makeProjectTrainRunRepo emptyTrainRunRepo] == getChildren p &&
+    [makeProjectSubmitRepo s,                makeProjectTrainFileRepo tf,                 makeProjectTrainRunRepo tr               ] == getChildren (setSubmitRepo (setTrainFileRepo (setTrainRunRepo p tr) tf) s) &&
+                                                                                                                                        
+    [makeProjectSubmitRepo s,                makeProjectTrainFileRepo emptyTrainFileRepo, makeProjectTrainRunRepo emptyTrainRunRepo] == getChildren (setSubmitRepo p s) &&
+    [makeProjectSubmitRepo emptySubmitRepo,  makeProjectTrainFileRepo tf,                 makeProjectTrainRunRepo emptyTrainRunRepo] == getChildren (setTrainFileRepo p tf) &&
+    [makeProjectSubmitRepo emptySubmitRepo,  makeProjectTrainFileRepo emptyTrainFileRepo, makeProjectTrainRunRepo tr               ] == getChildren (setTrainRunRepo p tr)        
+     
 
 prop_trainRunRepoChildren rs = let trainRunDates = uniqueNonEmpty rs
                                in  trainRunDates /= [] ==> f trainRunDates

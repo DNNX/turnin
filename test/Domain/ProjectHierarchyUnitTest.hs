@@ -5,6 +5,7 @@ import Test.Framework
 
 import Infrastructure.Node
 import Domain.Project
+import Domain.ProjectRepo
 import Domain.SubmitRepo
 import Domain.TrainFileRepo
 import Domain.TrainRun
@@ -14,7 +15,7 @@ import Domain.TrainRun
 test_projectChildren =
  let p = make "project"
      s = addSubmit emptySubmitRepo "submitKey" "submitValue"
-     tf = addTrainFile emptyTrainFileRepo "trainFileKey" "trainFileValue"
+     tf = addTrainFile emptyTrainFileRepo "trainFileKey" "trainFileContent"
      tr = addChild emptyTrainRunRepo $ make "trainRunName" in do
  assertEqual emptySubmitRepo $ getSubmitRepo p
  assertEqual emptyTrainFileRepo $ getTrainFileRepo p
@@ -22,21 +23,28 @@ test_projectChildren =
  assertEqual s $ getSubmitRepo $ setSubmitRepo p s
  assertEqual tf $ getTrainFileRepo $ setTrainFileRepo p tf
  assertEqual tr $ getTrainRunRepo $ setTrainRunRepo p tr
+ 
+ assertEqual [makeProjectSubmitRepo emptySubmitRepo,  makeProjectTrainFileRepo emptyTrainFileRepo, makeProjectTrainRunRepo emptyTrainRunRepo] $ getChildren p
+ assertEqual [makeProjectSubmitRepo s,                makeProjectTrainFileRepo tf,                 makeProjectTrainRunRepo tr               ] $ getChildren $ setSubmitRepo (setTrainFileRepo (setTrainRunRepo p tr) tf) s
+ 
+ assertEqual [makeProjectSubmitRepo s,                makeProjectTrainFileRepo emptyTrainFileRepo, makeProjectTrainRunRepo emptyTrainRunRepo] $ getChildren $ setSubmitRepo p s
+ assertEqual [makeProjectSubmitRepo emptySubmitRepo,  makeProjectTrainFileRepo tf,                 makeProjectTrainRunRepo emptyTrainRunRepo] $ getChildren $ setTrainFileRepo p tf
+ assertEqual [makeProjectSubmitRepo emptySubmitRepo,  makeProjectTrainFileRepo emptyTrainFileRepo, makeProjectTrainRunRepo tr               ] $ getChildren $ setTrainRunRepo p tr              
 
 test_trainRunRepoChildren =
  let trr = emptyTrainRunRepo
-     tr = make "trainRunDate"
+     tr = make "trainRun"
      absentAdd = addChild trr tr
      presentAdd = addChild absentAdd tr
-     presentRemove = removeChild absentAdd "trainRunDate"
-     absentRemove = removeChild trr "trainRunDate" in do
+     presentRemove = removeChild absentAdd "trainRun"
+     absentRemove = removeChild trr "trainRun" in do
  assertEqual trr presentRemove
  assertEqual trr absentRemove
  assertEqual absentAdd presentAdd
  assertEqual [] $ getChildren trr
  assertEqual [tr] $ getChildren absentAdd
- assertEqual Nothing $ getChild trr "trainRunDate"
- assertEqual (Just tr) $ getChild absentAdd "trainRunDate"
+ assertEqual Nothing $ getChild trr "trainRun"
+ assertEqual (Just tr) $ getChild absentAdd "trainRun"
 
 test_emptyRepos = do
  assertEqual [] $ getSubmits emptySubmitRepo

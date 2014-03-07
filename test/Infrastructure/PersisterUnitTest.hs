@@ -16,7 +16,7 @@ test_saveLoadSingleNode = inTmpDir $ let rootName = "root" in do
       root1 = setConfig (setCache (addChild (make rootName)           (make "child")                     ) "cacheKey" "cacheValue") "configKey" "configValue"
       root2 = setConfig (setCache (addChild (make rootName)           (make "child")                     ) "cacheKey" "cacheValue1") "configKey" "configValue1"
   rootKey <- getRootKey
-  
+  _ <- return ()
   notFound <- load rootKey rootName
   assertEqual Nothing notFound
   

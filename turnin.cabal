@@ -15,7 +15,9 @@ executable turnin
                    text >=0.11.1 && <0.12,
                    filepath >=1.3.0 && <1.4
   ghc-options:     -Wall -fno-warn-missing-signatures
-  other-modules:   Infrastructure.Persister
+  other-modules:   
+                   Infrastructure.Persister,
+                   Domain.ProjectRepo
 
 test-suite turnin-tests
   type:            exitcode-stdio-1.0
@@ -39,4 +41,5 @@ test-suite turnin-tests
                    IOTestUtils,
                    Infrastructure.Persister,
                    Infrastructure.FinderPropTest,
-                   Infrastructure.FinderUnitTest
+                   Infrastructure.FinderUnitTest,
+                   Domain.ProjectRepo

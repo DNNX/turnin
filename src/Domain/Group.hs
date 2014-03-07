@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
 module Domain.Group
 ( Group()
 , addTeachers
@@ -15,8 +15,9 @@ import Domain.Project
 
 data Group = G Node deriving (Show, Eq)
 
-instance Succ Group Project where
-instance HasNode Group where toNode (G n) = wrap n; fromNode = G
+instance HasNode Group where
+ type ChildType Group = Project 
+ toNode (G n) = wrap n; fromNode = G
 
 addTeachers :: Group -> [String] -> Group
 addTeachers (G node) = G . addCsv node teachers

@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 module Domain.SubmitRepo
 ( SubmitRepo()
 , addSubmit
@@ -15,7 +16,9 @@ import Control.Applicative
 
 data SubmitRepo = R Node deriving (Show, Eq)
 
-instance HasNode SubmitRepo where toNode (R n) = wrap n; fromNode = R
+instance HasNode SubmitRepo where
+ type ChildType SubmitRepo = ()
+ toNode (R n) = wrap n; fromNode = R
 
 addSubmit :: SubmitRepo -> String -> String -> SubmitRepo
 addSubmit (R node) key = R . setCache node key

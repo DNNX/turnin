@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
 module Domain.TrainRunRepo
 ( TrainRunRepo()
 ) where
@@ -8,5 +8,6 @@ import Domain.TrainRun
 
 data TrainRunRepo = R Node deriving (Show, Eq)
 
-instance Succ TrainRunRepo TrainRun where
-instance HasNode TrainRunRepo where toNode (R n) = wrap n; fromNode = R
+instance HasNode TrainRunRepo where
+ type ChildType TrainRunRepo = TrainRun 
+ toNode (R n) = wrap n; fromNode = R

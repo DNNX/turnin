@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 module Domain.TrainRun
 ( TrainRun()
 , addResult
@@ -10,7 +11,9 @@ import Infrastructure.Node
 
 data TrainRun = T Node deriving (Show, Eq)
 
-instance HasNode TrainRun where toNode (T n) = wrap n; fromNode = T
+instance HasNode TrainRun where
+ type ChildType TrainRun = ()
+ toNode (T n) = wrap n; fromNode = T
  
 addResult :: TrainRun -> String -> String -> TrainRun
 addResult (T node) key = T . setCache node key

@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
 module Domain.Project
 ( Project()
 , getSubmitRepo
@@ -36,6 +36,7 @@ module Domain.Project
 import Infrastructure.Node
 import Infrastructure.CsvNode
 
+import Domain.ProjectRepo
 import Domain.SubmitRepo
 import Domain.TrainFileRepo
 import Domain.TrainRunRepo
@@ -44,11 +45,20 @@ import Data.Maybe
 
 data Project = P Node deriving (Show, Eq)
 instance HasNode Project where
+ type ChildType Project = ProjectRepo
  make name = let p0 = fromNode $ make name
                  p1 = setSubmitRepo p0 emptySubmitRepo
                  p2 = setTrainFileRepo p1 emptyTrainFileRepo
              in  setTrainRunRepo p2 emptyTrainRunRepo
 
+ getChildren p = map ($p) [makeProjectSubmitRepo . getSubmitRepo, makeProjectTrainFileRepo . getTrainFileRepo, makeProjectTrainRunRepo . getTrainRunRepo]
+ getChild p n = f
+  where cs = getChildren p
+        f | n == submitRepoName = Just $ cs !! 0
+          | n == trainFileRepoName = Just $ cs !! 1
+          | n == trainRunRepoName = Just $ cs !! 2
+          | otherwise = Nothing
+          
  toNode (P n) = wrap n
  fromNode = P 
 

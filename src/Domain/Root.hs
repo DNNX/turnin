@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
 module Domain.Root
 ( Root()
 , getCurrentThreshold
@@ -36,8 +36,9 @@ import Domain.Repo
 
 data Root = R Node deriving (Show, Eq)
 
-instance Succ Root Repo where
-instance HasNode Root where toNode (R n) = wrap n; fromNode = R
+instance HasNode Root where
+ type ChildType Root = Repo
+ toNode (R n) = wrap n; fromNode = R
 
 getCurrentThreshold :: Root -> String
 getCurrentThreshold (R node) = getConfig node currentThreshold

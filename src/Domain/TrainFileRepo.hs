@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 module Domain.TrainFileRepo
 ( TrainFileRepo()
 , addTrainFile
@@ -10,7 +11,9 @@ import Infrastructure.Node
 
 data TrainFileRepo = R Node deriving (Show, Eq)
 
-instance HasNode TrainFileRepo where toNode (R n) = wrap n; fromNode = R
+instance HasNode TrainFileRepo where
+ type ChildType TrainFileRepo = ()
+ toNode (R n) = wrap n; fromNode = R
 
 addTrainFile :: TrainFileRepo -> String -> String -> TrainFileRepo
 addTrainFile (R node) name = R . setCache node name
