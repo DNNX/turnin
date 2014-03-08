@@ -108,14 +108,3 @@ makePlural s n
  | n < 2 = s
  | otherwise = s ++ "s"
 
-
-
-
-
-
-
-
-
-
-
-

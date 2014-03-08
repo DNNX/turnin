@@ -184,20 +184,3 @@ referenceAdd_day2 y mo d h mi n
            in  referenceAdd_day2 y' m'' d' h mi n'
  | otherwise = (y,mo,d,h,mi)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

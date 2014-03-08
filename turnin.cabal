@@ -40,6 +40,5 @@ test-suite turnin-tests
   other-modules:   
                    IOTestUtils,
                    Infrastructure.Persister,
-                   Infrastructure.FinderPropTest,
-                   Infrastructure.FinderUnitTest,
-                   Domain.ProjectRepo
+                   Domain.ProjectRepo,
+                   Infrastructure.FinderUnitNoFindingTest

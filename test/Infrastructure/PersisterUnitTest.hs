@@ -10,13 +10,13 @@ import Infrastructure.Node
 import Infrastructure.Persister
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
+{-# ANN module "HLint: ignore Reduce duplication" #-}
 
 test_saveLoadSingleNode = inTmpDir $ let rootName = "root" in do
   let root0 = setConfig (setCache (addChild (make rootName) (addChild (make "child") (make "grandChild"))) "cacheKey" "cacheValue") "configKey" "configValue" 
       root1 = setConfig (setCache (addChild (make rootName)           (make "child")                     ) "cacheKey" "cacheValue") "configKey" "configValue"
       root2 = setConfig (setCache (addChild (make rootName)           (make "child")                     ) "cacheKey" "cacheValue1") "configKey" "configValue1"
   rootKey <- getRootKey
-  _ <- return ()
   notFound <- load rootKey rootName
   assertEqual Nothing notFound
   

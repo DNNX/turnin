@@ -7,6 +7,7 @@ import Infrastructure.Node
 import Domain.Group
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
+{-# ANN module "HLint: ignore Reduce duplication" #-}
 
 test_emptyGroup = let n = make "" in do
  assertEqual [] $ getTeachers n
@@ -18,7 +19,7 @@ test_teachers =
       presentAdd = addTeachers absentAdd ["t1", "t2"]
       presentRemove = removeTeachers absentAdd ["t1", "t2"]
       absentRemove = removeTeachers g ["t1", "t2"] in do
- _ <- assertEqual g presentRemove
+ assertEqual g presentRemove
  assertEqual g absentRemove
  assertEqual absentAdd presentAdd
  assertEqual [] $ getTeachers g

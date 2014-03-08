@@ -54,7 +54,7 @@ instance HasNode Project where
  getChildren p = map ($p) [makeProjectSubmitRepo . getSubmitRepo, makeProjectTrainFileRepo . getTrainFileRepo, makeProjectTrainRunRepo . getTrainRunRepo]
  getChild p n = f
   where cs = getChildren p
-        f | n == submitRepoName = Just $ cs !! 0
+        f | n == submitRepoName = Just $ head cs
           | n == trainFileRepoName = Just $ cs !! 1
           | n == trainRunRepoName = Just $ cs !! 2
           | otherwise = Nothing

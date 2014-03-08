@@ -1,24 +1,16 @@
 {-# LANGUAGE FunctionalDependencies, FlexibleInstances, UndecidableInstances #-}
-module Infrastructure.Finder where
+module Infrastructure.Finder
+( find
+, Z(Z)
+, S(S)
+) where
 
 import Control.Applicative
- 
 import Infrastructure.Node
-{- Tests-Examples
-import Domain.Root
-import Domain.Repo
-import Domain.Term
-import Domain.Course
-import Domain.Group
-import Domain.Project
-import Domain.ProjectRepo
-import Domain.TrainRunRepo
-import Domain.TrainRun
 import Prelude hiding ((+))
--}
 
 data Z = Z     deriving Show
-data S s = S s deriving Show
+data S s = S (Maybe String) s deriving Show
 
 class Size s where
 instance Size Z where
@@ -26,13 +18,16 @@ instance Size s => Size (S s) where
 
 class HasNode a => FindNested s a b | s a -> b where findNested :: s -> a -> b
 instance HasNode a => FindNested Z a [a] where findNested Z = pure
-instance (HasNode a, FindNested s (ChildType a) b) => FindNested (S s) a [b] where findNested (S s) = map (s `findNested`) . getChildren
+instance (HasNode a, FindNested s (ChildType a) b) => FindNested (S s) a [b] where findNested (S x s) = map (s `findNested`) . filter (matchesCriteria x). getChildren
 
 class Flatten s a b | s a -> b where flatten :: s -> a -> b
 instance Flatten Z [a] [a] where flatten Z = id
-instance Flatten s [a] b => Flatten (S s) [[a]] b where flatten (S s) = flatten s . concat
+instance Flatten s [a] b => Flatten (S s) [[a]] b where flatten (S _ s) = flatten s . concat
 
 find s = flatten s . findNested s
+
+matchesCriteria Nothing _  = True
+matchesCriteria (Just s) n = s == getName n
 
 {- Tests-Examples
 tr = make "trainRun"
@@ -44,10 +39,6 @@ t = addChild (make "term") c
 r = addChild (make "repo") t
 root = addChild (make "root" :: Root) r
 
-class Add a b c | a b -> c where (+) :: a -> b -> c
-instance Add Z b b where Z + b = b
-instance Add a b c => Add (S a) b (S c) where (S a) + b = S (a + b)
-
 zero = Z
 one = S zero
 two = one + one
@@ -56,7 +47,10 @@ four = two + two
 five = three + two
 six = three + three
 seven = four + three
-eight = four + four
+
+class Add a b c | a b -> c where (+) :: a -> b -> c
+instance Add Z b b where Z + b = b
+instance Add a b c => Add (S a) b (S c) where (S a) + b = S (a + b)
 
 findNestedZeroRoot         = findNested zero root :: [Root]
 findNestedZeroRepo         = findNested zero r :: [Repo]

@@ -9,6 +9,7 @@ import Infrastructure.Date
 import Control.Monad
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
+{-# ANN module "HLint: ignore Reduce duplication" #-}
 
 test_dateReadAndWrite = do
  forM_ [(1,1,1,0,0),(9999,12,31,23,59),(5000,6,15,12,30)] $ \(year, month, day, hour, minute) -> do
@@ -43,22 +44,24 @@ test_dateComparison =
    forM_ [(1,0,0,0,0),(0,1,0,0,0),(0,0,1,0,0),(0,0,0,1,0),(0,0,0,0,1)] $ \(dy, dmo, dd, dh, dmi) -> do
      let Right d1 = makeDate y mo d h mi
          Right d2 = makeDate (y+dy) (mo+dmo) (d+dd) (h+dh) (mi+dmi)
-     assertComparisons d1 d2
-
-assertComparisons d1 d2 = do
- when (d1 == d2) $ assertBool (d2 == d1)
- when (d1 /= d2) $ assertBool (d2 /= d1)
- when (d1 >= d2) $ assertBool (d2 < d1)
- when (d1 <= d2) $ assertBool (d2 > d1)
- when (d1 > d2) $ assertBool (d2 <= d1)
- when (d1 < d2) $ assertBool (d2 >= d1)
+     assertBool $ (d1 == d2 && d2 == d1) ||
+                  (d1 /= d2 && d2 /= d1) ||
+                  (d1 >= d2 && d2 < d1) ||
+                  (d1 <= d2 && d2 > d1) ||
+                  (d1 > d2 && d2 <= d1) ||
+                  (d1 < d2 && d2 >= d1)
 
 test_dateDeltaComparison =
  forM_ [(1,1,1,0,0),(9998,98,98,98,98),(5000,50,50,50,50)] $ \(y, mo, d, h, mi) ->
    forM_ [(1,0,0,0,0),(0,1,0,0,0),(0,0,1,0,0),(0,0,0,1,0),(0,0,0,0,1)] $ \(dy, dmo, dd, dh, dmi) -> do
      let Right d1 = makeDateDelta y mo d h mi
          Right d2 = makeDateDelta (y+dy) (mo+dmo) (d+dd) (h+dh) (mi+dmi)
-     assertComparisons d1 d2
+     assertBool $ (d1 == d2 && d2 == d1) ||
+                  (d1 /= d2 && d2 /= d1) ||
+                  (d1 >= d2 && d2 < d1) ||
+                  (d1 <= d2 && d2 > d1) ||
+                  (d1 > d2 && d2 <= d1) ||
+                  (d1 < d2 && d2 >= d1)
 
 test_additionNoOverflow =
  forM_ [(1,1,1,0,0),(9998,11,27,22,58),(5000,6,15,12,30)] $ \(y, mo, d, h, mi) ->
@@ -161,21 +164,3 @@ referenceAdd_day2 y mo d h mi n
                n' = nbDaysInMonth y' m''
            in  referenceAdd_day2 y' m'' d' h mi n'
  | otherwise = (y,mo,d,h,mi)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
