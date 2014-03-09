@@ -2,8 +2,8 @@
 module Infrastructure.FinderPropFindingTest where
 
 import Test.Framework
-import TestUtils
 import Data.List hiding (find)
+import Data.Maybe
 
 import Infrastructure.Node
 import Domain.Root
@@ -67,6 +67,36 @@ prop_findAllHints rootN rN tN cN gN pN trN =
   [[pTrainFileR]] == nub [find (one tfRN) p,  find (two pN tfRN) g,  find (three gN pN tfRN) c,  find (four cN gN pN tfRN) t,  find (five tN cN gN pN tfRN) r,  find (six rN tN cN gN pN tfRN) root] &&
   [[pTrainRunR]]  == nub [find (one trRN) p,  find (two pN trRN) g,  find (three gN pN trRN) c,  find (four cN gN pN trRN) t,  find (five tN cN gN pN trRN) r,  find (six rN tN cN gN pN trRN) root] &&
   [[tr]]          == nub [find (one trN) trr, find (two trRN trN) p, find (three pN trRN trN) g, find (four gN pN trRN trN) c, find (five cN gN pN trRN trN) t, find (six tN cN gN pN trRN trN) r,  find (seven rN tN cN gN pN trRN trN)root]
+
+--prop_findPaths rootName ns = let names = filter (not.null) $ nub ns in names /= [] ==>
+--  let root = makeNode rootName 4 7 names
+--      paths = makeKeys root
+--  in  all (uncurry (presentOnFind  root)) paths
+--  
+--presentOnFind :: Node -> Node -> [String] -> Bool
+--presentOnFind rt n [_,r]               = (n, one r)                 `elem` find one' rt
+--presentOnFind rt n [_,r,t]             = (n, two r t)               `elem` find two' rt
+--presentOnFind rt n [_,r,t,c]           = (n, three r t c)           `elem` find three' rt
+--presentOnFind rt n [_,r,t,c,g]         = (n, four r t c g)          `elem` find four' rt
+--presentOnFind rt n [_,r,t,c,g,p]       = (n, five r t c g p)        `elem` find five' rt
+--presentOnFind rt n [_,r,t,c,g,p,pr]    = (n, six r t c g p pr)      `elem` find six' rt      
+--presentOnFind rt n [_,r,t,c,g,p,pr,tr] = (n, seven r t c g p pr tr) `elem` find seven' rt
+
+makeNode :: String -> Int -> Int -> [String] -> Node
+makeNode rootName nbChildren maxDepth nodeNames = let (Just result,_) = f maxDepth (rootName:nodeNames) in result
+ where f _ []     = (Nothing,[])
+       f 0 (x:xs) = (Just $ make x, xs)
+       f d (x:xs) = let (result,rest) = g nbChildren xs $ make x
+                        g 0  ns m = (m,ns)
+                        g nb ns m = let g' = g (nb-1) ns'; (c,ns') = f (d-1) ns in if isJust c then g' $ addChild m $ fromJust c else g' m
+                    in  (Just $ result,rest)
+
+makeKeys :: Node -> [(Node,[String])]
+makeKeys = f []
+ where f parentKey n = let key = getName n:parentKey
+                           p = (n,key)
+                           ps = concatMap (f key) $ getChildren n
+                       in  (p:ps)
 
 one' = S Nothing zero
 two' = S Nothing one'

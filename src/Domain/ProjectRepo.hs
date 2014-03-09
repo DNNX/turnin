@@ -33,7 +33,7 @@ instance HasNode ProjectRepo where
  toNode (TF r) = toNode r
  toNode (TR r) = toNode r
  
- fromNode = error "ProjectRepo::fromNode: Cannot decide which project repo to make from raw node" 
+ fromNode = TR . fromNode
  
 makeProjectSubmitRepo = S
 makeProjectTrainFileRepo = TF
