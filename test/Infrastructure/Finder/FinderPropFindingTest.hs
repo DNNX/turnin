@@ -32,14 +32,14 @@ prop_findNoHints rootN rN tN cN gN pN trN =
       pTrainFileR = makeProjectTrainFileRepo emptyTrainFileRepo
       pTrainRunR = makeProjectTrainRunRepo trr
       prs = [pSubmitR,pTrainFileR,pTrainRunR]
-      prs1 = map (\x -> (S (Just pN) Z,x)) prs
-      prs2 = map (first (S (Just gN))) prs1
-      prs3 = map (first (S (Just cN))) prs2
-      prs4 = map (first (S (Just tN))) prs3
-      prs5 = map (first (S (Just rN))) prs4
-      prs6 = map (first (S (Just rootN))) prs5      
+      prs1 = map (\x -> (K pN Z,x)) prs
+      prs2 = map (first (K gN)) prs1
+      prs3 = map (first (K cN)) prs2
+      prs4 = map (first (K tN)) prs3
+      prs5 = map (first (K rN)) prs4
+      prs6 = map (first (K rootN)) prs5
       trrN = getName trr in
-      
+
      [(Z,root)] == find zero root
   && [(Z,r)]    == find zero r
   && [(Z,t)]    == find zero t
@@ -101,66 +101,66 @@ prop_findAllHints rootN rN tN cN gN pN trN =
       sRN = getName emptySubmitRepo
       tfRN = getName emptyTrainFileRepo
       trRN = getName emptyTrainRunRepo in
-     [(one rootN,r)]        == find (one rN) root
-  && [(one rN,t)]           == find (one tN) r
-  && [(one tN,c)]           == find (one cN) t
-  && [(one cN,g)]           == find (one gN) c
-  && [(one gN,p)]           == find (one pN) g
-  && [(one pN,pSubmitR)]    == find (one sRN) p
-  && [(one pN,pTrainFileR)] == find (one tfRN) p
-  && [(one pN,pTrainRunR)]  == find (one trRN) p
-  && [(one trRN,tr)]        == find (one trN) trr
+     [(one rootN,r)]        == find (oneM rN) root
+  && [(one rN,t)]           == find (oneM tN) r
+  && [(one tN,c)]           == find (oneM cN) t
+  && [(one cN,g)]           == find (oneM gN) c
+  && [(one gN,p)]           == find (oneM pN) g
+  && [(one pN,pSubmitR)]    == find (oneM sRN) p
+  && [(one pN,pTrainFileR)] == find (oneM tfRN) p
+  && [(one pN,pTrainRunR)]  == find (oneM trRN) p
+  && [(one trRN,tr)]        == find (oneM trN) trr
 
-  && [(two rootN rN,t)]        == find (two rN tN) root
-  && [(two rN tN,c)]           == find (two tN cN) r
-  && [(two tN cN,g)]           == find (two cN gN) t
-  && [(two cN gN,p)]           == find (two gN pN) c
-  && [(two gN pN,pSubmitR)]    == find (two pN sRN) g
-  && [(two gN pN,pTrainFileR)] == find (two pN tfRN) g
-  && [(two gN pN,pTrainRunR)]  == find (two pN trRN) g
-  && [(two pN trRN,tr)]        == find (two trRN trN) p
-  
-  && [(three rootN rN tN,c)]        == find (three rN tN cN) root
-  && [(three rN tN cN,g)]           == find (three tN cN gN) r
-  && [(three tN cN gN,p)]           == find (three cN gN pN) t
-  && [(three cN gN pN,pSubmitR)]    == find (three gN pN sRN) c
-  && [(three cN gN pN,pTrainFileR)] == find (three gN pN tfRN) c
-  && [(three cN gN pN,pTrainRunR)]  == find (three gN pN trRN) c
-  && [(three gN pN trRN,tr)]        == find (three pN trRN trN) g
-  
-  && [(four rootN rN tN cN,g)]        == find (four rN tN cN gN) root
-  && [(four rN tN cN gN,p)]           == find (four tN cN gN pN) r
-  && [(four tN cN gN pN,pSubmitR)]    == find (four cN gN pN sRN) t
-  && [(four tN cN gN pN,pTrainFileR)] == find (four cN gN pN tfRN) t
-  && [(four tN cN gN pN,pTrainRunR)]  == find (four cN gN pN trRN) t
-  && [(four cN gN pN trRN,tr)]        == find (four gN pN trRN trN) c
-  
-  && [(five rootN rN tN cN gN,p)]        == find (five rN tN cN gN pN) root
-  && [(five rN tN cN gN pN,pSubmitR)]    == find (five tN cN gN pN sRN) r
-  && [(five rN tN cN gN pN,pTrainFileR)] == find (five tN cN gN pN tfRN) r
-  && [(five rN tN cN gN pN,pTrainRunR)]  == find (five tN cN gN pN trRN) r
-  && [(five tN cN gN pN trRN, tr)]             == find (five cN gN pN trRN trN) t
-  
-  && [(six rootN rN tN cN gN pN,pSubmitR)]    == find (six rN tN cN gN pN sRN) root
-  && [(six rootN rN tN cN gN pN,pTrainFileR)] == find (six rN tN cN gN pN tfRN) root
-  && [(six rootN rN tN cN gN pN,pTrainRunR)]  == find (six rN tN cN gN pN trRN) root
-  && [(six rN tN cN gN pN trRN,tr)]          == find (six tN cN gN pN trRN trN) r
-  
-  && [(seven rootN rN tN cN gN pN trRN,tr)]          == find (seven rN tN cN gN pN trRN trN) root
+  && [(two rootN rN,t)]        == find (twoM rN tN) root
+  && [(two rN tN,c)]           == find (twoM tN cN) r
+  && [(two tN cN,g)]           == find (twoM cN gN) t
+  && [(two cN gN,p)]           == find (twoM gN pN) c
+  && [(two gN pN,pSubmitR)]    == find (twoM pN sRN) g
+  && [(two gN pN,pTrainFileR)] == find (twoM pN tfRN) g
+  && [(two gN pN,pTrainRunR)]  == find (twoM pN trRN) g
+  && [(two pN trRN,tr)]        == find (twoM trRN trN) p
+
+  && [(three rootN rN tN,c)]        == find (threeM rN tN cN) root
+  && [(three rN tN cN,g)]           == find (threeM tN cN gN) r
+  && [(three tN cN gN,p)]           == find (threeM cN gN pN) t
+  && [(three cN gN pN,pSubmitR)]    == find (threeM gN pN sRN) c
+  && [(three cN gN pN,pTrainFileR)] == find (threeM gN pN tfRN) c
+  && [(three cN gN pN,pTrainRunR)]  == find (threeM gN pN trRN) c
+  && [(three gN pN trRN,tr)]        == find (threeM pN trRN trN) g
+
+  && [(four rootN rN tN cN,g)]        == find (fourM rN tN cN gN) root
+  && [(four rN tN cN gN,p)]           == find (fourM tN cN gN pN) r
+  && [(four tN cN gN pN,pSubmitR)]    == find (fourM cN gN pN sRN) t
+  && [(four tN cN gN pN,pTrainFileR)] == find (fourM cN gN pN tfRN) t
+  && [(four tN cN gN pN,pTrainRunR)]  == find (fourM cN gN pN trRN) t
+  && [(four cN gN pN trRN,tr)]        == find (fourM gN pN trRN trN) c
+
+  && [(five rootN rN tN cN gN,p)]        == find (fiveM rN tN cN gN pN) root
+  && [(five rN tN cN gN pN,pSubmitR)]    == find (fiveM tN cN gN pN sRN) r
+  && [(five rN tN cN gN pN,pTrainFileR)] == find (fiveM tN cN gN pN tfRN) r
+  && [(five rN tN cN gN pN,pTrainRunR)]  == find (fiveM tN cN gN pN trRN) r
+  && [(five tN cN gN pN trRN, tr)]       == find (fiveM cN gN pN trRN trN) t
+
+  && [(six rootN rN tN cN gN pN,pSubmitR)]    == find (sixM rN tN cN gN pN sRN) root
+  && [(six rootN rN tN cN gN pN,pTrainFileR)] == find (sixM rN tN cN gN pN tfRN) root
+  && [(six rootN rN tN cN gN pN,pTrainRunR)]  == find (sixM rN tN cN gN pN trRN) root
+  && [(six rN tN cN gN pN trRN,tr)]           == find (sixM tN cN gN pN trRN trN) r
+
+  && [(seven rootN rN tN cN gN pN trRN,tr)]   == find (sevenM rN tN cN gN pN trRN trN) root
 
 prop_findGeneral rootName ns = let names = filter (not.null) $ nub ns in names /= [] ==>
   let root = makeNode rootName 4 7 names
   in  all (uncurry (presentOnFind root)) $ makeKeys root
-  
-presentOnFind :: Node -> Node -> [String] -> Bool                                                                                                                     
-presentOnFind rt n [roo]                 = let z = (zero,n)                   in getName n == roo && [z] == find zero rt                                                                                   
-presentOnFind rt n [roo,r]               = let z = (one roo,n)                in getName n == r   && [z] == find (one r) rt                 && all (z `elem`) (map (`find`rt) $ partialOne r)
-presentOnFind rt n [roo,r,t]             = let z = (two roo r,n)              in getName n == t   && [z] == find (two r t) rt               && all (z `elem`) (map (`find`rt) $ partialTwo r t)
-presentOnFind rt n [roo,r,t,c]           = let z = (three roo r t,n)          in getName n == c   && [z] == find (three r t c) rt           && all (z `elem`) (map (`find`rt) $ partialThree r t c)
-presentOnFind rt n [roo,r,t,c,g]         = let z = (four roo r t c,n)         in getName n == g   && [z] == find (four r t c g) rt          && all (z `elem`) (map (`find`rt) $ partialFour r t c g)
-presentOnFind rt n [roo,r,t,c,g,p]       = let z = (five roo r t c g,n)       in getName n == p   && [z] == find (five r t c g p) rt        && all (z `elem`) (map (`find`rt) $ partialFive r t c g p)
-presentOnFind rt n [roo,r,t,c,g,p,pr]    = let z = (six roo r t c g p,n)      in getName n == pr  && [z] == find (six r t c g p pr) rt      && all (z `elem`) (map (`find`rt) $ partialSix r t c g p pr)
-presentOnFind rt n [roo,r,t,c,g,p,pr,tr] = let z = (seven roo r t c g p pr,n) in getName n == tr  && [z] == find (seven r t c g p pr tr) rt && all (z `elem`) (map (`find`rt) $ partialSeven r t c g p pr tr)
+
+presentOnFind :: Node -> Node -> [String] -> Bool                                                                                                      
+presentOnFind rt n [roo]                 = let z = (zero,n)                   in getName n == roo && [z] == find zero rt
+presentOnFind rt n [roo,r]               = let z = (one roo,n)                in getName n == r   && [z] == find (oneM r) rt                 && all (z `elem`) (map (`find`rt) $ partialOne r)
+presentOnFind rt n [roo,r,t]             = let z = (two roo r,n)              in getName n == t   && [z] == find (twoM r t) rt               && all (z `elem`) (map (`find`rt) $ partialTwo r t)
+presentOnFind rt n [roo,r,t,c]           = let z = (three roo r t,n)          in getName n == c   && [z] == find (threeM r t c) rt           && all (z `elem`) (map (`find`rt) $ partialThree r t c)
+presentOnFind rt n [roo,r,t,c,g]         = let z = (four roo r t c,n)         in getName n == g   && [z] == find (fourM r t c g) rt          && all (z `elem`) (map (`find`rt) $ partialFour r t c g)
+presentOnFind rt n [roo,r,t,c,g,p]       = let z = (five roo r t c g,n)       in getName n == p   && [z] == find (fiveM r t c g p) rt        && all (z `elem`) (map (`find`rt) $ partialFive r t c g p)
+presentOnFind rt n [roo,r,t,c,g,p,pr]    = let z = (six roo r t c g p,n)      in getName n == pr  && [z] == find (sixM r t c g p pr) rt      && all (z `elem`) (map (`find`rt) $ partialSix r t c g p pr)
+presentOnFind rt n [roo,r,t,c,g,p,pr,tr] = let z = (seven roo r t c g p pr,n) in getName n == tr  && [z] == find (sevenM r t c g p pr tr) rt && all (z `elem`) (map (`find`rt) $ partialSeven r t c g p pr tr)
 
 partialOne a               = [S x Z | x <- [Just a, Nothing]]
 partialTwo a b             = [S x s | x <- [Just a, Nothing], s <- partialOne b]
@@ -195,12 +195,20 @@ six' = S Nothing five'
 seven' = S Nothing six'
 
 zero = Z
-one a = S (Just a) zero
-two a b = S (Just a) $ one b
-three a b c = S (Just a) $ two b c
-four a b c d = S (Just a) $ three b c d
-five a b c d e = S (Just a) $ four b c d e
-six a b c d e f = S (Just a) $ five b c d e f
-seven a b c d e f g = S (Just a) $ six b c d e f g
+one a               = K a zero
+two a b             = K a $ one b
+three a b c         = K a $ two b c
+four a b c d        = K a $ three b c d
+five a b c d e      = K a $ four b c d e
+six a b c d e f     = K a $ five b c d e f
+seven a b c d e f g = K a $ six b c d e f g
+
+oneM a               = S (Just a) zero
+twoM a b             = S (Just a) $ oneM b
+threeM a b c         = S (Just a) $ twoM b c
+fourM a b c d        = S (Just a) $ threeM b c d
+fiveM a b c d e      = S (Just a) $ fourM b c d e
+sixM a b c d e f     = S (Just a) $ fiveM b c d e f
+sevenM a b c d e f g = S (Just a) $ sixM b c d e f g
 
 

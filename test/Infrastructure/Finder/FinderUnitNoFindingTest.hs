@@ -40,12 +40,12 @@ test_noFindNoHints = do
       [trr1] = map (addChild trr0) [tr0]
       tr0 = make trN
 
-      prs1 = map (\x -> (S (Just pN) Z,x)) [pSubmitR,pTrainFileR,pTrainRunR]
-      prs2 = map (first (S (Just gN))) prs1
-      prs3 = map (first (S (Just cN))) prs2
-      prs4 = map (first (S (Just tN))) prs3
-      prs5 = map (first (S (Just rN))) prs4
-      prs6 = map (first (S (Just rootN))) prs5
+      prs1 = map (\x -> (K pN Z,x)) [pSubmitR,pTrainFileR,pTrainRunR]
+      prs2 = map (first (K gN)) prs1
+      prs3 = map (first (K cN)) prs2
+      prs4 = map (first (K tN)) prs3
+      prs5 = map (first (K rN)) prs4
+      prs6 = map (first (K rootN)) prs5
       pSubmitR = makeProjectSubmitRepo emptySubmitRepo
       pTrainFileR = makeProjectTrainFileRepo emptyTrainFileRepo
       pTrainRunR = makeProjectTrainRunRepo trr0
@@ -217,20 +217,20 @@ test_noFindAllBadHints = do
   
   assertEqual [] $ find (seven rN tN cN gN pN trRN trN) rt
 
-one' = S Nothing zero
-two' = S Nothing one'
+one'   = S Nothing zero
+two'   = S Nothing one'
 three' = S Nothing two'
-four' = S Nothing three'
-five' = S Nothing four'
-six' = S Nothing five'
+four'  = S Nothing three'
+five'  = S Nothing four'
+six'   = S Nothing five'
 seven' = S Nothing six'
 
 zero = Z
-one a = S (Just a) zero
-two a b = S (Just a) $ one b
-three a b c = S (Just a) $ two b c
-four a b c d = S (Just a) $ three b c d
-five a b c d e = S (Just a) $ four b c d e
-six a b c d e f = S (Just a) $ five b c d e f
+one a               = S (Just a) zero
+two a b             = S (Just a) $ one b
+three a b c         = S (Just a) $ two b c
+four a b c d        = S (Just a) $ three b c d
+five a b c d e      = S (Just a) $ four b c d e
+six a b c d e f     = S (Just a) $ five b c d e f
 seven a b c d e f g = S (Just a) $ six b c d e f g
 

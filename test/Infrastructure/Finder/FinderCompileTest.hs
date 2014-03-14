@@ -58,13 +58,13 @@ seven = four + three
 eight = four + four
 nine = five + four
 
-rootK = S (Just rootN)
-rK    = S (Just rN)
-tK    = S (Just tN)
-cK    = S (Just cN)
-gK    = S (Just gN)
-pK    = S (Just pN)
-trrK  = S (Just trRN)
+rootK = K rootN
+rK    = K rN
+tK    = K tN
+cK    = K cN
+gK    = K gN
+pK    = K pN
+trrK  = K trRN
 
 mapK f = map (h f) where h func (k,v) = (func k,v)
 
