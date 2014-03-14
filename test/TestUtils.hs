@@ -1,7 +1,8 @@
 module TestUtils where
 
 import Data.List
-
+import Infrastructure.Node
+import Control.Arrow (second)
 
 uniqueNonEmpty = nub . filter (not.null)
 uniqueNonEmptyNoComma = uniqueNonEmpty . map (filter (/=','))
@@ -48,3 +49,21 @@ increment pos = f pos []
  where f 0 front (x:back) = reverse front ++ [x+1] ++ back
        f i front (x:back) = f (i-1) (x:front) back
        f _ front []       = reverse front
+
+makeNode :: String -> Int -> Int -> [String] -> Node
+makeNode rootName nbChildren maxDepth nodeNames = let (Just result,_) = f nbChildren maxDepth (rootName:nodeNames) in result
+ where f _ _ []     = (Nothing,[])
+       f _ 0 (x:xs) = (Just $ make x, xs)
+       f n d (x:xs) = let (result,rest) = g n xs $ make x
+                          g 0  ns m = (m,ns)
+                          g nb ns m = let g' = g (nb-1) ns'; (c,ns') = f (nb-1) (d-1) ns in g' $ maybe m (addChild m) c
+                      in  (Just result,rest)
+
+makeKeys :: Node -> [(Node,[String])]
+makeKeys = map (second reverse) . f []
+ where f parentKey n = let key = getName n:parentKey
+                           p = (n,key)
+                           ps = concatMap (f key) $ getChildren n
+                       in  (p:ps)
+
+         
