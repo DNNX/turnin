@@ -114,52 +114,52 @@ test_findAllHints = do
       sRN = getName emptySubmitRepo
       tfRN = getName emptyTrainFileRepo
       trRN = getName emptyTrainRunRepo
-  assertEqual [(one rootN,r)]        $ find (oneM rN) root                                          >> assertEqual (Just r)           $ findUnambiguous (oneM rN) root                                         
-  assertEqual [(one rN,t)]           $ find (oneM tN) r                                             >> assertEqual (Just t)           $ findUnambiguous (oneM tN) r                                            
-  assertEqual [(one tN,c)]           $ find (oneM cN) t                                             >> assertEqual (Just c)           $ findUnambiguous (oneM cN) t                                            
-  assertEqual [(one cN,g)]           $ find (oneM gN) c                                             >> assertEqual (Just g)           $ findUnambiguous (oneM gN) c                                            
-  assertEqual [(one gN,p)]           $ find (oneM pN) g                                             >> assertEqual (Just p)           $ findUnambiguous (oneM pN) g                                            
-  assertEqual [(one pN,pSubmitR)]    $ find (oneM sRN) p                                            >> assertEqual (Just pSubmitR)    $ findUnambiguous (oneM sRN) p                                           
-  assertEqual [(one pN,pTrainFileR)] $ find (oneM tfRN) p                                           >> assertEqual (Just pTrainFileR) $ findUnambiguous (oneM tfRN) p                                          
-  assertEqual [(one pN,pTrainRunR)]  $ find (oneM trRN) p                                           >> assertEqual (Just pTrainRunR)  $ findUnambiguous (oneM trRN) p                                          
-  assertEqual [(one trRN,tr)]        $ find (oneM trN) trr                                          >> assertEqual (Just tr)          $ findUnambiguous (oneM trN) trr                                         
+  assertEqual [(one rootN,r)]        (find (oneM rN) root)                                          >> assertEqual (Just r)           (findUnambiguous (oneM rN) root)                                         
+  assertEqual [(one rN,t)]           (find (oneM tN) r)                                             >> assertEqual (Just t)           (findUnambiguous (oneM tN) r)                                            
+  assertEqual [(one tN,c)]           (find (oneM cN) t)                                             >> assertEqual (Just c)           (findUnambiguous (oneM cN) t)                                            
+  assertEqual [(one cN,g)]           (find (oneM gN) c)                                             >> assertEqual (Just g)           (findUnambiguous (oneM gN) c)                                            
+  assertEqual [(one gN,p)]           (find (oneM pN) g)                                             >> assertEqual (Just p)           (findUnambiguous (oneM pN) g)                                            
+  assertEqual [(one pN,pSubmitR)]    (find (oneM sRN) p)                                            >> assertEqual (Just pSubmitR)    (findUnambiguous (oneM sRN) p)                                           
+  assertEqual [(one pN,pTrainFileR)] (find (oneM tfRN) p)                                           >> assertEqual (Just pTrainFileR) (findUnambiguous (oneM tfRN) p)                                          
+  assertEqual [(one pN,pTrainRunR)]  (find (oneM trRN) p)                                           >> assertEqual (Just pTrainRunR)  (findUnambiguous (oneM trRN) p)                                          
+  assertEqual [(one trRN,tr)]        (find (oneM trN) trr)                                          >> assertEqual (Just tr)          (findUnambiguous (oneM trN) trr)                                         
                                                                                                                                                                                              
-  assertEqual [(two rootN rN,t)]        $ find (twoM rN tN) root                                    >> assertEqual (Just t)           $ findUnambiguous (twoM rN tN) root                                   
-  assertEqual [(two rN tN,c)]           $ find (twoM tN cN) r                                       >> assertEqual (Just c)           $ findUnambiguous (twoM tN cN) r                                      
-  assertEqual [(two tN cN,g)]           $ find (twoM cN gN) t                                       >> assertEqual (Just g)           $ findUnambiguous (twoM cN gN) t                                      
-  assertEqual [(two cN gN,p)]           $ find (twoM gN pN) c                                       >> assertEqual (Just p)           $ findUnambiguous (twoM gN pN) c                                      
-  assertEqual [(two gN pN,pSubmitR)]    $ find (twoM pN sRN) g                                      >> assertEqual (Just pSubmitR)    $ findUnambiguous (twoM pN sRN) g                                     
-  assertEqual [(two gN pN,pTrainFileR)] $ find (twoM pN tfRN) g                                     >> assertEqual (Just pTrainFileR) $ findUnambiguous (twoM pN tfRN) g                                    
-  assertEqual [(two gN pN,pTrainRunR)]  $ find (twoM pN trRN) g                                     >> assertEqual (Just pTrainRunR)  $ findUnambiguous (twoM pN trRN) g                                    
-  assertEqual [(two pN trRN,tr)]        $ find (twoM trRN trN) p                                    >> assertEqual (Just tr)          $ findUnambiguous (twoM trRN trN) p                                   
+  assertEqual [(two rootN rN,t)]        (find (twoM rN tN) root)                                    >> assertEqual (Just t)           (findUnambiguous (twoM rN tN) root)                                   
+  assertEqual [(two rN tN,c)]           (find (twoM tN cN) r)                                       >> assertEqual (Just c)           (findUnambiguous (twoM tN cN) r)                                      
+  assertEqual [(two tN cN,g)]           (find (twoM cN gN) t)                                       >> assertEqual (Just g)           (findUnambiguous (twoM cN gN) t)                                      
+  assertEqual [(two cN gN,p)]           (find (twoM gN pN) c)                                       >> assertEqual (Just p)           (findUnambiguous (twoM gN pN) c)                                      
+  assertEqual [(two gN pN,pSubmitR)]    (find (twoM pN sRN) g)                                      >> assertEqual (Just pSubmitR)    (findUnambiguous (twoM pN sRN) g)                                     
+  assertEqual [(two gN pN,pTrainFileR)] (find (twoM pN tfRN) g)                                     >> assertEqual (Just pTrainFileR) (findUnambiguous (twoM pN tfRN) g)                                    
+  assertEqual [(two gN pN,pTrainRunR)]  (find (twoM pN trRN) g)                                     >> assertEqual (Just pTrainRunR)  (findUnambiguous (twoM pN trRN) g)                                    
+  assertEqual [(two pN trRN,tr)]        (find (twoM trRN trN) p)                                    >> assertEqual (Just tr)          (findUnambiguous (twoM trRN trN) p)                                   
                                                                                                                                                                                                  
-  assertEqual [(three rootN rN tN,c)]        $ find (threeM rN tN cN) root                          >> assertEqual (Just c)           $ findUnambiguous (threeM rN tN cN) root                         
-  assertEqual [(three rN tN cN,g)]           $ find (threeM tN cN gN) r                             >> assertEqual (Just g)           $ findUnambiguous (threeM tN cN gN) r                            
-  assertEqual [(three tN cN gN,p)]           $ find (threeM cN gN pN) t                             >> assertEqual (Just p)           $ findUnambiguous (threeM cN gN pN) t                            
-  assertEqual [(three cN gN pN,pSubmitR)]    $ find (threeM gN pN sRN) c                            >> assertEqual (Just pSubmitR)    $ findUnambiguous (threeM gN pN sRN) c                           
-  assertEqual [(three cN gN pN,pTrainFileR)] $ find (threeM gN pN tfRN) c                           >> assertEqual (Just pTrainFileR) $ findUnambiguous (threeM gN pN tfRN) c                          
-  assertEqual [(three cN gN pN,pTrainRunR)]  $ find (threeM gN pN trRN) c                           >> assertEqual (Just pTrainRunR)  $ findUnambiguous (threeM gN pN trRN) c                          
-  assertEqual [(three gN pN trRN,tr)]        $ find (threeM pN trRN trN) g                          >> assertEqual (Just tr)          $ findUnambiguous (threeM pN trRN trN) g                         
+  assertEqual [(three rootN rN tN,c)]        (find (threeM rN tN cN) root)                          >> assertEqual (Just c)           (findUnambiguous (threeM rN tN cN) root)                         
+  assertEqual [(three rN tN cN,g)]           (find (threeM tN cN gN) r)                             >> assertEqual (Just g)           (findUnambiguous (threeM tN cN gN) r)                            
+  assertEqual [(three tN cN gN,p)]           (find (threeM cN gN pN) t)                             >> assertEqual (Just p)           (findUnambiguous (threeM cN gN pN) t)                            
+  assertEqual [(three cN gN pN,pSubmitR)]    (find (threeM gN pN sRN) c)                            >> assertEqual (Just pSubmitR)    (findUnambiguous (threeM gN pN sRN) c)                           
+  assertEqual [(three cN gN pN,pTrainFileR)] (find (threeM gN pN tfRN) c)                           >> assertEqual (Just pTrainFileR) (findUnambiguous (threeM gN pN tfRN) c)                          
+  assertEqual [(three cN gN pN,pTrainRunR)]  (find (threeM gN pN trRN) c)                           >> assertEqual (Just pTrainRunR)  (findUnambiguous (threeM gN pN trRN) c)                          
+  assertEqual [(three gN pN trRN,tr)]        (find (threeM pN trRN trN) g)                          >> assertEqual (Just tr)          (findUnambiguous (threeM pN trRN trN) g)                         
                                                                                                                                                                                               
-  assertEqual [(four rootN rN tN cN,g)]        $ find (fourM rN tN cN gN) root                      >> assertEqual (Just g)           $ findUnambiguous (fourM rN tN cN gN) root                     
-  assertEqual [(four rN tN cN gN,p)]           $ find (fourM tN cN gN pN) r                         >> assertEqual (Just p)           $ findUnambiguous (fourM tN cN gN pN) r                        
-  assertEqual [(four tN cN gN pN,pSubmitR)]    $ find (fourM cN gN pN sRN) t                        >> assertEqual (Just pSubmitR)    $ findUnambiguous (fourM cN gN pN sRN) t                       
-  assertEqual [(four tN cN gN pN,pTrainFileR)] $ find (fourM cN gN pN tfRN) t                       >> assertEqual (Just pTrainFileR) $ findUnambiguous (fourM cN gN pN tfRN) t                      
-  assertEqual [(four tN cN gN pN,pTrainRunR)]  $ find (fourM cN gN pN trRN) t                       >> assertEqual (Just pTrainRunR)  $ findUnambiguous (fourM cN gN pN trRN) t                      
-  assertEqual [(four cN gN pN trRN,tr)]        $ find (fourM gN pN trRN trN) c                      >> assertEqual (Just tr)          $ findUnambiguous (fourM gN pN trRN trN) c                     
+  assertEqual [(four rootN rN tN cN,g)]        (find (fourM rN tN cN gN) root)                      >> assertEqual (Just g)           (findUnambiguous (fourM rN tN cN gN) root)                     
+  assertEqual [(four rN tN cN gN,p)]           (find (fourM tN cN gN pN) r)                         >> assertEqual (Just p)           (findUnambiguous (fourM tN cN gN pN) r)                        
+  assertEqual [(four tN cN gN pN,pSubmitR)]    (find (fourM cN gN pN sRN) t)                        >> assertEqual (Just pSubmitR)    (findUnambiguous (fourM cN gN pN sRN) t)                       
+  assertEqual [(four tN cN gN pN,pTrainFileR)] (find (fourM cN gN pN tfRN) t)                       >> assertEqual (Just pTrainFileR) (findUnambiguous (fourM cN gN pN tfRN) t)                      
+  assertEqual [(four tN cN gN pN,pTrainRunR)]  (find (fourM cN gN pN trRN) t)                       >> assertEqual (Just pTrainRunR)  (findUnambiguous (fourM cN gN pN trRN) t)                      
+  assertEqual [(four cN gN pN trRN,tr)]        (find (fourM gN pN trRN trN) c)                      >> assertEqual (Just tr)          (findUnambiguous (fourM gN pN trRN trN) c)                     
                         
-  assertEqual [(five rootN rN tN cN gN,p)]        $ find (fiveM rN tN cN gN pN) root                >> assertEqual (Just p)           $ findUnambiguous (fiveM rN tN cN gN pN) root               
-  assertEqual [(five rN tN cN gN pN,pSubmitR)]    $ find (fiveM tN cN gN pN sRN) r                  >> assertEqual (Just pSubmitR)    $ findUnambiguous (fiveM tN cN gN pN sRN) r                 
-  assertEqual [(five rN tN cN gN pN,pTrainFileR)] $ find (fiveM tN cN gN pN tfRN) r                 >> assertEqual (Just pTrainFileR) $ findUnambiguous (fiveM tN cN gN pN tfRN) r                
-  assertEqual [(five rN tN cN gN pN,pTrainRunR)]  $ find (fiveM tN cN gN pN trRN) r                 >> assertEqual (Just pTrainRunR)  $ findUnambiguous (fiveM tN cN gN pN trRN) r                
-  assertEqual [(five tN cN gN pN trRN, tr)]       $ find (fiveM cN gN pN trRN trN) t                >> assertEqual (Just tr)          $ findUnambiguous (fiveM cN gN pN trRN trN) t               
+  assertEqual [(five rootN rN tN cN gN,p)]        (find (fiveM rN tN cN gN pN) root)                >> assertEqual (Just p)           (findUnambiguous (fiveM rN tN cN gN pN) root)               
+  assertEqual [(five rN tN cN gN pN,pSubmitR)]    (find (fiveM tN cN gN pN sRN) r)                  >> assertEqual (Just pSubmitR)    (findUnambiguous (fiveM tN cN gN pN sRN) r)                 
+  assertEqual [(five rN tN cN gN pN,pTrainFileR)] (find (fiveM tN cN gN pN tfRN) r)                 >> assertEqual (Just pTrainFileR) (findUnambiguous (fiveM tN cN gN pN tfRN) r)                
+  assertEqual [(five rN tN cN gN pN,pTrainRunR)]  (find (fiveM tN cN gN pN trRN) r)                 >> assertEqual (Just pTrainRunR)  (findUnambiguous (fiveM tN cN gN pN trRN) r)                
+  assertEqual [(five tN cN gN pN trRN, tr)]       (find (fiveM cN gN pN trRN trN) t)                >> assertEqual (Just tr)          (findUnambiguous (fiveM cN gN pN trRN trN) t)               
                                                                                                                                                                                                  
-  assertEqual [(six rootN rN tN cN gN pN,pSubmitR)]    $ find (sixM rN tN cN gN pN sRN) root        >> assertEqual (Just pSubmitR)    $ findUnambiguous (sixM rN tN cN gN pN sRN) root       
-  assertEqual [(six rootN rN tN cN gN pN,pTrainFileR)] $ find (sixM rN tN cN gN pN tfRN) root       >> assertEqual (Just pTrainFileR) $ findUnambiguous (sixM rN tN cN gN pN tfRN) root      
-  assertEqual [(six rootN rN tN cN gN pN,pTrainRunR)]  $ find (sixM rN tN cN gN pN trRN) root       >> assertEqual (Just pTrainRunR)  $ findUnambiguous (sixM rN tN cN gN pN trRN) root      
-  assertEqual [(six rN tN cN gN pN trRN,tr)]           $ find (sixM tN cN gN pN trRN trN) r         >> assertEqual (Just tr)          $ findUnambiguous (sixM tN cN gN pN trRN trN) r        
+  assertEqual [(six rootN rN tN cN gN pN,pSubmitR)]    (find (sixM rN tN cN gN pN sRN) root)        >> assertEqual (Just pSubmitR)    (findUnambiguous (sixM rN tN cN gN pN sRN) root)       
+  assertEqual [(six rootN rN tN cN gN pN,pTrainFileR)] (find (sixM rN tN cN gN pN tfRN) root)       >> assertEqual (Just pTrainFileR) (findUnambiguous (sixM rN tN cN gN pN tfRN) root)      
+  assertEqual [(six rootN rN tN cN gN pN,pTrainRunR)]  (find (sixM rN tN cN gN pN trRN) root)       >> assertEqual (Just pTrainRunR)  (findUnambiguous (sixM rN tN cN gN pN trRN) root)      
+  assertEqual [(six rN tN cN gN pN trRN,tr)]           (find (sixM tN cN gN pN trRN trN) r)         >> assertEqual (Just tr)          (findUnambiguous (sixM tN cN gN pN trRN trN) r)        
                                                                                                                                                                                                
-  assertEqual [(seven rootN rN tN cN gN pN trRN,tr)]   $ find (sevenM rN tN cN gN pN trRN trN) root >> assertEqual (Just tr)          $ findUnambiguous (sevenM rN tN cN gN pN trRN trN) root
+  assertEqual [(seven rootN rN tN cN gN pN trRN,tr)]   (find (sevenM rN tN cN gN pN trRN trN) root) >> assertEqual (Just tr)          (findUnambiguous (sevenM rN tN cN gN pN trRN trN) root)
 
 zero   = Z
 one'   = S Nothing zero

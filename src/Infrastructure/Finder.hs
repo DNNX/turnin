@@ -1,6 +1,7 @@
 {-# LANGUAGE FunctionalDependencies, FlexibleInstances, UndecidableInstances #-}
 module Infrastructure.Finder
 ( find
+, findUnambiguous
 , Z(Z)
 , S(S)
 , K(K)
@@ -20,4 +21,9 @@ instance (HasNode a, Find s (ChildType a) [(k,b)]) => Find (S s) a [(K k, b)] wh
                                 
 matchesCriteria Nothing  _  = True
 matchesCriteria (Just s) n  = s == getName n
+
+findUnambiguous s n = case find s n of 
+                       [] -> Nothing
+                       [(_,x)] -> Just x
+                       _   -> error "Finder::FindUnambiguous: Not implemented for ambiguous searches"
 

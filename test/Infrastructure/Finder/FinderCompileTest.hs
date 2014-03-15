@@ -45,7 +45,9 @@ root = addChild (make rootN :: Root) r
 sr = emptySubmitRepo
 tfr = emptyTrainFileRepo
 
-prs = [(Z, makeProjectSubmitRepo sr), (Z, makeProjectTrainFileRepo tfr), (Z, makeProjectTrainRunRepo trr)]
+prs = [(Z, makeProjectSubmitRepo sr), (Z, makeProjectTrainFileRepo tfr), (Z, pTrr)]
+
+pTrr = makeProjectTrainRunRepo trr
 
 zero = Z
 one = S Nothing zero
@@ -84,32 +86,32 @@ test_findOneRepo         = assertEqual [(rK Z, t)]    (find one r)    >> assertE
 test_findOneTerm         = assertEqual [(tK Z, c)]    (find one t)    >> assertEqual (Just c)   (findUnambiguous one t)        
 test_findOneCourse       = assertEqual [(cK Z, g)]    (find one c)    >> assertEqual (Just g)   (findUnambiguous one c)        
 test_findOneGroup        = assertEqual [(gK Z, p)]    (find one g)    >> assertEqual (Just p)   (findUnambiguous one g)        
-test_findOneProject      = assertEqual (mapK pK prs)  (find one p)    >> assertEqual (Just trr) (findUnambiguous one p)        
+test_findOneProject      = assertEqual (mapK pK prs)  (find one p)
 test_findOneTrainRunRepo = assertEqual [(trrK Z, tr)] (find one trr)  >> assertEqual (Just tr)  (findUnambiguous one trr)     
                                                                       
 test_findTwoRoot    = assertEqual [((rootK.rK)Z, t)] (find two root)  >> assertEqual (Just t)   (findUnambiguous two root)     
 test_findTwoRepo    = assertEqual [((rK.tK)Z, c)]    (find two r)     >> assertEqual (Just c)   (findUnambiguous two r)   
 test_findTwoTerm    = assertEqual [((tK.cK)Z, g)]    (find two t)     >> assertEqual (Just g)   (findUnambiguous two t)   
 test_findTwoCourse  = assertEqual [((cK.gK)Z, p)]    (find two c)     >> assertEqual (Just p)   (findUnambiguous two c)   
-test_findTwoGroup   = assertEqual (mapK (gK.pK) prs) (find two g)     >> assertEqual (Just trr) (findUnambiguous two g)   
+test_findTwoGroup   = assertEqual (mapK (gK.pK) prs) (find two g)
 test_findTwoProject = assertEqual [((pK.trrK)Z,tr)]  (find two p)     >> assertEqual (Just tr)  (findUnambiguous two p)   
 
 test_findThreeRoot   = assertEqual [((rootK.rK.tK)Z, c)] (find three root) >> assertEqual (Just c)   (findUnambiguous three root)
 test_findThreeRepo   = assertEqual [((rK.tK.cK)Z, g)]    (find three r)    >> assertEqual (Just g)   (findUnambiguous three r)   
 test_findThreeTerm   = assertEqual [((tK.cK.gK)Z, p)]    (find three t)    >> assertEqual (Just p)   (findUnambiguous three t)   
-test_findThreeCourse = assertEqual (mapK (cK.gK.pK) prs) (find three c)    >> assertEqual (Just trr) (findUnambiguous three c)   
+test_findThreeCourse = assertEqual (mapK (cK.gK.pK) prs) (find three c)    
 test_findThreeGroup  = assertEqual [((gK.pK.trrK)Z,tr)]  (find three g)    >> assertEqual (Just tr)  (findUnambiguous three g)   
 
 test_findFourRoot   = assertEqual [((rootK.rK.tK.cK)Z, g)] (find four root) >> assertEqual (Just g)   (findUnambiguous four root)
 test_findFourRepo   = assertEqual [((rK.tK.cK.gK)Z, p)]    (find four r)    >> assertEqual (Just p)   (findUnambiguous four r)   
-test_findFourTerm   = assertEqual (mapK (tK.cK.gK.pK) prs) (find four t)    >> assertEqual (Just trr) (findUnambiguous four t)   
+test_findFourTerm   = assertEqual (mapK (tK.cK.gK.pK) prs) (find four t)
 test_findFourCourse = assertEqual [((cK.gK.pK.trrK)Z,tr)]  (find four c)    >> assertEqual (Just tr)  (findUnambiguous four c)   
 
 test_findFiveRoot = assertEqual [((rootK.rK.tK.cK.gK)Z, p)] (find five root) >> assertEqual (Just p)   (findUnambiguous five root)
-test_findFiveRepo = assertEqual (mapK (rK.tK.cK.gK.pK) prs) (find five r)    >> assertEqual (Just trr) (findUnambiguous five r)   
+test_findFiveRepo = assertEqual (mapK (rK.tK.cK.gK.pK) prs) (find five r)
 test_findFiveTerm = assertEqual [((tK.cK.gK.pK.trrK)Z,tr)]  (find five t)    >> assertEqual (Just tr)  (findUnambiguous five t)   
 
-test_findSixRoot = assertEqual (mapK (rootK.rK.tK.cK.gK.pK) prs) (find six root) >> assertEqual (Just trr) (findUnambiguous six root)
+test_findSixRoot = assertEqual (mapK (rootK.rK.tK.cK.gK.pK) prs) (find six root)
 test_findSixRepo = assertEqual [((rK.tK.cK.gK.pK.trrK)Z,tr)]     (find six r)    >> assertEqual (Just tr)  (findUnambiguous six r)   
 
 test_findSevenRoot = assertEqual [((rootK.rK.tK.cK.gK.pK.trrK)Z,tr)] (find seven root) >> assertEqual (Just tr) (findUnambiguous seven root)
