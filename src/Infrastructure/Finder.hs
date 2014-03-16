@@ -5,23 +5,31 @@ module Infrastructure.Finder
 , Z(Z)
 , S(S)
 , K(K)
+, T(T)
 ) where
 
 import Infrastructure.Node
 
-data Z = Z                    deriving (Show,Eq)
-data S s = S (Maybe String) s deriving (Show,Eq)
-data K k = K String k         deriving (Show,Eq)
+data Z = Z                        deriving (Show,Eq)
+data S f s = S (Maybe String) f s deriving (Show,Eq)
+data K k = K String k             deriving (Show,Eq)
 
-class Find s a b | s a -> b                    where find_ :: s -> a -> b
-instance (HasNode a) => Find Z [(k,a)] [(k,a)] where find_ Z = id
-instance (HasNode a, HasNode (ChildType a), Find s [(K k1,ChildType a)] [(K k2,b)]) =>
- Find (S s) [(k1,a)] [(K k2, b)] where 
-  find_ (S x s) ps = find_ s $ concatMap func ps
-   where func (k,parent) = let cs = filter (matchesCriteria x) $ getChildren parent
-                           in  [ (K (getName parent) k, child) | child <- cs ]
+class Find s m a b | s m a -> b                           where find_ :: s -> a -> m b
+instance (Monad m, HasNode a) => Find Z m [(k,a)] [(k,a)] where find_ Z = return
+instance (Monad m, HasNode a, HasNode (ChildType a), Find s m [(K k1,ChildType a)] [(K k2,b)]) =>
+ Find (S (k1 -> a -> m a) s) m [(k1,a)] [(K k2, b)] where 
+  find_ (S x loadF s) ps = do
+    loadedParents <- mapM (uncurry loadF) ps
+    let func k parent = [ (K (getName parent) k, child) | child <- filter (matchesCriteria x) $ getChildren parent ] 
+        cs = concatMap (uncurry func) $ zip (map fst ps) loadedParents
+    find_ s cs
 
-find s x = find_ s [(Z,x)] 
+data T t = T t
+instance Monad T where
+ return = T
+ (T t) >>= f = f t
+ 
+find s x = let (T t) = find_ s [(Z,x)] in t 
          
 matchesCriteria Nothing  _  = True
 matchesCriteria (Just s) n  = s == getName n
