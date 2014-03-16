@@ -31,11 +31,11 @@ test_findNoHints = do
       pTrainRunR = makeProjectTrainRunRepo trr
       prs = [pSubmitR,pTrainFileR,pTrainRunR]
       prs1 = map (\x -> (K pN Z,x)) prs
-      prs2 = map (first (K gN)) prs1
-      prs3 = map (first (K cN)) prs2
-      prs4 = map (first (K tN)) prs3
-      prs5 = map (first (K rN)) prs4
-      prs6 = map (first (K rootN)) prs5
+      prs2 = map (\x -> (K pN $ K gN Z,x)) prs
+      prs3 = map (\x -> (K pN $ K gN $ K cN Z,x)) prs
+      prs4 = map (\x -> (K pN $ K gN $ K cN $ K tN Z,x)) prs
+      prs5 = map (\x -> (K pN $ K gN $ K cN $ K tN $ K rN Z,x)) prs
+      prs6 = map (\x -> (K pN $ K gN $ K cN $ K tN $ K rN $ K rootN Z,x)) prs
 
       rootN = "root"
       rN = "repo"
@@ -74,16 +74,16 @@ test_findNoHints = do
   assertEqual [(three rootN rN tN,c)] (find three' root)                >> assertEqual (Just c) (findUnambiguous three' root)                
   assertEqual [(three rN tN cN,g)]    (find three' r)                   >> assertEqual (Just g) (findUnambiguous three' r)                   
   assertEqual [(three tN cN gN,p)]    (find three' t)                   >> assertEqual (Just p) (findUnambiguous three' t)                   
-   
+  assertEqual prs3                    (find three' c) 
   assertEqual [(three gN pN trrN,tr)] (find three' g)                   >> assertEqual (Just tr) (findUnambiguous three' g)                   
                                                                                                                                          
   assertEqual [(four rootN rN tN cN,g)]  (find four' root)              >> assertEqual (Just g) (findUnambiguous four' root)              
   assertEqual [(four rN tN cN gN,p)]     (find four' r)                 >> assertEqual (Just p) (findUnambiguous four' r)                 
-  
+  assertEqual prs4                       (find four' t)
   assertEqual [(four cN gN pN trrN, tr)] (find four' c)                 >> assertEqual (Just tr) (findUnambiguous four' c)                 
                                                                                                                                             
   assertEqual [(five rootN rN tN cN gN,p)] (find five' root)            >> assertEqual (Just p) (findUnambiguous five' root)            
-  
+  assertEqual prs5                         (find five' r)
   assertEqual [(five tN cN gN pN trrN,tr)] (find five' t)               >> assertEqual (Just tr) (findUnambiguous five' t)               
                                                                                                                                                
   assertEqual prs6                           (find six' root)               
@@ -171,12 +171,12 @@ six'   = S Nothing five'
 seven' = S Nothing six'
 
 one a               = K a zero
-two a b             = K a $ one b
-three a b c         = K a $ two b c
-four a b c d        = K a $ three b c d
-five a b c d e      = K a $ four b c d e
-six a b c d e f     = K a $ five b c d e f
-seven a b c d e f g = K a $ six b c d e f g
+two a b             = K b $ one a
+three a b c         = K c $ two a b
+four a b c d        = K d $ three a b c
+five a b c d e      = K e $ four a b c d
+six a b c d e f     = K f $ five a b c d e
+seven a b c d e f g = K g $ six a b c d e f
 
 oneM a               = S (Just a) zero
 twoM a b             = S (Just a) $ oneM b

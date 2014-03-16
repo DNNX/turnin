@@ -13,17 +13,20 @@ data Z = Z                    deriving (Show,Eq)
 data S s = S (Maybe String) s deriving (Show,Eq)
 data K k = K String k         deriving (Show,Eq)
 
-class HasNode a => Find s a b | s a -> b where find :: s -> a -> b
-instance HasNode a => Find Z a [(Z,a)]       where find Z x = [(Z,x)]
-instance (HasNode a, Find s (ChildType a) [(k,b)]) => Find (S s) a [(K k, b)] where 
- find (S x s) p = concatMap f $ filter (matchesCriteria x) $ getChildren p
-  where f n = [(K (getName p) k,b) | (k,b) <- find s n]
-                                
+class Find s a b | s a -> b                    where find_ :: s -> a -> b
+instance (HasNode a) => Find Z [(k,a)] [(k,a)] where find_ Z = id
+instance (HasNode a, HasNode (ChildType a), Find s [(K k1,ChildType a)] [(K k2,b)]) =>
+ Find (S s) [(k1,a)] [(K k2, b)] where 
+  find_ (S x s) ps = find_ s $ concatMap func ps
+   where func (k,parent) = let cs = filter (matchesCriteria x) $ getChildren parent
+                           in  [ (K (getName parent) k, child) | child <- cs ]
+
+find s x = find_ s [(Z,x)] 
+         
 matchesCriteria Nothing  _  = True
 matchesCriteria (Just s) n  = s == getName n
 
-findUnambiguous s n = case find s n of 
+findUnambiguous s x = case find s x of
                        [] -> Nothing
-                       [(_,x)] -> Just x
-                       _   -> error "Finder::FindUnambiguous: Not implemented for ambiguous searches"
-
+                       [(_,y)] -> Just y
+                       _   -> error "Finder::findUnambiguous: Not implemented for ambiguous results"

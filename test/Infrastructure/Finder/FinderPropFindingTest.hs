@@ -33,11 +33,11 @@ prop_findNoHints rootN rN tN cN gN pN trN =
       pTrainRunR = makeProjectTrainRunRepo trr
       prs = [pSubmitR,pTrainFileR,pTrainRunR]
       prs1 = map (\x -> (K pN Z,x)) prs
-      prs2 = map (first (K gN)) prs1
-      prs3 = map (first (K cN)) prs2
-      prs4 = map (first (K tN)) prs3
-      prs5 = map (first (K rN)) prs4
-      prs6 = map (first (K rootN)) prs5
+      prs2 = map (\x -> (K pN $ K gN Z,x)) prs
+      prs3 = map (\x -> (K pN $ K gN $ K cN Z,x)) prs
+      prs4 = map (\x -> (K pN $ K gN $ K cN $ K tN Z,x)) prs
+      prs5 = map (\x -> (K pN $ K gN $ K cN $ K tN $ K rN Z,x)) prs
+      prs6 = map (\x -> (K pN $ K gN $ K cN $ K tN $ K rN $ K rootN Z,x)) prs
       trrN = getName trr in
 
      [(Z,root)] == find zero root                                 && Just root == findUnambiguous zero root
@@ -196,12 +196,12 @@ seven' = S Nothing six'
 
 zero = Z
 one a               = K a zero
-two a b             = K a $ one b
-three a b c         = K a $ two b c
-four a b c d        = K a $ three b c d
-five a b c d e      = K a $ four b c d e
-six a b c d e f     = K a $ five b c d e f
-seven a b c d e f g = K a $ six b c d e f g
+two a b             = K b $ one a
+three a b c         = K c $ two a b
+four a b c d        = K d $ three a b c
+five a b c d e      = K e $ four a b c d
+six a b c d e f     = K f $ five a b c d e
+seven a b c d e f g = K g $ six a b c d e f
 
 oneM a               = S (Just a) zero
 twoM a b             = S (Just a) $ oneM b
