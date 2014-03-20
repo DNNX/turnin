@@ -2,152 +2,359 @@
 module Infrastructure.Finder.FinderPropFindingTest where
 
 import Test.Framework
-import Control.Arrow(first,second)
-import Data.List (nub)
+import Infrastructure.Finder.FinderTestUtils
 
 import Infrastructure.Node
 import Domain.Root
 import Domain.Project
 import Domain.ProjectRepo
+import Domain.SubmitRepo
+import Domain.TrainFileRepo
 
-import Infrastructure.Finder
+import System.IO.Unsafe
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 {-# ANN module "HLint: ignore Reduce duplication" #-}
 {-# ANN module "HLint: ignore Evaluate" #-}
-{-# ANN module "HLint: ignore Use ++" #-}
+{-# ANN module "HLint: ignore Use ++" #-} 
+
+sRN = getName emptySubmitRepo
+tfRN = getName emptyTrainFileRepo
+trRN = getName emptyTrainRunRepo
+
+prop_zero rootN rN tN cN gN pN trN sKey sContent tfKey tfContent = 
+ "" `notElem` [rootN,rN,tN,cN,gN,pN,trN,sKey,sContent,tfKey,tfContent] ==>  
+  let tr = make trN
+      p = setSubmitRepo (setTrainFileRepo (setTrainRunRepo (make pN) trr) tfr) sr
+      g = addChild (make gN) p
+      c = addChild (make cN) g
+      t = addChild (make tN) c
+      r = addChild (make rN) t
+      root = addChild (make rootN :: Root) r
+      
+      sr = addSubmit emptySubmitRepo sKey sContent
+      tfr = addTrainFile emptyTrainFileRepo tfKey tfContent
+      trr = addChild emptyTrainRunRepo tr
+      
+      pSr = makeProjectSubmitRepo sr
+      pTfr = makeProjectTrainFileRepo tfr
+      pTrr = makeProjectTrainRunRepo trr
+  
+  in assertStateP (zero find' root ldRoot) rootCall [(zeroK,root)]
+  && assertStateP (zero find' r    ldR)    rCall    [(zeroK,r)]
+  && assertStateP (zero find' t    ldT)    tCall    [(zeroK,t)]
+  && assertStateP (zero find' c    ldC)    cCall    [(zeroK,c)]
+  && assertStateP (zero find' g    ldG)    gCall    [(zeroK,g)]
+  && assertStateP (zero find' p    ldP)    pCall    [(zeroK,p)]
+  && assertStateP (zero find' pSr  ldPr)   prCall   [(zeroK,pSr)]
+  && assertStateP (zero find' pTfr ldPr)   prCall   [(zeroK,pTfr)]
+  && assertStateP (zero find' pTrr ldPr)   prCall   [(zeroK,pTrr)]
+  && assertStateP (zero find' tr   ldTr)   trCall   [(zeroK,tr)]
+            
+  && assertStateP (zero findUnambiguous' root ldRoot) rootCall (Just root)
+  && assertStateP (zero findUnambiguous' r    ldR)    rCall    (Just r)
+  && assertStateP (zero findUnambiguous' t    ldT)    tCall    (Just t)
+  && assertStateP (zero findUnambiguous' c    ldC)    cCall    (Just c)
+  && assertStateP (zero findUnambiguous' g    ldG)    gCall    (Just g)
+  && assertStateP (zero findUnambiguous' p    ldP)    pCall    (Just p)
+  && assertStateP (zero findUnambiguous' pSr  ldPr)   prCall   (Just pSr)
+  && assertStateP (zero findUnambiguous' pTfr ldPr)   prCall   (Just pTfr)
+  && assertStateP (zero findUnambiguous' pTrr ldPr)   prCall   (Just pTrr)
+  && assertStateP (zero findUnambiguous' tr   ldTr)   trCall   (Just tr)
+
+prop_one rootN rN tN cN gN pN trN sKey sContent tfKey tfContent = 
+ "" `notElem` [rootN,rN,tN,cN,gN,pN,trN,sKey,sContent,tfKey,tfContent] ==>  
+  let tr = make trN
+      p = setSubmitRepo (setTrainFileRepo (setSubmitRepo (setTrainFileRepo (setTrainRunRepo (make pN) trr) tfr) sr) tfr) sr
+      g = addChild (make gN) p
+      c = addChild (make cN) g
+      t = addChild (make tN) c
+      r = addChild (make rN) t
+      root = addChild (make rootN :: Root) r
+      
+      sr = addSubmit emptySubmitRepo sKey sContent
+      tfr = addTrainFile emptyTrainFileRepo tfKey tfContent
+      trr = addChild emptyTrainRunRepo tr
+      
+      pSr = makeProjectSubmitRepo sr
+      pTfr = makeProjectTrainFileRepo tfr
+      pTrr = makeProjectTrainRunRepo trr
+      
+      prs k = [(k,pSr),(k,pTfr),(k,pTrr)]      
+  
+  in assertStateP (one' find' root ldRoot ldR)  (rootCall|+rCall) [(oneK rootN,r)]
+  && assertStateP (one' find' r    ldR    ldT)  (rCall|+tCall)    [(oneK rN,t)]
+  && assertStateP (one' find' t    ldT    ldC)  (tCall|+cCall)    [(oneK tN,c)]
+  && assertStateP (one' find' c    ldC    ldG)  (cCall|+gCall)    [(oneK cN,g)]
+  && assertStateP (one' find' g    ldG    ldP)  (gCall|+pCall)    [(oneK gN,p)]
+  && assertStateP (one' find' p    ldP    ldPr) (pCall|+pr3Call)  (prs $ oneK pN)
+  && assertStateP (one' find' pTrr ldPr   ldTr) (prCall|+trCall)  [(oneK trRN,tr)]
+  
+  && assertStateP (one' findUnambiguous' root ldRoot ldR)  (rootCall|+rCall) (Just r)
+  && assertStateP (one' findUnambiguous' r    ldR    ldT)  (rCall|+tCall)    (Just t)
+  && assertStateP (one' findUnambiguous' t    ldT    ldC)  (tCall|+cCall)    (Just c)
+  && assertStateP (one' findUnambiguous' c    ldC    ldG)  (cCall|+gCall)    (Just g)
+  && assertStateP (one' findUnambiguous' g    ldG    ldP)  (gCall|+pCall)    (Just p)
+  && assertStateP (one' findUnambiguous' pTrr ldPr   ldTr) (prCall|+trCall)  (Just tr)
+  
+  && assertStateP (one rN   find' root ldRoot ldR)  (rootCall|+rCall) [(oneK rootN,r)]
+  && assertStateP (one tN   find' r    ldR    ldT)  (rCall|+tCall)    [(oneK rN,t)]
+  && assertStateP (one cN   find' t    ldT    ldC)  (tCall|+cCall)    [(oneK tN,c)]
+  && assertStateP (one gN   find' c    ldC    ldG)  (cCall|+gCall)    [(oneK cN,g)]
+  && assertStateP (one pN   find' g    ldG    ldP)  (gCall|+pCall)    [(oneK gN,p)]
+  && assertStateP (one sRN  find' p    ldP    ldPr) (pCall|+prCall)   [(oneK pN,pSr)]
+  && assertStateP (one tfRN find' p    ldP    ldPr) (pCall|+prCall)   [(oneK pN,pTfr)]
+  && assertStateP (one trRN find' p    ldP    ldPr) (pCall|+prCall)   [(oneK pN,pTrr)]
+  && assertStateP (one trN  find' pTrr ldPr   ldTr) (prCall|+trCall)  [(oneK trRN,tr)]
+  
+  && assertStateP (one rN   findUnambiguous' root ldRoot ldR)  (rootCall|+rCall) (Just r)
+  && assertStateP (one tN   findUnambiguous' r    ldR    ldT)  (rCall|+tCall)    (Just t)
+  && assertStateP (one cN   findUnambiguous' t    ldT    ldC)  (tCall|+cCall)    (Just c)
+  && assertStateP (one gN   findUnambiguous' c    ldC    ldG)  (cCall|+gCall)    (Just g)
+  && assertStateP (one pN   findUnambiguous' g    ldG    ldP)  (gCall|+pCall)    (Just p)
+  && assertStateP (one sRN  findUnambiguous' p    ldP    ldPr) (pCall|+prCall)   (Just pSr)
+  && assertStateP (one tfRN findUnambiguous' p    ldP    ldPr) (pCall|+prCall)   (Just pTfr)
+  && assertStateP (one trRN findUnambiguous' p    ldP    ldPr) (pCall|+prCall)   (Just pTrr)
+  && assertStateP (one trN  findUnambiguous' pTrr ldPr   ldTr) (prCall|+trCall)  (Just tr)
+
+prop_two rootN rN tN cN gN pN trN sKey sContent tfKey tfContent = 
+ "" `notElem` [rootN,rN,tN,cN,gN,pN,trN,sKey,sContent,tfKey,tfContent] ==>  
+  let tr = make trN
+      p = setSubmitRepo (setTrainFileRepo (setTrainRunRepo (make pN) trr) tfr) sr
+      g = addChild (make gN) p
+      c = addChild (make cN) g
+      t = addChild (make tN) c
+      r = addChild (make rN) t
+      root = addChild (make rootN :: Root) r
+      
+      sr = addSubmit emptySubmitRepo sKey sContent
+      tfr = addTrainFile emptyTrainFileRepo tfKey tfContent
+      trr = addChild emptyTrainRunRepo tr
+      
+      pSr = makeProjectSubmitRepo sr
+      pTfr = makeProjectTrainFileRepo tfr
+      pTrr = makeProjectTrainRunRepo trr
+      
+      prs k = [(k,pSr),(k,pTfr),(k,pTrr)]
+  
+  in assertStateP (two' find' root ldRoot ldR  ldT)  (rootCall|+rCall|+tCall) [(twoK rootN rN,t)]
+  && assertStateP (two' find' r    ldR    ldT  ldC)  (rCall|+tCall|+cCall)    [(twoK rN tN,c)]
+  && assertStateP (two' find' t    ldT    ldC  ldG)  (tCall|+cCall|+gCall)    [(twoK tN cN,g)]
+  && assertStateP (two' find' c    ldC    ldG  ldP)  (cCall|+gCall|+pCall)    [(twoK cN gN,p)]
+  && assertStateP (two' find' g    ldG    ldP  ldPr) (gCall|+pCall|+pr3Call)  (prs $ twoK gN pN)
+  && assertStateP (two' find' p    ldP    ldPr ldTr) (pCall|+pr3Call|+trCall) [(twoK pN trRN,tr)]
+
+  && assertStateP (two' findUnambiguous' root ldRoot ldR  ldT)  (rootCall|+rCall|+tCall) (Just t)
+  && assertStateP (two' findUnambiguous' r    ldR    ldT  ldC)  (rCall|+tCall|+cCall)    (Just c)
+  && assertStateP (two' findUnambiguous' t    ldT    ldC  ldG)  (tCall|+cCall|+gCall)    (Just g)
+  && assertStateP (two' findUnambiguous' c    ldC    ldG  ldP)  (cCall|+gCall|+pCall)    (Just p)
+  && assertStateP (two' findUnambiguous' p    ldP    ldPr ldTr) (pCall|+pr3Call|+trCall) (Just tr)
+
+  && assertStateP (two rN   tN   find' root ldRoot ldR  ldT)  (rootCall|+rCall|+tCall) [(twoK rootN rN,t)]
+  && assertStateP (two tN   cN   find' r    ldR    ldT  ldC)  (rCall|+tCall|+cCall)    [(twoK rN tN,c)]
+  && assertStateP (two cN   gN   find' t    ldT    ldC  ldG)  (tCall|+cCall|+gCall)    [(twoK tN cN,g)]
+  && assertStateP (two gN   pN   find' c    ldC    ldG  ldP)  (cCall|+gCall|+pCall)    [(twoK cN gN,p)]
+  && assertStateP (two pN   sRN  find' g    ldG    ldP  ldPr) (gCall|+pCall|+prCall)   [(twoK gN pN,pSr)]
+  && assertStateP (two pN   tfRN find' g    ldG    ldP  ldPr) (gCall|+pCall|+prCall)   [(twoK gN pN,pTfr)]
+  && assertStateP (two pN   trRN find' g    ldG    ldP  ldPr) (gCall|+pCall|+prCall)   [(twoK gN pN,pTrr)]
+  && assertStateP (two trRN trN  find' p    ldP    ldPr ldTr) (pCall|+prCall|+trCall)  [(twoK pN trRN,tr)]
+
+  && assertStateP (two rN   tN   findUnambiguous' root ldRoot ldR  ldT)  (rootCall|+rCall|+tCall) (Just t)
+  && assertStateP (two tN   cN   findUnambiguous' r    ldR    ldT  ldC)  (rCall|+tCall|+cCall)    (Just c)
+  && assertStateP (two cN   gN   findUnambiguous' t    ldT    ldC  ldG)  (tCall|+cCall|+gCall)    (Just g)
+  && assertStateP (two gN   pN   findUnambiguous' c    ldC    ldG  ldP)  (cCall|+gCall|+pCall)    (Just p)
+  && assertStateP (two pN   sRN  findUnambiguous' g    ldG    ldP  ldPr) (gCall|+pCall|+prCall)   (Just pSr)
+  && assertStateP (two pN   tfRN findUnambiguous' g    ldG    ldP  ldPr) (gCall|+pCall|+prCall)   (Just pTfr)
+  && assertStateP (two pN   trRN findUnambiguous' g    ldG    ldP  ldPr) (gCall|+pCall|+prCall)   (Just pTrr)
+  && assertStateP (two trRN trN  findUnambiguous' p    ldP    ldPr ldTr) (pCall|+prCall|+trCall)  (Just tr)
+
+prop_three rootN rN tN cN gN pN trN sKey sContent tfKey tfContent = 
+ "" `notElem` [rootN,rN,tN,cN,gN,pN,trN,sKey,sContent,tfKey,tfContent] ==>  
+  let tr = make trN
+      p = setSubmitRepo (setTrainFileRepo (setTrainRunRepo (make pN) trr) tfr) sr
+      g = addChild (make gN) p
+      c = addChild (make cN) g
+      t = addChild (make tN) c
+      r = addChild (make rN) t
+      root = addChild (make rootN :: Root) r
+      
+      sr = addSubmit emptySubmitRepo sKey sContent
+      tfr = addTrainFile emptyTrainFileRepo tfKey tfContent
+      trr = addChild emptyTrainRunRepo tr
+      
+      pSr = makeProjectSubmitRepo sr
+      pTfr = makeProjectTrainFileRepo tfr
+      pTrr = makeProjectTrainRunRepo trr
+      
+      prs k = [(k,pSr),(k,pTfr),(k,pTrr)]
+  
+  in assertStateP (three' find' root ldRoot ldR ldT  ldC)  (rootCall|+rCall|+tCall|+cCall) [(threeK rootN rN tN,c)]
+  && assertStateP (three' find' r    ldR    ldT ldC  ldG)  (rCall|+tCall|+cCall|+gCall)    [(threeK rN tN cN,g)]
+  && assertStateP (three' find' t    ldT    ldC ldG  ldP)  (tCall|+cCall|+gCall|+pCall)    [(threeK tN cN gN,p)]
+  && assertStateP (three' find' c    ldC    ldG ldP  ldPr) (cCall|+gCall|+pCall|+pr3Call)  (prs $ threeK cN gN pN)
+  && assertStateP (three' find' g    ldG    ldP ldPr ldTr) (gCall|+pCall|+pr3Call|+trCall) [(threeK gN pN trRN,tr)]
+
+  && assertStateP (three' findUnambiguous' root ldRoot ldR ldT  ldC)  (rootCall|+rCall|+tCall|+cCall) (Just c)
+  && assertStateP (three' findUnambiguous' r    ldR    ldT ldC  ldG)  (rCall|+tCall|+cCall|+gCall)    (Just g)
+  && assertStateP (three' findUnambiguous' t    ldT    ldC ldG  ldP)  (tCall|+cCall|+gCall|+pCall)    (Just p)
+  && assertStateP (three' findUnambiguous' g    ldG    ldP ldPr ldTr) (gCall|+pCall|+pr3Call|+trCall) (Just tr)
+  
+  && assertStateP (three rN tN   cN   find' root ldRoot ldR ldT  ldC)  (rootCall|+rCall|+tCall|+cCall) [(threeK rootN rN tN,c)]
+  && assertStateP (three tN cN   gN   find' r    ldR    ldT ldC  ldG)  (rCall|+tCall|+cCall|+gCall)    [(threeK rN tN cN,g)]
+  && assertStateP (three cN gN   pN   find' t    ldT    ldC ldG  ldP)  (tCall|+cCall|+gCall|+pCall)    [(threeK tN cN gN,p)]
+  && assertStateP (three gN pN   sRN  find' c    ldC    ldG ldP  ldPr) (cCall|+gCall|+pCall|+prCall)   [(threeK cN gN pN,pSr)]
+  && assertStateP (three gN pN   tfRN find' c    ldC    ldG ldP  ldPr) (cCall|+gCall|+pCall|+prCall)   [(threeK cN gN pN,pTfr)]
+  && assertStateP (three gN pN   trRN find' c    ldC    ldG ldP  ldPr) (cCall|+gCall|+pCall|+prCall)   [(threeK cN gN pN,pTrr)]
+  && assertStateP (three pN trRN trN  find' g    ldG    ldP ldPr ldTr) (gCall|+pCall|+prCall|+trCall)  [(threeK gN pN trRN,tr)]
+                     
+  && assertStateP (three rN tN   cN   findUnambiguous' root ldRoot ldR ldT  ldC)  (rootCall|+rCall|+tCall|+cCall) (Just c)
+  && assertStateP (three tN cN   gN   findUnambiguous' r    ldR    ldT ldC  ldG)  (rCall|+tCall|+cCall|+gCall)    (Just g)
+  && assertStateP (three cN gN   pN   findUnambiguous' t    ldT    ldC ldG  ldP)  (tCall|+cCall|+gCall|+pCall)    (Just p)
+  && assertStateP (three gN pN   sRN  findUnambiguous' c    ldC    ldG ldP  ldPr) (cCall|+gCall|+pCall|+prCall)   (Just pSr)
+  && assertStateP (three gN pN   tfRN findUnambiguous' c    ldC    ldG ldP  ldPr) (cCall|+gCall|+pCall|+prCall)   (Just pTfr)
+  && assertStateP (three gN pN   trRN findUnambiguous' c    ldC    ldG ldP  ldPr) (cCall|+gCall|+pCall|+prCall)   (Just pTrr)
+  && assertStateP (three pN trRN trN  findUnambiguous' g    ldG    ldP ldPr ldTr) (gCall|+pCall|+prCall|+trCall)  (Just tr)
+
+prop_four rootN rN tN cN gN pN trN sKey sContent tfKey tfContent = 
+ "" `notElem` [rootN,rN,tN,cN,gN,pN,trN,sKey,sContent,tfKey,tfContent] ==>  
+  let tr = make trN
+      p = setSubmitRepo (setTrainFileRepo (setTrainRunRepo (make pN) trr) tfr) sr
+      g = addChild (make gN) p
+      c = addChild (make cN) g
+      t = addChild (make tN) c
+      r = addChild (make rN) t
+      root = addChild (make rootN :: Root) r
+      
+      sr = addSubmit emptySubmitRepo sKey sContent
+      tfr = addTrainFile emptyTrainFileRepo tfKey tfContent
+      trr = addChild emptyTrainRunRepo tr
+      
+      pSr = makeProjectSubmitRepo sr
+      pTfr = makeProjectTrainFileRepo tfr
+      pTrr = makeProjectTrainRunRepo trr
+      
+      prs k = [(k,pSr),(k,pTfr),(k,pTrr)]
+  
+  in assertStateP (four' find' root ldRoot ldR ldT ldC  ldG)  (rootCall|+rCall|+tCall|+cCall|+gCall) [(fourK rootN rN tN cN,g)]
+  && assertStateP (four' find' r    ldR    ldT ldC ldG  ldP)  (rCall|+tCall|+cCall|+gCall|+pCall)    [(fourK rN tN cN gN,p)]
+  && assertStateP (four' find' t    ldT    ldC ldG ldP  ldPr) (tCall|+cCall|+gCall|+pCall|+pr3Call)  (prs $ fourK tN cN gN pN)
+  && assertStateP (four' find' c    ldC    ldG ldP ldPr ldTr) (cCall|+gCall|+pCall|+pr3Call|+trCall) [(fourK cN gN pN trRN,tr)]
+  
+  && assertStateP (four' findUnambiguous' root ldRoot ldR ldT ldC  ldG)  (rootCall|+rCall|+tCall|+cCall|+gCall) (Just g) 
+  && assertStateP (four' findUnambiguous' r    ldR    ldT ldC ldG  ldP)  (rCall|+tCall|+cCall|+gCall|+pCall)    (Just p)
+  && assertStateP (four' findUnambiguous' c    ldC    ldG ldP ldPr ldTr) (cCall|+gCall|+pCall|+pr3Call|+trCall) (Just tr)
+  
+  && assertStateP (four rN tN cN   gN   find' root ldRoot ldR ldT ldC  ldG)  (rootCall|+rCall|+tCall|+cCall|+gCall) [(fourK rootN rN tN cN,g)]
+  && assertStateP (four tN cN gN   pN   find' r    ldR    ldT ldC ldG  ldP)  (rCall|+tCall|+cCall|+gCall|+pCall)    [(fourK rN tN cN gN,p)]
+  && assertStateP (four cN gN pN   sRN  find' t    ldT    ldC ldG ldP  ldPr) (tCall|+cCall|+gCall|+pCall|+prCall)   [(fourK tN cN gN pN,pSr)]
+  && assertStateP (four cN gN pN   tfRN find' t    ldT    ldC ldG ldP  ldPr) (tCall|+cCall|+gCall|+pCall|+prCall)   [(fourK tN cN gN pN,pTfr)]
+  && assertStateP (four cN gN pN   trRN find' t    ldT    ldC ldG ldP  ldPr) (tCall|+cCall|+gCall|+pCall|+prCall)   [(fourK tN cN gN pN,pTrr)]
+  && assertStateP (four gN pN trRN trN  find' c    ldC    ldG ldP ldPr ldTr) (cCall|+gCall|+pCall|+prCall|+trCall)  [(fourK cN gN pN trRN,tr)]
+                    
+  && assertStateP (four rN tN cN   gN   findUnambiguous' root ldRoot ldR ldT ldC  ldG)  (rootCall|+rCall|+tCall|+cCall|+gCall) (Just g) 
+  && assertStateP (four tN cN gN   pN   findUnambiguous' r    ldR    ldT ldC ldG  ldP)  (rCall|+tCall|+cCall|+gCall|+pCall)    (Just p)
+  && assertStateP (four cN gN pN   sRN  findUnambiguous' t    ldT    ldC ldG ldP  ldPr) (tCall|+cCall|+gCall|+pCall|+prCall)   (Just pSr)
+  && assertStateP (four cN gN pN   tfRN findUnambiguous' t    ldT    ldC ldG ldP  ldPr) (tCall|+cCall|+gCall|+pCall|+prCall)   (Just pTfr)
+  && assertStateP (four cN gN pN   trRN findUnambiguous' t    ldT    ldC ldG ldP  ldPr) (tCall|+cCall|+gCall|+pCall|+prCall)   (Just pTrr)
+  && assertStateP (four gN pN trRN trN  findUnambiguous' c    ldC    ldG ldP ldPr ldTr) (cCall|+gCall|+pCall|+prCall|+trCall)  (Just tr)
+  
+prop_five rootN rN tN cN gN pN trN sKey sContent tfKey tfContent = 
+ "" `notElem` [rootN,rN,tN,cN,gN,pN,trN,sKey,sContent,tfKey,tfContent] ==>  
+  let tr = make trN
+      p = setSubmitRepo (setTrainFileRepo (setTrainRunRepo (make pN) trr) tfr) sr
+      g = addChild (make gN) p
+      c = addChild (make cN) g
+      t = addChild (make tN) c
+      r = addChild (make rN) t
+      root = addChild (make rootN :: Root) r
+      
+      sr = addSubmit emptySubmitRepo sKey sContent
+      tfr = addTrainFile emptyTrainFileRepo tfKey tfContent
+      trr = addChild emptyTrainRunRepo tr
+      
+      pSr = makeProjectSubmitRepo sr
+      pTfr = makeProjectTrainFileRepo tfr
+      pTrr = makeProjectTrainRunRepo trr
+      
+      prs k = [(k,pSr),(k,pTfr),(k,pTrr)]
+  
+  in assertStateP (five' find' root ldRoot ldR ldT ldC ldG  ldP)  (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall) [(fiveK rootN rN tN cN gN,p)]
+  && assertStateP (five' find' r    ldR    ldT ldC ldG ldP  ldPr) (rCall|+tCall|+cCall|+gCall|+pCall|+pr3Call)  (prs $ fiveK rN tN cN gN pN)
+  && assertStateP (five' find' t    ldT    ldC ldG ldP ldPr ldTr) (tCall|+cCall|+gCall|+pCall|+pr3Call|+trCall) [(fiveK tN cN gN pN trRN,tr)]
+  
+  && assertStateP (five' findUnambiguous' root ldRoot ldR ldT ldC ldG  ldP)  (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall) (Just p) 
+  && assertStateP (five' findUnambiguous' t    ldT    ldC ldG ldP ldPr ldTr) (tCall|+cCall|+gCall|+pCall|+pr3Call|+trCall) (Just tr)
+  
+  && assertStateP (five rN tN cN gN   pN   find' root ldRoot ldR ldT ldC ldG  ldP)  (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall) [(fiveK rootN rN tN cN gN,p)]
+  && assertStateP (five tN cN gN pN   sRN  find' r    ldR    ldT ldC ldG ldP  ldPr) (rCall|+tCall|+cCall|+gCall|+pCall|+prCall)   [(fiveK rN tN cN gN pN,pSr)]
+  && assertStateP (five tN cN gN pN   tfRN find' r    ldR    ldT ldC ldG ldP  ldPr) (rCall|+tCall|+cCall|+gCall|+pCall|+prCall)   [(fiveK rN tN cN gN pN,pTfr)]
+  && assertStateP (five tN cN gN pN   trRN find' r    ldR    ldT ldC ldG ldP  ldPr) (rCall|+tCall|+cCall|+gCall|+pCall|+prCall)   [(fiveK rN tN cN gN pN,pTrr)]
+  && assertStateP (five cN gN pN trRN trN  find' t    ldT    ldC ldG ldP ldPr ldTr) (tCall|+cCall|+gCall|+pCall|+prCall|+trCall)  [(fiveK tN cN gN pN trRN,tr)]
+  
+  && assertStateP (five rN tN cN gN   pN   findUnambiguous' root ldRoot ldR ldT ldC ldG  ldP)  (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall) (Just p) 
+  && assertStateP (five tN cN gN pN   sRN  findUnambiguous' r    ldR    ldT ldC ldG ldP  ldPr) (rCall|+tCall|+cCall|+gCall|+pCall|+prCall)   (Just pSr)
+  && assertStateP (five tN cN gN pN   tfRN findUnambiguous' r    ldR    ldT ldC ldG ldP  ldPr) (rCall|+tCall|+cCall|+gCall|+pCall|+prCall)   (Just pTfr)
+  && assertStateP (five tN cN gN pN   trRN findUnambiguous' r    ldR    ldT ldC ldG ldP  ldPr) (rCall|+tCall|+cCall|+gCall|+pCall|+prCall)   (Just pTrr)
+  && assertStateP (five cN gN pN trRN trN  findUnambiguous' t    ldT    ldC ldG ldP ldPr ldTr) (tCall|+cCall|+gCall|+pCall|+prCall|+trCall)  (Just tr)
+  
+prop_six rootN rN tN cN gN pN trN sKey sContent tfKey tfContent = 
+ "" `notElem` [rootN,rN,tN,cN,gN,pN,trN,sKey,sContent,tfKey,tfContent] ==>  
+  let tr = make trN
+      p = setSubmitRepo (setTrainFileRepo (setTrainRunRepo (make pN) trr) tfr) sr
+      g = addChild (make gN) p
+      c = addChild (make cN) g
+      t = addChild (make tN) c
+      r = addChild (make rN) t
+      root = addChild (make rootN :: Root) r
+      
+      sr = addSubmit emptySubmitRepo sKey sContent
+      tfr = addTrainFile emptyTrainFileRepo tfKey tfContent
+      trr = addChild emptyTrainRunRepo tr
+      
+      pSr = makeProjectSubmitRepo sr
+      pTfr = makeProjectTrainFileRepo tfr
+      pTrr = makeProjectTrainRunRepo trr
+      
+      prs k = [(k,pSr),(k,pTfr),(k,pTrr)]
+  
+  in assertStateP (six' find' root ldRoot ldR ldT ldC ldG ldP  ldPr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+pr3Call) (prs $ sixK rootN rN tN cN gN pN)
+  && assertStateP (six' find' r    ldR    ldT ldC ldG ldP ldPr ldTr) (rCall|+tCall|+cCall|+gCall|+pCall|+pr3Call|+trCall)   [(sixK rN tN cN gN pN trRN,tr)]
+  
+  && assertStateP (six' findUnambiguous' r    ldR    ldT ldC ldG ldP ldPr ldTr) (rCall|+tCall|+cCall|+gCall|+pCall|+pr3Call|+trCall) (Just tr)
+  
+  && assertStateP (six rN tN cN gN pN   sRN  find' root ldRoot ldR ldT ldC ldG ldP  ldPr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+prCall) [(sixK rootN rN tN cN gN pN,pSr)]
+  && assertStateP (six rN tN cN gN pN   tfRN find' root ldRoot ldR ldT ldC ldG ldP  ldPr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+prCall) [(sixK rootN rN tN cN gN pN,pTfr)]
+  && assertStateP (six rN tN cN gN pN   trRN find' root ldRoot ldR ldT ldC ldG ldP  ldPr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+prCall) [(sixK rootN rN tN cN gN pN,pTrr)]
+  && assertStateP (six tN cN gN pN trRN trN  find' r    ldR    ldT ldC ldG ldP ldPr ldTr) (rCall|+tCall|+cCall|+gCall|+pCall|+prCall|+trCall)   [(sixK rN tN cN gN pN trRN,tr)]
+  
+  && assertStateP (six rN tN cN gN pN   sRN  findUnambiguous' root ldRoot ldR ldT ldC ldG ldP  ldPr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+prCall) (Just pSr)
+  && assertStateP (six rN tN cN gN pN   tfRN findUnambiguous' root ldRoot ldR ldT ldC ldG ldP  ldPr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+prCall) (Just pTfr)
+  && assertStateP (six rN tN cN gN pN   trRN findUnambiguous' root ldRoot ldR ldT ldC ldG ldP  ldPr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+prCall) (Just pTrr)
+  && assertStateP (six tN cN gN pN trRN trN  findUnambiguous' r    ldR    ldT ldC ldG ldP ldPr ldTr) (rCall|+tCall|+cCall|+gCall|+pCall|+prCall|+trCall)   (Just tr)
+  
+prop_seven rootN rN tN cN gN pN trN sKey sContent tfKey tfContent = 
+ "" `notElem` [rootN,rN,tN,cN,gN,pN,trN,sKey,sContent,tfKey,tfContent] ==>  
+  let tr = make trN
+      p = setSubmitRepo (setTrainFileRepo (setTrainRunRepo (make pN) trr) tfr) sr
+      g = addChild (make gN) p
+      c = addChild (make cN) g
+      t = addChild (make tN) c
+      r = addChild (make rN) t
+      root = addChild (make rootN :: Root) r
+      
+      sr = addSubmit emptySubmitRepo sKey sContent
+      tfr = addTrainFile emptyTrainFileRepo tfKey tfContent
+      trr = addChild emptyTrainRunRepo tr
+        
+  in assertStateP (seven' find'            root ldRoot ldR ldT ldC ldG ldP ldPr ldTr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+pr3Call|+trCall) [(sevenK rootN rN tN cN gN pN trRN,tr)]
+  && assertStateP (seven' findUnambiguous' root ldRoot ldR ldT ldC ldG ldP ldPr ldTr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+pr3Call|+trCall) (Just tr)
+  
+  && assertStateP (seven rN tN cN gN pN trRN trN find'            root ldRoot ldR ldT ldC ldG ldP ldPr ldTr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+prCall|+trCall) [(sevenK rootN rN tN cN gN pN trRN,tr)]
+  && assertStateP (seven rN tN cN gN pN trRN trN findUnambiguous' root ldRoot ldR ldT ldC ldG ldP ldPr ldTr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+prCall|+trCall) (Just tr)
+  
+
+
 {-
-prop_findNoHints rootN rN tN cN gN pN trN =
- "" `notElem` [rootN,rN,tN,cN,gN,pN,trN] ==>
-  let tr = make trN
-      trr = addChild emptyTrainRunRepo tr
-      p = setTrainRunRepo (make pN) trr
-      g = addChild (make gN) p
-      c = addChild (make cN) g
-      t = addChild (make tN) c
-      r = addChild (make rN) t
-      root = addChild (make rootN :: Root) r
-
-      pSubmitR = makeProjectSubmitRepo emptySubmitRepo
-      pTrainFileR = makeProjectTrainFileRepo emptyTrainFileRepo
-      pTrainRunR = makeProjectTrainRunRepo trr
-      prs = [pSubmitR,pTrainFileR,pTrainRunR]
-      prs1 = map (\x -> (K pN Z,x)) prs
-      prs2 = map (\x -> (K pN $ K gN Z,x)) prs
-      prs3 = map (\x -> (K pN $ K gN $ K cN Z,x)) prs
-      prs4 = map (\x -> (K pN $ K gN $ K cN $ K tN Z,x)) prs
-      prs5 = map (\x -> (K pN $ K gN $ K cN $ K tN $ K rN Z,x)) prs
-      prs6 = map (\x -> (K pN $ K gN $ K cN $ K tN $ K rN $ K rootN Z,x)) prs
-      trrN = getName trr in
-
-     [(Z,root)] == find zero root                                 && Just root == findUnambiguous zero root
-  && [(Z,r)]    == find zero r                                    && Just r    == findUnambiguous zero r
-  && [(Z,t)]    == find zero t                                    && Just t    == findUnambiguous zero t
-  && [(Z,c)]    == find zero c                                    && Just c    == findUnambiguous zero c
-  && [(Z,g)]    == find zero g                                    && Just g    == findUnambiguous zero g
-  && [(Z,p)]    == find zero p                                    && Just p    == findUnambiguous zero p
-  && [(Z,trr)]  == find zero trr                                  && Just trr  == findUnambiguous zero trr
-  && [(Z,tr)]   == find zero tr                                   && Just tr   == findUnambiguous zero tr
-
-  && [(one rootN,r)] == find one' root                            && Just r == findUnambiguous one' root
-  && [(one rN,t)]    == find one' r                               && Just t == findUnambiguous one' r
-  && [(one tN,c)]    == find one' t                               && Just c == findUnambiguous one' t
-  && [(one cN,g)]    == find one' c                               && Just g == findUnambiguous one' c
-  && [(one gN,p)]    == find one' g                               && Just p == findUnambiguous one' g
-  && prs1            == find one' p
-  && [(one trrN,tr)] == find one' trr                             && Just tr == findUnambiguous one' trr
-
-  && [(two rootN rN,t)] == find two' root                         && Just t == findUnambiguous two' root
-  && [(two rN tN,c)]    == find two' r                            && Just c == findUnambiguous two' r
-  && [(two tN cN,g)]    == find two' t                            && Just g == findUnambiguous two' t
-  && [(two cN gN,p)]    == find two' c                            && Just p == findUnambiguous two' c
-  && prs2               == find two' g
-  && [(two pN trrN,tr)] == find two' p                            && Just tr == findUnambiguous two' p
-
-  && [(three rootN rN tN,c)] == find three' root                  && Just c == findUnambiguous three' root
-  && [(three rN tN cN,g)]    == find three' r                     && Just g == findUnambiguous three' r
-  && [(three tN cN gN,p)]    == find three' t                     && Just p == findUnambiguous three' t
-  && prs3                    == find three' c
-  && [(three gN pN trrN,tr)] == find three' g                     && Just tr == findUnambiguous three' g
-
-  && [(four rootN rN tN cN,g)]  == find four' root                && Just g == findUnambiguous four' root
-  && [(four rN tN cN gN,p)]     == find four' r                   && Just p == findUnambiguous four' r
-  && prs4                       == find four' t 
-  && [(four cN gN pN trrN, tr)] == find four' c                   && Just tr == findUnambiguous four' c
-
-  && [(five rootN rN tN cN gN,p)] == find five' root              && Just p == findUnambiguous five' root
-  && prs5                         == find five' r  
-  && [(five tN cN gN pN trrN,tr)] == find five' t                 && Just tr == findUnambiguous five' t
-
-  && prs6                        == find six' root
-  && [(six rN tN cN gN pN trrN,tr)] == find six' r                && Just tr == findUnambiguous six' r
-
-  && [(seven rootN rN tN cN gN pN trrN,tr)] == find seven' root   && Just tr == findUnambiguous seven' root
-
-prop_findAllHints rootN rN tN cN gN pN trN =
- "" `notElem` [rootN,rN,tN,cN,gN,pN,trN] ==>
-  let tr = make trN
-      trr = addChild emptyTrainRunRepo tr
-      pSubmitR = makeProjectSubmitRepo emptySubmitRepo
-      pTrainFileR = makeProjectTrainFileRepo emptyTrainFileRepo
-      pTrainRunR = makeProjectTrainRunRepo trr
-      p = setTrainRunRepo (make pN) trr
-      g = addChild (make gN) p
-      c = addChild (make cN) g
-      t = addChild (make tN) c
-      r = addChild (make rN) t
-      root = addChild (make rootN :: Root) r
-
-      sRN = getName emptySubmitRepo
-      tfRN = getName emptyTrainFileRepo
-      trRN = getName emptyTrainRunRepo in
-     [(one rootN,r)]        == find (oneM rN) root                                           && Just r           == findUnambiguous (oneM rN) root                                         
-  && [(one rN,t)]           == find (oneM tN) r                                              && Just t           == findUnambiguous (oneM tN) r                                            
-  && [(one tN,c)]           == find (oneM cN) t                                              && Just c           == findUnambiguous (oneM cN) t                                            
-  && [(one cN,g)]           == find (oneM gN) c                                              && Just g           == findUnambiguous (oneM gN) c                                            
-  && [(one gN,p)]           == find (oneM pN) g                                              && Just p           == findUnambiguous (oneM pN) g                                            
-  && [(one pN,pSubmitR)]    == find (oneM sRN) p                                             && Just pSubmitR    == findUnambiguous (oneM sRN) p                                           
-  && [(one pN,pTrainFileR)] == find (oneM tfRN) p                                            && Just pTrainFileR == findUnambiguous (oneM tfRN) p                                          
-  && [(one pN,pTrainRunR)]  == find (oneM trRN) p                                            && Just pTrainRunR  == findUnambiguous (oneM trRN) p                                          
-  && [(one trRN,tr)]        == find (oneM trN) trr                                           && Just tr          == findUnambiguous (oneM trN) trr                                         
-                                                                                                                                                                               
-  && [(two rootN rN,t)]        == find (twoM rN tN) root                                     && Just t           == findUnambiguous (twoM rN tN) root                                   
-  && [(two rN tN,c)]           == find (twoM tN cN) r                                        && Just c           == findUnambiguous (twoM tN cN) r                                      
-  && [(two tN cN,g)]           == find (twoM cN gN) t                                        && Just g           == findUnambiguous (twoM cN gN) t                                      
-  && [(two cN gN,p)]           == find (twoM gN pN) c                                        && Just p           == findUnambiguous (twoM gN pN) c                                      
-  && [(two gN pN,pSubmitR)]    == find (twoM pN sRN) g                                       && Just pSubmitR    == findUnambiguous (twoM pN sRN) g                                     
-  && [(two gN pN,pTrainFileR)] == find (twoM pN tfRN) g                                      && Just pTrainFileR == findUnambiguous (twoM pN tfRN) g                                    
-  && [(two gN pN,pTrainRunR)]  == find (twoM pN trRN) g                                      && Just pTrainRunR  == findUnambiguous (twoM pN trRN) g                                    
-  && [(two pN trRN,tr)]        == find (twoM trRN trN) p                                     && Just tr          == findUnambiguous (twoM trRN trN) p                                   
-                                                                                                                                                                          
-  && [(three rootN rN tN,c)]        == find (threeM rN tN cN) root                           && Just  c           == findUnambiguous (threeM rN tN cN) root                         
-  && [(three rN tN cN,g)]           == find (threeM tN cN gN) r                              && Just  g           == findUnambiguous (threeM tN cN gN) r                            
-  && [(three tN cN gN,p)]           == find (threeM cN gN pN) t                              && Just  p           == findUnambiguous (threeM cN gN pN) t                            
-  && [(three cN gN pN,pSubmitR)]    == find (threeM gN pN sRN) c                             && Just  pSubmitR    == findUnambiguous (threeM gN pN sRN) c                           
-  && [(three cN gN pN,pTrainFileR)] == find (threeM gN pN tfRN) c                            && Just  pTrainFileR == findUnambiguous (threeM gN pN tfRN) c                          
-  && [(three cN gN pN,pTrainRunR)]  == find (threeM gN pN trRN) c                            && Just  pTrainRunR  == findUnambiguous (threeM gN pN trRN) c                          
-  && [(three gN pN trRN,tr)]        == find (threeM pN trRN trN) g                           && Just  tr          == findUnambiguous (threeM pN trRN trN) g                         
-                                                                                                                                                                              
-  && [(four rootN rN tN cN,g)]        == find (fourM rN tN cN gN) root                       && Just g           == findUnambiguous (fourM rN tN cN gN) root                     
-  && [(four rN tN cN gN,p)]           == find (fourM tN cN gN pN) r                          && Just p           == findUnambiguous (fourM tN cN gN pN) r                        
-  && [(four tN cN gN pN,pSubmitR)]    == find (fourM cN gN pN sRN) t                         && Just pSubmitR    == findUnambiguous (fourM cN gN pN sRN) t                       
-  && [(four tN cN gN pN,pTrainFileR)] == find (fourM cN gN pN tfRN) t                        && Just pTrainFileR == findUnambiguous (fourM cN gN pN tfRN) t                      
-  && [(four tN cN gN pN,pTrainRunR)]  == find (fourM cN gN pN trRN) t                        && Just pTrainRunR  == findUnambiguous (fourM cN gN pN trRN) t                      
-  && [(four cN gN pN trRN,tr)]        == find (fourM gN pN trRN trN) c                       && Just tr          == findUnambiguous (fourM gN pN trRN trN) c                     
-                                                                                                                                                                           
-  && [(five rootN rN tN cN gN,p)]        == find (fiveM rN tN cN gN pN) root                 && Just p           == findUnambiguous (fiveM rN tN cN gN pN) root               
-  && [(five rN tN cN gN pN,pSubmitR)]    == find (fiveM tN cN gN pN sRN) r                   && Just pSubmitR    == findUnambiguous (fiveM tN cN gN pN sRN) r                 
-  && [(five rN tN cN gN pN,pTrainFileR)] == find (fiveM tN cN gN pN tfRN) r                  && Just pTrainFileR == findUnambiguous (fiveM tN cN gN pN tfRN) r                
-  && [(five rN tN cN gN pN,pTrainRunR)]  == find (fiveM tN cN gN pN trRN) r                  && Just pTrainRunR  == findUnambiguous (fiveM tN cN gN pN trRN) r                
-  && [(five tN cN gN pN trRN, tr)]       == find (fiveM cN gN pN trRN trN) t                 && Just tr          == findUnambiguous (fiveM cN gN pN trRN trN) t               
-                                                                                                                                                                          
-  && [(six rootN rN tN cN gN pN,pSubmitR)]    == find (sixM rN tN cN gN pN sRN) root         && Just pSubmitR    == findUnambiguous (sixM rN tN cN gN pN sRN) root       
-  && [(six rootN rN tN cN gN pN,pTrainFileR)] == find (sixM rN tN cN gN pN tfRN) root        && Just pTrainFileR == findUnambiguous (sixM rN tN cN gN pN tfRN) root      
-  && [(six rootN rN tN cN gN pN,pTrainRunR)]  == find (sixM rN tN cN gN pN trRN) root        && Just pTrainRunR  == findUnambiguous (sixM rN tN cN gN pN trRN) root      
-  && [(six rN tN cN gN pN trRN,tr)]           == find (sixM tN cN gN pN trRN trN) r          && Just tr          == findUnambiguous (sixM tN cN gN pN trRN trN) r        
-                                                                                                                                                                           
-  && [(seven rootN rN tN cN gN pN trRN,tr)]   == find (sevenM rN tN cN gN pN trRN trN) root  && Just tr          == findUnambiguous (sevenM rN tN cN gN pN trRN trN) root
-
 prop_findGeneral rootName ns = let names = filter (not.null) $ nub ns in names /= [] ==>
   let root = makeNode rootName 4 7 names
   in  all (uncurry (presentOnFind root)) $ makeKeys root

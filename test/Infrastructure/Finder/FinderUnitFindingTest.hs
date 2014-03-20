@@ -4,6 +4,11 @@ module Infrastructure.Finder.FinderUnitFindingTest where
 import Test.Framework
 import Infrastructure.Finder.FinderTestUtils
 
+import Infrastructure.Node
+import Domain.Root
+import Domain.Project
+import Domain.ProjectRepo
+
 {-# ANN module "HLint: ignore Use camelCase" #-}
 {-# ANN module "HLint: ignore Reduce duplication" #-}
 {-# ANN module "HLint: ignore Evaluate" #-}
@@ -171,7 +176,7 @@ test_five = do
   assertState (five tN cN gN pN   tfRN findUnambiguous' r    ldR    ldT ldC ldG ldP  ldPr) (rCall|+tCall|+cCall|+gCall|+pCall|+prCall)   (Just pTfr)
   assertState (five tN cN gN pN   trRN findUnambiguous' r    ldR    ldT ldC ldG ldP  ldPr) (rCall|+tCall|+cCall|+gCall|+pCall|+prCall)   (Just pTrr)
   assertState (five cN gN pN trRN trN  findUnambiguous' t    ldT    ldC ldG ldP ldPr ldTr) (tCall|+cCall|+gCall|+pCall|+prCall|+trCall)  (Just tr)
-  
+   
 test_six = do
   assertState (six' find' root ldRoot ldR ldT ldC ldG ldP  ldPr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+pr3Call) (prs $ sixK rootN rN tN cN gN pN)
   assertState (six' find' r    ldR    ldT ldC ldG ldP ldPr ldTr) (rCall|+tCall|+cCall|+gCall|+pCall|+pr3Call|+trCall)   [(sixK rN tN cN gN pN trRN,tr)]
@@ -194,6 +199,34 @@ test_seven = do
   
   assertState (seven rN tN cN gN pN trRN trN find'            root ldRoot ldR ldT ldC ldG ldP ldPr ldTr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+prCall|+trCall) [(sevenK rootN rN tN cN gN pN trRN,tr)]
   assertState (seven rN tN cN gN pN trRN trN findUnambiguous' root ldRoot ldR ldT ldC ldG ldP ldPr ldTr) (rootCall|+rCall|+tCall|+cCall|+gCall|+pCall|+prCall|+trCall) (Just tr)
-  
-  
+    
+rootN = "root"
+rN = "repo"
+tN = "term"
+cN = "course"
+gN = "group"
+pN = "project"
+trN = "trainRun"
+
+sRN = getName emptySubmitRepo
+tfRN = getName emptyTrainFileRepo
+trRN = getName emptyTrainRunRepo
+
+tr = make trN
+p = setTrainRunRepo (make pN) trr
+g = addChild (make gN) p
+c = addChild (make cN) g
+t = addChild (make tN) c
+r = addChild (make rN) t
+root = addChild (make rootN :: Root) r
+
+sr = emptySubmitRepo
+tfr = emptyTrainFileRepo
+trr = addChild emptyTrainRunRepo tr
+
+pSr = makeProjectSubmitRepo sr
+pTfr = makeProjectTrainFileRepo tfr
+pTrr = makeProjectTrainRunRepo trr
+
+prs k = [(k,pSr),(k,pTfr),(k,pTrr)]
   

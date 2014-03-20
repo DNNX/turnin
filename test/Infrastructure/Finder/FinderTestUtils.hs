@@ -4,7 +4,6 @@ module Infrastructure.Finder.FinderTestUtils where
 import Test.Framework
 import Control.Monad.State
 
-import Infrastructure.Node
 import Domain.Root
 import Domain.Repo
 import Domain.Term
@@ -16,7 +15,8 @@ import Domain.TrainRun
 
 import Infrastructure.Finder
 
-assertState actual expectedV expectedK = assertEqual (expectedV,expectedK) actual
+assertState  actual expectedV expectedK = assertEqual (expectedV,expectedK) actual
+assertStateP actual expectedV expectedK = (expectedV,expectedK) == actual
 
 zero   func x a                 = func x (ld0 a)  Z
 one'   func x a b               = func x (ld1 b)  (sn (ld0 a) Z)
@@ -124,34 +124,6 @@ ldTr _ x = do
   put (rootX,rX,tX,cX,gX,pX,prX,trX+1)
   return x
 
-rootN = "root"
-rN = "repo"
-tN = "term"
-cN = "course"
-gN = "group"
-pN = "project"
-trN = "trainRun"
-
-sRN = getName emptySubmitRepo
-tfRN = getName emptyTrainFileRepo
-trRN = getName emptyTrainRunRepo
-
-tr = make trN
-p = setTrainRunRepo (make pN) trr
-g = addChild (make gN) p
-c = addChild (make cN) g
-t = addChild (make tN) c
-r = addChild (make rN) t
-root = addChild (make rootN :: Root) r
-
-sr = emptySubmitRepo
-tfr = emptyTrainFileRepo
-trr = addChild emptyTrainRunRepo tr
-
-pSr = makeProjectSubmitRepo sr
-pTfr = makeProjectTrainFileRepo tfr
-pTrr = makeProjectTrainRunRepo trr
-
 noCalls  = (0,0,0,0,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
 rootCall = (1,0,0,0,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
 rCall    = (0,1,0,0,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
@@ -163,5 +135,4 @@ prCall   = (0,0,0,0,0,0,1,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
 trCall   = (0,0,0,0,0,0,0,1) :: (Int,Int,Int,Int,Int,Int,Int,Int)
 pr3Call = prCall |+ prCall |+ prCall
 
-prs k = [(k,pSr),(k,pTfr),(k,pTrr)]
 
