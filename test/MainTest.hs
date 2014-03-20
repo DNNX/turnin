@@ -38,8 +38,7 @@ import {-@ HTF_TESTS @-} Infrastructure.NodePropTest
 import {-@ HTF_TESTS @-} Infrastructure.CsvNodePropTest
 import {-@ HTF_TESTS @-} Infrastructure.DatePropTest
 import {-@ HTF_TESTS @-} Infrastructure.PersisterUnitTest
-import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderCompileTest
---import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderUnitFindingTest
+import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderUnitFindingTest
 --import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderUnitNoFindingTest
 
 import {-@ HTF_TESTS @-} Domain.HierarchyPropTest
