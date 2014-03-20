@@ -16,7 +16,7 @@ import Infrastructure.Finder
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 {-# ANN module "HLint: ignore Reduce duplication" #-}
-
+{-
 prop_noFindNoHints rootN rN tN cN gN pN trN =
  "" `notElem` [rootN,rN,tN,cN,gN,pN,trN] ==>
   let rt0 = make rootN :: Root
@@ -286,4 +286,4 @@ four a b c d = S (Just a) $ three b c d
 five a b c d e = S (Just a) $ four b c d e
 six a b c d e f = S (Just a) $ five b c d e f
 seven a b c d e f g = S (Just a) $ six b c d e f g
-
+-}

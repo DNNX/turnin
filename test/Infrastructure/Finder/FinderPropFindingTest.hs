@@ -16,7 +16,7 @@ import Infrastructure.Finder
 {-# ANN module "HLint: ignore Reduce duplication" #-}
 {-# ANN module "HLint: ignore Evaluate" #-}
 {-# ANN module "HLint: ignore Use ++" #-}
-
+{-
 prop_findNoHints rootN rN tN cN gN pN trN =
  "" `notElem` [rootN,rN,tN,cN,gN,pN,trN] ==>
   let tr = make trN
@@ -212,3 +212,4 @@ sixM a b c d e f     = S (Just a) $ fiveM b c d e f
 sevenM a b c d e f g = S (Just a) $ sixM b c d e f g
 
 
+-}

@@ -13,8 +13,8 @@ import {-@ HTF_TESTS @-} Infrastructure.NodeUnitTest
 import {-@ HTF_TESTS @-} Infrastructure.CsvNodeUnitTest
 import {-@ HTF_TESTS @-} Infrastructure.DateUnitTest
 import {-@ HTF_TESTS @-} Infrastructure.PersisterPropTest
-import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderPropFindingTest
-import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderPropNoFindingTest
+--import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderPropFindingTest
+--import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderPropNoFindingTest
 
 import {-@ HTF_TESTS @-} Domain.HierarchyUnitTest
 import {-@ HTF_TESTS @-} Domain.RootUnitTest
@@ -39,8 +39,8 @@ import {-@ HTF_TESTS @-} Infrastructure.CsvNodePropTest
 import {-@ HTF_TESTS @-} Infrastructure.DatePropTest
 import {-@ HTF_TESTS @-} Infrastructure.PersisterUnitTest
 import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderCompileTest
-import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderUnitFindingTest
-import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderUnitNoFindingTest
+--import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderUnitFindingTest
+--import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderUnitNoFindingTest
 
 import {-@ HTF_TESTS @-} Domain.HierarchyPropTest
 import {-@ HTF_TESTS @-} Domain.RootPropTest

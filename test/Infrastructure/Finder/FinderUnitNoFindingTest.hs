@@ -14,7 +14,7 @@ import Infrastructure.Finder
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 {-# ANN module "HLint: ignore Reduce duplication" #-}
-
+{-
 test_noFindNoHints = do
   let rootN = "root"
       rN = "repo"
@@ -233,3 +233,4 @@ five a b c d e      = S (Just a) $ four b c d e
 six a b c d e f     = S (Just a) $ five b c d e f
 seven a b c d e f g = S (Just a) $ six b c d e f g
 
+-}

@@ -15,7 +15,7 @@ import Infrastructure.Finder
 {-# ANN module "HLint: ignore Reduce duplication" #-}
 {-# ANN module "HLint: ignore Evaluate" #-}
 {-# ANN module "HLint: ignore Use ++" #-}
-
+{-
 test_findNoHints = do
   let tr = make trN
       trr = addChild emptyTrainRunRepo tr
@@ -186,4 +186,4 @@ fiveM a b c d e      = S (Just a) $ fourM b c d e
 sixM a b c d e f     = S (Just a) $ fiveM b c d e f
 sevenM a b c d e f g = S (Just a) $ sixM b c d e f g
 
-
+-}

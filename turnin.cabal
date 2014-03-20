@@ -42,5 +42,4 @@ test-suite turnin-tests
                    IOTestUtils,
                    Infrastructure.Persister,
                    Domain.ProjectRepo,
-                   Infrastructure.Finder.FinderUnitNoFindingTest,
-                   Infrastructure.Finder.DisambiguationUnitTest
+                   Infrastructure.Finder.FinderUnitNoFindingTest
