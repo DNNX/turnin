@@ -125,14 +125,14 @@ ldTr _ x = do
   return x
 
 noCalls  = (0,0,0,0,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
-rootCall = (1,0,0,0,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
-rCall    = (0,1,0,0,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
-tCall    = (0,0,1,0,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
-cCall    = (0,0,0,1,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
-gCall    = (0,0,0,0,1,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
-pCall    = (0,0,0,0,0,1,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
-prCall   = (0,0,0,0,0,0,1,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
-trCall   = (0,0,0,0,0,0,0,1) :: (Int,Int,Int,Int,Int,Int,Int,Int)
-pr3Call = prCall |+ prCall |+ prCall
+rootC = (1,0,0,0,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
+rC    = (0,1,0,0,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
+tC    = (0,0,1,0,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
+cC    = (0,0,0,1,0,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
+gC    = (0,0,0,0,1,0,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
+pC    = (0,0,0,0,0,1,0,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
+prC   = (0,0,0,0,0,0,1,0) :: (Int,Int,Int,Int,Int,Int,Int,Int)
+trC   = (0,0,0,0,0,0,0,1) :: (Int,Int,Int,Int,Int,Int,Int,Int)
+pr3C = prC |+ prC |+ prC
 
 

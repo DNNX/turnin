@@ -2,19 +2,21 @@
 module Infrastructure.Finder.FinderUnitNoFindingTest where
 
 import Test.Framework
-import Data.List hiding (find)
-import Control.Arrow (first)
+import Infrastructure.Finder.FinderTestUtils
 
 import Infrastructure.Node
 import Domain.Root
 import Domain.Project
 import Domain.ProjectRepo
 
-import Infrastructure.Finder
-
 {-# ANN module "HLint: ignore Use camelCase" #-}
 {-# ANN module "HLint: ignore Reduce duplication" #-}
-{-
+
+zip' [] [] = []
+zip' [] _  = error "Lists of unequal lengths"
+zip' _  [] = error "Lists of unequal lenghts"
+zip' (x:xs) (y:ys) = (x,y):zip' xs ys
+
 test_noFindNoHints = do
   let rootN = "root"
       rN = "repo"
@@ -35,60 +37,78 @@ test_noFindNoHints = do
       g0 = make gN
       [g1,g2,g3] = map (addChild g0) [p0,p1,p2]
       p0 = make pN
-      [p1,p2] = map (setTrainRunRepo p0) [trr0,trr1]
-      trr0 = emptyTrainRunRepo
-      [trr1] = map (addChild trr0) [tr0]
+      [p1,p2] = map (setTrainRunRepo p0) [trr,trr1]
+      trr = emptyTrainRunRepo
+      [trr1] = map (addChild trr) [tr0]
       tr0 = make trN
-      prs = [pSubmitR,pTrainFileR,pTrainRunR]
-      prs1 = map (\x -> (K pN Z,x)) prs
-      prs2 = map (\x -> (K pN $ K gN Z,x)) prs
-      prs3 = map (\x -> (K pN $ K gN $ K cN Z,x)) prs
-      prs4 = map (\x -> (K pN $ K gN $ K cN $ K tN Z,x)) prs
-      prs5 = map (\x -> (K pN $ K gN $ K cN $ K tN $ K rN Z,x)) prs
-      prs6 = map (\x -> (K pN $ K gN $ K cN $ K tN $ K rN $ K rootN Z,x)) prs
-      pSubmitR = makeProjectSubmitRepo emptySubmitRepo
-      pTrainFileR = makeProjectTrainFileRepo emptyTrainFileRepo
-      pTrainRunR = makeProjectTrainRunRepo trr0
 
-  assertEqual [[]] (nub $ map (find one') [rt0])  >> assertEqual [Nothing] (nub $ map (findUnambiguous one') [rt0])
-  assertEqual [[]] (nub $ map (find one') [r0])   >> assertEqual [Nothing] (nub $ map (findUnambiguous one') [r0])
-  assertEqual [[]] (nub $ map (find one') [t0])   >> assertEqual [Nothing] (nub $ map (findUnambiguous one') [t0])
-  assertEqual [[]] (nub $ map (find one') [c0])   >> assertEqual [Nothing] (nub $ map (findUnambiguous one') [c0])
-  assertEqual [[]] (nub $ map (find one') [g0])   >> assertEqual [Nothing] (nub $ map (findUnambiguous one') [g0])
-  assertEqual [[]] (nub $ map (find one') [trr0]) >> assertEqual [Nothing] (nub $ map (findUnambiguous one') [trr0])
-  assertEqual prs1 (find one' p0)
+      pTrr = makeProjectTrainRunRepo trr
 
-  assertEqual [[]] (nub $ map (find two') [rt0,rt1]) >> assertEqual [Nothing] (nub $ map (findUnambiguous two') [rt0,rt1])
-  assertEqual [[]] (nub $ map (find two') [r0,r1])   >> assertEqual [Nothing] (nub $ map (findUnambiguous two') [r0,r1])
-  assertEqual [[]] (nub $ map (find two') [t0,t1])   >> assertEqual [Nothing] (nub $ map (findUnambiguous two') [t0,t1])
-  assertEqual [[]] (nub $ map (find two') [c0,c1])   >> assertEqual [Nothing] (nub $ map (findUnambiguous two') [c0,c1])
-  assertEqual [[]] (nub $ map (find two') [g0])      >> assertEqual [Nothing] (nub $ map (findUnambiguous two') [g0])
-  assertEqual [[]] (nub $ map (find two') [p0,p1])   >> assertEqual [Nothing] (nub $ map (findUnambiguous two') [p0,p1])
-  assertEqual prs2 $ find two' g1
+  assertState (one' find' rt0   ldRoot ldR)  rootC []
+  assertState (one' find' r0    ldR    ldT)  rC    []
+  assertState (one' find' t0    ldT    ldC)  tC    []
+  assertState (one' find' c0    ldC    ldG)  cC    []
+  assertState (one' find' g0    ldG    ldP)  gC    []
+  assertState (one' find' pTrr  ldPr   ldTr) prC   []
 
-  assertEqual [[]] (nub $ map (find three') [rt0,rt1,rt2]) >> assertEqual [Nothing] (nub $ map (findUnambiguous three') [rt0,rt1,rt2])
-  assertEqual [[]] (nub $ map (find three') [r0,r1,r2])    >> assertEqual [Nothing] (nub $ map (findUnambiguous three') [r0,r1,r2])
-  assertEqual [[]] (nub $ map (find three') [t0,t1,t2])    >> assertEqual [Nothing] (nub $ map (findUnambiguous three') [t0,t1,t2])
-  assertEqual [[]] (nub $ map (find three') [c0,c1])       >> assertEqual [Nothing] (nub $ map (findUnambiguous three') [c0,c1])
-  assertEqual [[]] (nub $ map (find three') [g0,g1,g2])    >> assertEqual [Nothing] (nub $ map (findUnambiguous three') [g0,g1,g2])
-  assertEqual prs3 $ find three' c2
+  mapM_(\(n,call)->assertState (two' find' n ldRoot ldR  ldT)  call []) $ zip' [rt0,rt1] [rootC,rootC|+rC]
+  mapM_(\(n,call)->assertState (two' find' n ldR    ldT  ldC)  call []) $ zip' [r0,r1]   [rC,rC|+tC]
+  mapM_(\(n,call)->assertState (two' find' n ldT    ldC  ldG)  call []) $ zip' [t0,t1]   [tC,tC|+cC]
+  mapM_(\(n,call)->assertState (two' find' n ldC    ldG  ldP)  call []) $ zip' [c0,c1]   [cC,cC|+gC]
+  mapM_(\(n,call)->assertState (two' find' n ldG    ldP  ldPr) call []) $ zip' [g0]      [gC]
+  mapM_(\(n,call)->assertState (two' find' n ldP    ldPr ldTr) call []) $ zip' [p0,p1]   [pC|+pr3C,pC|+pr3C]
 
-  assertEqual [[]] (nub $ map (find four') [rt0,rt1,rt2,rt3]) >> assertEqual [Nothing] (nub $ map (findUnambiguous four') [rt0,rt1,rt2,rt3])  
-  assertEqual [[]] (nub $ map (find four') [r0,r1,r2,r3])     >> assertEqual [Nothing] (nub $ map (findUnambiguous four') [r0,r1,r2,r3])     
-  assertEqual [[]] (nub $ map (find four') [t0,t1,t2])        >> assertEqual [Nothing] (nub $ map (findUnambiguous four') [t0,t1,t2])        
-  assertEqual [[]] (nub $ map (find four') [c0,c1,c2,c3])     >> assertEqual [Nothing] (nub $ map (findUnambiguous four') [c0,c1,c2,c3])     
-  assertEqual prs4 $ find four' t3
+  mapM_(\(n,call)->assertState (three' find' n ldRoot ldR ldT  ldC)  call []) $ zip' [rt0,rt1,rt2] [rootC,rootC|+rC,rootC|+rC|+tC]
+  mapM_(\(n,call)->assertState (three' find' n ldR    ldT ldC  ldG)  call []) $ zip' [r0,r1,r2]    [rC,rC|+tC,rC|+tC|+cC]
+  mapM_(\(n,call)->assertState (three' find' n ldT    ldC ldG  ldP)  call []) $ zip' [t0,t1,t2]    [tC,tC|+cC,tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (three' find' n ldG    ldP ldPr ldTr) call []) $ zip' [g0,g1,g2]    [gC,gC|+pC|+pr3C,gC|+pC|+pr3C]
 
-  assertEqual [[]] (nub $ map (find five') [rt0,rt1,rt2,rt3,rt4]) >> assertEqual [Nothing] (nub $ map (findUnambiguous five') [rt0,rt1,rt2,rt3,rt4]) 
-  assertEqual [[]] (nub $ map (find five') [r0,r1,r2,r3])         >> assertEqual [Nothing] (nub $ map (findUnambiguous five') [r0,r1,r2,r3])         
-  assertEqual [[]] (nub $ map (find five') [t0,t1,t2,t3,t4])      >> assertEqual [Nothing] (nub $ map (findUnambiguous five') [t0,t1,t2,t3,t4])      
-  assertEqual prs5 $ find five' r4
+  mapM_(\(n,call)->assertState (four' find' n ldRoot ldR ldT ldC  ldG)  call []) $ zip' [rt0,rt1,rt2,rt3] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC]
+  mapM_(\(n,call)->assertState (four' find' n ldR    ldT ldC ldG  ldP)  call []) $ zip' [r0,r1,r2,r3]     [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (four' find' n ldT    ldC ldG ldP  ldPr) call []) $ zip' [t0,t1,t2]        [tC,tC|+cC,tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (four' find' n ldC    ldG ldP ldPr ldTr) call []) $ zip' [c0,c1,c2,c3]     [cC,cC|+gC,cC|+gC|+pC|+pr3C,cC|+gC|+pC|+pr3C]
 
-  assertEqual [[]] (nub $ map (find six') [rt0,rt1,rt2,rt3,rt4]) >> assertEqual [Nothing] (nub $ map (findUnambiguous six') [rt0,rt1,rt2,rt3,rt4]) 
-  assertEqual [[]] (nub $ map (find six') [r0,r1,r2,r3,r4,r5])   >> assertEqual [Nothing] (nub $ map (findUnambiguous six') [r0,r1,r2,r3,r4,r5])  
-  assertEqual prs6 $ find six' rt5
+  mapM_(\(n,call)->assertState (five' find' n ldRoot ldR ldT ldC  ldG  ldP)  call []) $ zip' [rt0,rt1,rt2,rt3,rt4] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (five' find' n ldR    ldT ldC ldG  ldP  ldPr) call []) $ zip' [r0,r1,r2,r3]         [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (five' find' n ldT    ldC ldG ldP  ldPr ldTr) call []) $ zip' [t0,t1,t2,t3,t4]      [tC,tC|+cC,tC|+cC|+gC,tC|+cC|+gC|+pC|+pr3C,tC|+cC|+gC|+pC|+pr3C]
 
-  assertEqual [[]] (nub $ map (find seven') [rt0,rt1,rt2,rt3,rt4,rt5,rt6]) >> assertEqual [Nothing] (nub $ map (findUnambiguous seven') [rt0,rt1,rt2,rt3,rt4,rt5,rt6]) 
+  mapM_(\(n,call)->assertState (six' find' n ldRoot ldR ldT ldC ldG  ldP  ldPr) call []) $ zip' [rt0,rt1,rt2,rt3,rt4] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (six' find' n ldR    ldT ldC ldG ldP  ldPr ldTr) call []) $ zip' [r0,r1,r2,r3,r4,r5]   [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC,rC|+tC|+cC|+gC|+pC|+pr3C,rC|+tC|+cC|+gC|+pC|+pr3C]
+
+  mapM_(\(n,call)->assertState (seven' find' n ldRoot ldR ldT ldC ldG ldP ldPr ldTr) call []) $ zip' [rt0,rt1,rt2,rt3,rt4,rt5,rt6] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC,rootC|+rC|+tC|+cC|+gC|+pC|+pr3C,rootC|+rC|+tC|+cC|+gC|+pC|+pr3C]
+
+  assertState (one' findUnambiguous' rt0   ldRoot ldR)  rootC Nothing
+  assertState (one' findUnambiguous' r0    ldR    ldT)  rC    Nothing
+  assertState (one' findUnambiguous' t0    ldT    ldC)  tC    Nothing
+  assertState (one' findUnambiguous' c0    ldC    ldG)  cC    Nothing
+  assertState (one' findUnambiguous' g0    ldG    ldP)  gC    Nothing
+  assertState (one' findUnambiguous' pTrr  ldPr   ldTr) prC   Nothing
+
+  mapM_(\(n,call)->assertState (two' findUnambiguous' n ldRoot ldR  ldT)  call Nothing) $ zip' [rt0,rt1] [rootC,rootC|+rC]
+  mapM_(\(n,call)->assertState (two' findUnambiguous' n ldR    ldT  ldC)  call Nothing) $ zip' [r0,r1]   [rC,rC|+tC]
+  mapM_(\(n,call)->assertState (two' findUnambiguous' n ldT    ldC  ldG)  call Nothing) $ zip' [t0,t1]   [tC,tC|+cC]
+  mapM_(\(n,call)->assertState (two' findUnambiguous' n ldC    ldG  ldP)  call Nothing) $ zip' [c0,c1]   [cC,cC|+gC]
+  mapM_(\(n,call)->assertState (two' findUnambiguous' n ldG    ldP  ldPr) call Nothing) $ zip' [g0]      [gC]
+  mapM_(\(n,call)->assertState (two' findUnambiguous' n ldP    ldPr ldTr) call Nothing) $ zip' [p0,p1]   [pC|+pr3C,pC|+pr3C]
+
+  mapM_(\(n,call)->assertState (three' findUnambiguous' n ldRoot ldR ldT  ldC)  call Nothing) $ zip' [rt0,rt1,rt2] [rootC,rootC|+rC,rootC|+rC|+tC]
+  mapM_(\(n,call)->assertState (three' findUnambiguous' n ldR    ldT ldC  ldG)  call Nothing) $ zip' [r0,r1,r2]    [rC,rC|+tC,rC|+tC|+cC]
+  mapM_(\(n,call)->assertState (three' findUnambiguous' n ldT    ldC ldG  ldP)  call Nothing) $ zip' [t0,t1,t2]    [tC,tC|+cC,tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (three' findUnambiguous' n ldG    ldP ldPr ldTr) call Nothing) $ zip' [g0,g1,g2]    [gC,gC|+pC|+pr3C,gC|+pC|+pr3C]
+
+  mapM_(\(n,call)->assertState (four' findUnambiguous' n ldRoot ldR ldT ldC  ldG)  call Nothing) $ zip' [rt0,rt1,rt2,rt3] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC]
+  mapM_(\(n,call)->assertState (four' findUnambiguous' n ldR    ldT ldC ldG  ldP)  call Nothing) $ zip' [r0,r1,r2,r3]     [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (four' findUnambiguous' n ldT    ldC ldG ldP  ldPr) call Nothing) $ zip' [t0,t1,t2]        [tC,tC|+cC,tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (four' findUnambiguous' n ldC    ldG ldP ldPr ldTr) call Nothing) $ zip' [c0,c1,c2,c3]     [cC,cC|+gC,cC|+gC|+pC|+pr3C,cC|+gC|+pC|+pr3C]
+
+  mapM_(\(n,call)->assertState (five' findUnambiguous' n ldRoot ldR ldT ldC  ldG  ldP)  call Nothing) $ zip' [rt0,rt1,rt2,rt3,rt4] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (five' findUnambiguous' n ldR    ldT ldC ldG  ldP  ldPr) call Nothing) $ zip' [r0,r1,r2,r3]         [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (five' findUnambiguous' n ldT    ldC ldG ldP  ldPr ldTr) call Nothing) $ zip' [t0,t1,t2,t3,t4]      [tC,tC|+cC,tC|+cC|+gC,tC|+cC|+gC|+pC|+pr3C,tC|+cC|+gC|+pC|+pr3C]
+
+  mapM_(\(n,call)->assertState (six' findUnambiguous' n ldRoot ldR ldT ldC ldG  ldP  ldPr) call Nothing) $ zip' [rt0,rt1,rt2,rt3,rt4] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (six' findUnambiguous' n ldR    ldT ldC ldG ldP  ldPr ldTr) call Nothing) $ zip' [r0,r1,r2,r3,r4,r5]   [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC,rC|+tC|+cC|+gC|+pC|+pr3C,rC|+tC|+cC|+gC|+pC|+pr3C]
+
+  mapM_(\(n,call)->assertState (seven' findUnambiguous' n ldRoot ldR ldT ldC ldG ldP ldPr ldTr) call Nothing) $ zip' [rt0,rt1,rt2,rt3,rt4,rt5,rt6] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC,rootC|+rC|+tC|+cC|+gC|+pC|+pr3C,rootC|+rC|+tC|+cC|+gC|+pC|+pr3C]
 
 test_noFindAllGoodHints = do
   let rootN = "root"
@@ -98,7 +118,6 @@ test_noFindAllGoodHints = do
       gN = "group"
       pN = "project"
       trN = "trainRun"
-      trRN = getName emptyTrainRunRepo
 
       rt0 = make rootN :: Root
       [rt1,rt2,rt3,rt4,rt5,rt6,_] = map (addChild rt0) [r0,r1,r2,r3,r4,r5,r6]
@@ -111,126 +130,194 @@ test_noFindAllGoodHints = do
       g0 = make gN
       [g1,g2,g3] = map (addChild g0) [p0,p1,p2]
       p0 = make pN
-      [p1,p2] = map (setTrainRunRepo p0) [trr0,trr1]
-      trr0 = emptyTrainRunRepo
-      [trr1] = map (addChild trr0) [tr0]
+      [p1,p2] = map (setTrainRunRepo p0) [trr,trr1]
+      trr = emptyTrainRunRepo
+      [trr1] = map (addChild trr) [tr0]
       tr0 = make trN
 
-  assertEqual [[]] (nub $ map (find (one rN))  [rt0])  >> assertEqual [Nothing] (nub $ map (findUnambiguous (one rN))  [rt0]) 
-  assertEqual [[]] (nub $ map (find (one tN))  [r0])   >> assertEqual [Nothing] (nub $ map (findUnambiguous (one tN))  [r0])  
-  assertEqual [[]] (nub $ map (find (one cN))  [t0])   >> assertEqual [Nothing] (nub $ map (findUnambiguous (one cN))  [t0])  
-  assertEqual [[]] (nub $ map (find (one gN))  [c0])   >> assertEqual [Nothing] (nub $ map (findUnambiguous (one gN))  [c0])  
-  assertEqual [[]] (nub $ map (find (one pN))  [g0])   >> assertEqual [Nothing] (nub $ map (findUnambiguous (one pN))  [g0])  
-  assertEqual [[]] (nub $ map (find (one trN)) [trr0]) >> assertEqual [Nothing] (nub $ map (findUnambiguous (one trN)) [trr0])
-                   
-  assertEqual [[]] (nub $ map (find (two rN tN))    [rt0,rt1]) >> assertEqual [Nothing] (nub $ map (findUnambiguous (two rN tN))    [rt0,rt1])  
-  assertEqual [[]] (nub $ map (find (two tN cN))    [r0,r1])   >> assertEqual [Nothing] (nub $ map (findUnambiguous (two tN cN))    [r0,r1])    
-  assertEqual [[]] (nub $ map (find (two cN gN))    [t0,t1])   >> assertEqual [Nothing] (nub $ map (findUnambiguous (two cN gN))    [t0,t1])    
-  assertEqual [[]] (nub $ map (find (two gN pN))    [c0,c1])   >> assertEqual [Nothing] (nub $ map (findUnambiguous (two gN pN))    [c0,c1])    
-  assertEqual [[]] (nub $ map (find (two pN trRN))  [p0,p1])   >> assertEqual [Nothing] (nub $ map (findUnambiguous (two pN trRN))  [p0,p1])    
-                   
-  assertEqual [[]] (nub $ map (find (three rN tN cN))    [rt0,rt1,rt2]) >> assertEqual [Nothing] (nub $ map (findUnambiguous (three rN tN cN))    [rt0,rt1,rt2]) 
-  assertEqual [[]] (nub $ map (find (three tN cN gN))    [r0,r1,r2])    >> assertEqual [Nothing] (nub $ map (findUnambiguous (three tN cN gN))    [r0,r1,r2])    
-  assertEqual [[]] (nub $ map (find (three cN gN pN))    [t0,t1,t2])    >> assertEqual [Nothing] (nub $ map (findUnambiguous (three cN gN pN))    [t0,t1,t2])    
-  assertEqual [[]] (nub $ map (find (three pN trRN trN)) [g0,g1,g2])    >> assertEqual [Nothing] (nub $ map (findUnambiguous (three pN trRN trN)) [g0,g1,g2])    
-                   
-  assertEqual [[]] (nub $ map (find (four rN tN cN gN))    [rt0,rt1,rt2,rt3]) >> assertEqual [Nothing] (nub $ map (findUnambiguous (four rN tN cN gN))    [rt0,rt1,rt2,rt3]) 
-  assertEqual [[]] (nub $ map (find (four tN cN gN pN))    [r0,r1,r2,r3])     >> assertEqual [Nothing] (nub $ map (findUnambiguous (four tN cN gN pN))    [r0,r1,r2,r3])     
-  assertEqual [[]] (nub $ map (find (four cN gN pN trN))   [t0,t1,t2,t3])     >> assertEqual [Nothing] (nub $ map (findUnambiguous (four cN gN pN trN))   [t0,t1,t2,t3])     
-  assertEqual [[]] (nub $ map (find (four gN pN trRN trN)) [c0,c1,c2,c3])     >> assertEqual [Nothing] (nub $ map (findUnambiguous (four gN pN trRN trN)) [c0,c1,c2,c3])     
-                   
-  assertEqual [[]] (nub $ map (find (five rN tN cN gN pN))    [rt0,rt1,rt2,rt3,rt4]) >> assertEqual [Nothing] (nub $ map (findUnambiguous (five rN tN cN gN pN))    [rt0,rt1,rt2,rt3,rt4])
-  assertEqual [[]] (nub $ map (find (five tN cN gN pN trN))   [r0,r1,r2,r3,r4])      >> assertEqual [Nothing] (nub $ map (findUnambiguous (five tN cN gN pN trN))   [r0,r1,r2,r3,r4])     
-  assertEqual [[]] (nub $ map (find (five cN gN pN trRN trN)) [t0,t1,t2,t3,t4])      >> assertEqual [Nothing] (nub $ map (findUnambiguous (five cN gN pN trRN trN)) [t0,t1,t2,t3,t4])     
-                   
-  assertEqual [[]] (nub $ map (find (six rN cN gN pN trRN trN))  [rt0,rt1,rt2,rt3,rt4,rt5]) >> assertEqual [Nothing] (nub $ map (findUnambiguous (six rN cN gN pN trRN trN))  [rt0,rt1,rt2,rt3,rt4,rt5])  
-  assertEqual [[]] (nub $ map (find (six cN gN pN trRN trN trN)) [r0,r1,r2,r3,r4,r5])       >> assertEqual [Nothing] (nub $ map (findUnambiguous (six cN gN pN trRN trN trN)) [r0,r1,r2,r3,r4,r5])        
-                   
-  assertEqual [[]] (nub $ map (find (seven rN tN cN gN pN trRN trN)) [rt0,rt1,rt2,rt3,rt4,rt5,rt6]) >> assertEqual [Nothing] (nub $ map (findUnambiguous (seven rN tN cN gN pN trRN trN)) [rt0,rt1,rt2,rt3,rt4,rt5,rt6])
+      pTrr = makeProjectTrainRunRepo trr
+      trRN = getName trr
+
+  assertState (one rN   find' rt0   ldRoot ldR)  rootC []
+  assertState (one tN   find' r0    ldR    ldT)  rC    []
+  assertState (one cN   find' t0    ldT    ldC)  tC    []
+  assertState (one gN   find' c0    ldC    ldG)  cC    []
+  assertState (one pN   find' g0    ldG    ldP)  gC    []
+  assertState (one trRN find' pTrr  ldPr   ldTr) prC   []
+
+  mapM_(\(n,call)->assertState (two rN   tN   find' n ldRoot ldR  ldT)  call []) $ zip' [rt0,rt1] [rootC,rootC|+rC]
+  mapM_(\(n,call)->assertState (two tN   cN   find' n ldR    ldT  ldC)  call []) $ zip' [r0,r1]   [rC,rC|+tC]
+  mapM_(\(n,call)->assertState (two cN   gN   find' n ldT    ldC  ldG)  call []) $ zip' [t0,t1]   [tC,tC|+cC]
+  mapM_(\(n,call)->assertState (two gN   pN   find' n ldC    ldG  ldP)  call []) $ zip' [c0,c1]   [cC,cC|+gC]
+  mapM_(\(n,call)->assertState (two pN   trRN find' n ldG    ldP  ldPr) call []) $ zip' [g0]      [gC]
+  mapM_(\(n,call)->assertState (two trRN trN find' n ldP    ldPr ldTr)  call []) $ zip' [p0,p1]   [pC|+prC,pC|+prC]
+
+  mapM_(\(n,call)->assertState (three rN  tN  cN  find' n ldRoot ldR ldT  ldC)  call []) $ zip' [rt0,rt1,rt2] [rootC,rootC|+rC,rootC|+rC|+tC]
+  mapM_(\(n,call)->assertState (three tN  cN  gN  find' n ldR    ldT ldC  ldG)  call []) $ zip' [r0,r1,r2]    [rC,rC|+tC,rC|+tC|+cC]
+  mapM_(\(n,call)->assertState (three cN  gN  pN  find' n ldT    ldC ldG  ldP)  call []) $ zip' [t0,t1,t2]    [tC,tC|+cC,tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (three pN trRN trN find' n ldG    ldP ldPr ldTr) call []) $ zip' [g0,g1,g2]    [gC,gC|+pC|+prC,gC|+pC|+prC]
+
+  mapM_(\(n,call)->assertState (four rN tN cN   gN   find' n ldRoot ldR ldT ldC  ldG)  call []) $ zip' [rt0,rt1,rt2,rt3] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC]
+  mapM_(\(n,call)->assertState (four tN cN gN   pN   find' n ldR    ldT ldC ldG  ldP)  call []) $ zip' [r0,r1,r2,r3]     [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (four cN gN pN   trRN find' n ldT    ldC ldG ldP  ldPr) call []) $ zip' [t0,t1,t2]        [tC,tC|+cC,tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (four gN pN trRN trN  find' n ldC    ldG ldP ldPr ldTr) call []) $ zip' [c0,c1,c2,c3]     [cC,cC|+gC,cC|+gC|+pC|+prC,cC|+gC|+pC|+prC]
+
+  mapM_(\(n,call)->assertState (five rN tN cN gN   pN   find' n ldRoot ldR ldT ldC  ldG  ldP)  call []) $ zip' [rt0,rt1,rt2,rt3,rt4] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (five tN cN gN pN   trRN find' n ldR    ldT ldC ldG  ldP  ldPr) call []) $ zip' [r0,r1,r2,r3]         [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (five cN gN pN trRN trN  find' n ldT    ldC ldG ldP  ldPr ldTr) call []) $ zip' [t0,t1,t2,t3,t4]      [tC,tC|+cC,tC|+cC|+gC,tC|+cC|+gC|+pC|+prC,tC|+cC|+gC|+pC|+prC]
+
+  mapM_(\(n,call)->assertState (six rN tN cN gN pN   trRN find' n ldRoot ldR ldT ldC ldG  ldP  ldPr) call []) $ zip' [rt0,rt1,rt2,rt3,rt4] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (six tN cN gN pN trRN trN  find' n ldR    ldT ldC ldG ldP  ldPr ldTr) call []) $ zip' [r0,r1,r2,r3,r4,r5]   [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC,rC|+tC|+cC|+gC|+pC|+prC,rC|+tC|+cC|+gC|+pC|+prC]
+
+  mapM_(\(n,call)->assertState (seven rN tN cN gN pN trRN trN find' n ldRoot ldR ldT ldC ldG ldP ldPr ldTr) call []) $ zip' [rt0,rt1,rt2,rt3,rt4,rt5,rt6] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC,rootC|+rC|+tC|+cC|+gC|+pC|+prC,rootC|+rC|+tC|+cC|+gC|+pC|+prC]
+
+  assertState (one rN   findUnambiguous' rt0   ldRoot ldR)  rootC Nothing
+  assertState (one tN   findUnambiguous' r0    ldR    ldT)  rC    Nothing
+  assertState (one cN   findUnambiguous' t0    ldT    ldC)  tC    Nothing
+  assertState (one gN   findUnambiguous' c0    ldC    ldG)  cC    Nothing
+  assertState (one pN   findUnambiguous' g0    ldG    ldP)  gC    Nothing
+  assertState (one trRN findUnambiguous' pTrr  ldPr   ldTr) prC   Nothing
+
+  mapM_(\(n,call)->assertState (two rN   tN   findUnambiguous' n ldRoot ldR  ldT)  call Nothing) $ zip' [rt0,rt1] [rootC,rootC|+rC]
+  mapM_(\(n,call)->assertState (two tN   cN   findUnambiguous' n ldR    ldT  ldC)  call Nothing) $ zip' [r0,r1]   [rC,rC|+tC]
+  mapM_(\(n,call)->assertState (two cN   gN   findUnambiguous' n ldT    ldC  ldG)  call Nothing) $ zip' [t0,t1]   [tC,tC|+cC]
+  mapM_(\(n,call)->assertState (two gN   pN   findUnambiguous' n ldC    ldG  ldP)  call Nothing) $ zip' [c0,c1]   [cC,cC|+gC]
+  mapM_(\(n,call)->assertState (two pN   trRN findUnambiguous' n ldG    ldP  ldPr) call Nothing) $ zip' [g0]      [gC]
+  mapM_(\(n,call)->assertState (two trRN trN findUnambiguous' n ldP    ldPr ldTr)  call Nothing) $ zip' [p0,p1]   [pC|+prC,pC|+prC]
+
+  mapM_(\(n,call)->assertState (three rN  tN  cN  findUnambiguous' n ldRoot ldR ldT  ldC)  call Nothing) $ zip' [rt0,rt1,rt2] [rootC,rootC|+rC,rootC|+rC|+tC]
+  mapM_(\(n,call)->assertState (three tN  cN  gN  findUnambiguous' n ldR    ldT ldC  ldG)  call Nothing) $ zip' [r0,r1,r2]    [rC,rC|+tC,rC|+tC|+cC]
+  mapM_(\(n,call)->assertState (three cN  gN  pN  findUnambiguous' n ldT    ldC ldG  ldP)  call Nothing) $ zip' [t0,t1,t2]    [tC,tC|+cC,tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (three pN trRN trN findUnambiguous' n ldG    ldP ldPr ldTr) call Nothing) $ zip' [g0,g1,g2]    [gC,gC|+pC|+prC,gC|+pC|+prC]
+
+  mapM_(\(n,call)->assertState (four rN tN cN   gN   findUnambiguous' n ldRoot ldR ldT ldC  ldG)  call Nothing) $ zip' [rt0,rt1,rt2,rt3] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC]
+  mapM_(\(n,call)->assertState (four tN cN gN   pN   findUnambiguous' n ldR    ldT ldC ldG  ldP)  call Nothing) $ zip' [r0,r1,r2,r3]     [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (four cN gN pN   trRN findUnambiguous' n ldT    ldC ldG ldP  ldPr) call Nothing) $ zip' [t0,t1,t2]        [tC,tC|+cC,tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (four gN pN trRN trN  findUnambiguous' n ldC    ldG ldP ldPr ldTr) call Nothing) $ zip' [c0,c1,c2,c3]     [cC,cC|+gC,cC|+gC|+pC|+prC,cC|+gC|+pC|+prC]
+
+  mapM_(\(n,call)->assertState (five rN tN cN gN   pN   findUnambiguous' n ldRoot ldR ldT ldC  ldG  ldP)  call Nothing) $ zip' [rt0,rt1,rt2,rt3,rt4] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (five tN cN gN pN   trRN findUnambiguous' n ldR    ldT ldC ldG  ldP  ldPr) call Nothing) $ zip' [r0,r1,r2,r3]         [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (five cN gN pN trRN trN  findUnambiguous' n ldT    ldC ldG ldP  ldPr ldTr) call Nothing) $ zip' [t0,t1,t2,t3,t4]      [tC,tC|+cC,tC|+cC|+gC,tC|+cC|+gC|+pC|+prC,tC|+cC|+gC|+pC|+prC]
+
+  mapM_(\(n,call)->assertState (six rN tN cN gN pN   trRN findUnambiguous' n ldRoot ldR ldT ldC ldG  ldP  ldPr) call Nothing) $ zip' [rt0,rt1,rt2,rt3,rt4] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC]
+  mapM_(\(n,call)->assertState (six tN cN gN pN trRN trN  findUnambiguous' n ldR    ldT ldC ldG ldP  ldPr ldTr) call Nothing) $ zip' [r0,r1,r2,r3,r4,r5]   [rC,rC|+tC,rC|+tC|+cC,rC|+tC|+cC|+gC,rC|+tC|+cC|+gC|+pC|+prC,rC|+tC|+cC|+gC|+pC|+prC]
+
+  mapM_(\(n,call)->assertState (seven rN tN cN gN pN trRN trN findUnambiguous' n ldRoot ldR ldT ldC ldG ldP ldPr ldTr) call Nothing) $ zip' [rt0,rt1,rt2,rt3,rt4,rt5,rt6] [rootC,rootC|+rC,rootC|+rC|+tC,rootC|+rC|+tC|+cC,rootC|+rC|+tC|+cC|+gC,rootC|+rC|+tC|+cC|+gC|+pC|+prC,rootC|+rC|+tC|+cC|+gC|+pC|+prC]
 
 test_noFindAllBadHints = do
-  let tr = make $ trN ++ "0"
+  let suffix = "0"
+      tr = make $ trN ++ suffix
       trr = addChild emptyTrainRunRepo tr
-      p = setTrainRunRepo (make $ pN ++ "0") trr
-      g = addChild (make $ gN ++ "0") p
-      c = addChild (make $ cN ++ "0") g
-      t = addChild (make $ tN ++ "0") c
-      r = addChild (make $ rN ++ "0") t
-      rt = addChild (make (rtN ++ "0") :: Root) r
+      p = setTrainRunRepo (make $ pN ++ suffix) trr
+      g = addChild (make $ gN ++ suffix) p
+      c = addChild (make $ cN ++ suffix) g
+      t = addChild (make $ tN ++ suffix) c
+      r = addChild (make $ rN ++ suffix) t
+      root = addChild (make (rootN ++ suffix) :: Root) r
 
-      rtN = "root"
+      rootN = "root"
       rN = "repo"
       tN = "term"
       cN = "course"
       gN = "group"
       pN = "project"
       trN = "trainRun"
-      sRN = getName emptySubmitRepo ++ "0"
-      tfRN = getName emptyTrainFileRepo ++ "0"
-      trRN = getName emptyTrainRunRepo ++ "0"
 
-  assertEqual [] (find (one rN) rt)   >> assertEqual Nothing (findUnambiguous (one rN) rt)   
-  assertEqual [] (find (one tN) r)    >> assertEqual Nothing (findUnambiguous (one tN) r)   
-  assertEqual [] (find (one cN) t)    >> assertEqual Nothing (findUnambiguous (one cN) t)   
-  assertEqual [] (find (one gN) c)    >> assertEqual Nothing (findUnambiguous (one gN) c)   
-  assertEqual [] (find (one pN) g)    >> assertEqual Nothing (findUnambiguous (one pN) g)   
-  assertEqual [] (find (one sRN) p)   >> assertEqual Nothing (findUnambiguous (one sRN) p)  
-  assertEqual [] (find (one tfRN) p)  >> assertEqual Nothing (findUnambiguous (one tfRN) p) 
-  assertEqual [] (find (one trRN) p)  >> assertEqual Nothing (findUnambiguous (one trRN) p) 
-  assertEqual [] (find (one trN) trr) >> assertEqual Nothing (findUnambiguous (one trN) trr)
-                 
-  assertEqual [] (find (two rN tN) rt)  >> assertEqual Nothing (findUnambiguous (two rN tN) rt)  
-  assertEqual [] (find (two tN cN) r)   >> assertEqual Nothing (findUnambiguous (two tN cN) r)   
-  assertEqual [] (find (two cN gN) t)   >> assertEqual Nothing (findUnambiguous (two cN gN) t)   
-  assertEqual [] (find (two gN pN) c)   >> assertEqual Nothing (findUnambiguous (two gN pN) c)   
-  assertEqual [] (find (two pN sRN) g)  >> assertEqual Nothing (findUnambiguous (two pN sRN) g)  
-  assertEqual [] (find (two pN tfRN) g) >> assertEqual Nothing (findUnambiguous (two pN tfRN) g) 
-  assertEqual [] (find (two pN trRN) g) >> assertEqual Nothing (findUnambiguous (two pN trRN) g) 
-  assertEqual [] (find (two pN trRN) p) >> assertEqual Nothing (findUnambiguous (two pN trRN) p) 
-                 
-  assertEqual [] (find (three rN tN cN) rt)   >> assertEqual Nothing (findUnambiguous (three rN tN cN) rt)   
-  assertEqual [] (find (three tN cN gN) r)    >> assertEqual Nothing (findUnambiguous (three tN cN gN) r)    
-  assertEqual [] (find (three cN gN pN) t)    >> assertEqual Nothing (findUnambiguous (three cN gN pN) t)    
-  assertEqual [] (find (three gN pN sRN) c)   >> assertEqual Nothing (findUnambiguous (three gN pN sRN) c)   
-  assertEqual [] (find (three gN pN tfRN) c)  >> assertEqual Nothing (findUnambiguous (three gN pN tfRN) c)  
-  assertEqual [] (find (three gN pN trRN) c)  >> assertEqual Nothing (findUnambiguous (three gN pN trRN) c)  
-  assertEqual [] (find (three pN trRN trN) g) >> assertEqual Nothing (findUnambiguous (three pN trRN trN) g) 
-                                                 
-  assertEqual [] (find (four rN tN cN gN) rt)   >> assertEqual Nothing (findUnambiguous (four rN tN cN gN) rt)    
-  assertEqual [] (find (four tN cN gN pN) r)    >> assertEqual Nothing (findUnambiguous (four tN cN gN pN) r)     
-  assertEqual [] (find (four cN gN pN sRN) t)   >> assertEqual Nothing (findUnambiguous (four cN gN pN sRN) t)    
-  assertEqual [] (find (four cN gN pN tfRN) t)  >> assertEqual Nothing (findUnambiguous (four cN gN pN tfRN) t)   
-  assertEqual [] (find (four cN gN pN trRN) t)  >> assertEqual Nothing (findUnambiguous (four cN gN pN trRN) t)   
-  assertEqual [] (find (four gN pN trRN trN) c) >> assertEqual Nothing (findUnambiguous (four gN pN trRN trN) c)  
-                 
-  assertEqual [] (find (five rN tN cN gN pN) rt)   >> assertEqual Nothing (findUnambiguous (five rN tN cN gN pN) rt)  
-  assertEqual [] (find (five tN cN gN pN sRN) r)   >> assertEqual Nothing (findUnambiguous (five tN cN gN pN sRN) r)  
-  assertEqual [] (find (five tN cN gN pN tfRN) r)  >> assertEqual Nothing (findUnambiguous (five tN cN gN pN tfRN) r) 
-  assertEqual [] (find (five tN cN gN pN trRN) r)  >> assertEqual Nothing (findUnambiguous (five tN cN gN pN trRN) r) 
-  assertEqual [] (find (five cN gN pN trRN trN) t) >> assertEqual Nothing (findUnambiguous (five cN gN pN trRN trN) t)
-                 
-  assertEqual [] (find (six rN tN cN gN pN trRN) rt) >> assertEqual Nothing (findUnambiguous (six rN tN cN gN pN trRN) rt)
-  assertEqual [] (find (six rN tN cN gN pN tfRN) rt) >> assertEqual Nothing (findUnambiguous (six rN tN cN gN pN tfRN) rt)
-  assertEqual [] (find (six rN tN cN gN pN sRN) rt)  >> assertEqual Nothing (findUnambiguous (six rN tN cN gN pN sRN) rt) 
-  assertEqual [] (find (six rN cN gN pN trRN trN) r) >> assertEqual Nothing (findUnambiguous (six rN cN gN pN trRN trN) r)
-                 
-  assertEqual [] (find (seven rN tN cN gN pN trRN trN) rt) >> assertEqual Nothing (findUnambiguous (seven rN tN cN gN pN trRN trN) rt)
+      sRN = getName emptySubmitRepo ++ suffix
+      tfRN = getName emptyTrainFileRepo ++ suffix
+      trRN = getName emptyTrainRunRepo ++ suffix
 
-one'   = S Nothing zero
-two'   = S Nothing one'
-three' = S Nothing two'
-four'  = S Nothing three'
-five'  = S Nothing four'
-six'   = S Nothing five'
-seven' = S Nothing six'
+      pTrr = makeProjectTrainRunRepo trr
 
-zero = Z
-one a               = S (Just a) zero
-two a b             = S (Just a) $ one b
-three a b c         = S (Just a) $ two b c
-four a b c d        = S (Just a) $ three b c d
-five a b c d e      = S (Just a) $ four b c d e
-six a b c d e f     = S (Just a) $ five b c d e f
-seven a b c d e f g = S (Just a) $ six b c d e f g
+  assertState (one rN   find' root ldRoot ldR)  rootC []
+  assertState (one tN   find' r    ldR    ldT)  rC    []
+  assertState (one cN   find' t    ldT    ldC)  tC    []
+  assertState (one gN   find' c    ldC    ldG)  cC    []
+  assertState (one pN   find' g    ldG    ldP)  gC    []
+  assertState (one sRN  find' p    ldP    ldPr) pC    []
+  assertState (one tfRN find' p    ldP    ldPr) pC    []
+  assertState (one trRN find' p    ldP    ldPr) pC    []
+  assertState (one trN  find' pTrr ldPr   ldTr) prC   []
 
--}
+  assertState (one rN   findUnambiguous' root ldRoot ldR)  rootC Nothing
+  assertState (one tN   findUnambiguous' r    ldR    ldT)  rC    Nothing
+  assertState (one cN   findUnambiguous' t    ldT    ldC)  tC    Nothing
+  assertState (one gN   findUnambiguous' c    ldC    ldG)  cC    Nothing
+  assertState (one pN   findUnambiguous' g    ldG    ldP)  gC    Nothing
+  assertState (one sRN  findUnambiguous' p    ldP    ldPr) pC    Nothing
+  assertState (one tfRN findUnambiguous' p    ldP    ldPr) pC    Nothing
+  assertState (one trRN findUnambiguous' p    ldP    ldPr) pC    Nothing
+  assertState (one trN  findUnambiguous' pTrr ldPr   ldTr) prC   Nothing
+
+  assertState (two rN   tN   find' root ldRoot ldR  ldT)  rootC []
+  assertState (two tN   cN   find' r    ldR    ldT  ldC)  rC    []
+  assertState (two cN   gN   find' t    ldT    ldC  ldG)  tC    []
+  assertState (two gN   pN   find' c    ldC    ldG  ldP)  cC    []
+  assertState (two pN   sRN  find' g    ldG    ldP  ldPr) gC    []
+  assertState (two pN   tfRN find' g    ldG    ldP  ldPr) gC    []
+  assertState (two pN   trRN find' g    ldG    ldP  ldPr) gC    []
+  assertState (two trRN trN  find' p    ldP    ldPr ldTr) pC    []
+
+  assertState (two rN   tN   findUnambiguous' root ldRoot ldR  ldT)  rootC Nothing
+  assertState (two tN   cN   findUnambiguous' r    ldR    ldT  ldC)  rC    Nothing
+  assertState (two cN   gN   findUnambiguous' t    ldT    ldC  ldG)  tC    Nothing
+  assertState (two gN   pN   findUnambiguous' c    ldC    ldG  ldP)  cC    Nothing
+  assertState (two pN   sRN  findUnambiguous' g    ldG    ldP  ldPr) gC    Nothing
+  assertState (two pN   tfRN findUnambiguous' g    ldG    ldP  ldPr) gC    Nothing
+  assertState (two pN   trRN findUnambiguous' g    ldG    ldP  ldPr) gC    Nothing
+  assertState (two trRN trN  findUnambiguous' p    ldP    ldPr ldTr) pC    Nothing
+
+  assertState (three rN tN   cN   find' root ldRoot ldR ldT  ldC)  rootC []
+  assertState (three tN cN   gN   find' r    ldR    ldT ldC  ldG)  rC    []
+  assertState (three cN gN   pN   find' t    ldT    ldC ldG  ldP)  tC    []
+  assertState (three gN pN   sRN  find' c    ldC    ldG ldP  ldPr) cC    []
+  assertState (three gN pN   tfRN find' c    ldC    ldG ldP  ldPr) cC    []
+  assertState (three gN pN   trRN find' c    ldC    ldG ldP  ldPr) cC    []
+  assertState (three pN trRN trN  find' g    ldG    ldP ldPr ldTr) gC    []
+
+  assertState (three rN tN   cN   findUnambiguous' root ldRoot ldR ldT  ldC)  rootC Nothing
+  assertState (three tN cN   gN   findUnambiguous' r    ldR    ldT ldC  ldG)  rC    Nothing
+  assertState (three cN gN   pN   findUnambiguous' t    ldT    ldC ldG  ldP)  tC    Nothing
+  assertState (three gN pN   sRN  findUnambiguous' c    ldC    ldG ldP  ldPr) cC    Nothing
+  assertState (three gN pN   tfRN findUnambiguous' c    ldC    ldG ldP  ldPr) cC    Nothing
+  assertState (three gN pN   trRN findUnambiguous' c    ldC    ldG ldP  ldPr) cC    Nothing
+  assertState (three pN trRN trN  findUnambiguous' g    ldG    ldP ldPr ldTr) gC    Nothing
+
+  assertState (four rN tN cN   gN   find' root ldRoot ldR ldT ldC  ldG)  rootC []
+  assertState (four tN cN gN   pN   find' r    ldR    ldT ldC ldG  ldP)  rC    []
+  assertState (four cN gN pN   sRN  find' t    ldT    ldC ldG ldP  ldPr) tC    []
+  assertState (four cN gN pN   tfRN find' t    ldT    ldC ldG ldP  ldPr) tC    []
+  assertState (four cN gN pN   trRN find' t    ldT    ldC ldG ldP  ldPr) tC    []
+  assertState (four gN pN trRN trN  find' c    ldC    ldG ldP ldPr ldTr) cC    []
+
+  assertState (four rN tN cN   gN   findUnambiguous' root ldRoot ldR ldT ldC  ldG)  rootC Nothing
+  assertState (four tN cN gN   pN   findUnambiguous' r    ldR    ldT ldC ldG  ldP)  rC    Nothing
+  assertState (four cN gN pN   sRN  findUnambiguous' t    ldT    ldC ldG ldP  ldPr) tC    Nothing
+  assertState (four cN gN pN   tfRN findUnambiguous' t    ldT    ldC ldG ldP  ldPr) tC    Nothing
+  assertState (four cN gN pN   trRN findUnambiguous' t    ldT    ldC ldG ldP  ldPr) tC    Nothing
+  assertState (four gN pN trRN trN  findUnambiguous' c    ldC    ldG ldP ldPr ldTr) cC    Nothing
+
+  assertState (five rN tN cN gN   pN   find' root ldRoot ldR ldT ldC ldG  ldP)  rootC []
+  assertState (five tN cN gN pN   sRN  find' r    ldR    ldT ldC ldG ldP  ldPr) rC    []
+  assertState (five tN cN gN pN   tfRN find' r    ldR    ldT ldC ldG ldP  ldPr) rC    []
+  assertState (five tN cN gN pN   trRN find' r    ldR    ldT ldC ldG ldP  ldPr) rC    []
+  assertState (five cN gN pN trRN trN  find' t    ldT    ldC ldG ldP ldPr ldTr) tC    []
+
+  assertState (five rN tN cN gN   pN   findUnambiguous' root ldRoot ldR ldT ldC ldG  ldP)  rootC  Nothing
+  assertState (five tN cN gN pN   sRN  findUnambiguous' r    ldR    ldT ldC ldG ldP  ldPr) rC     Nothing
+  assertState (five tN cN gN pN   tfRN findUnambiguous' r    ldR    ldT ldC ldG ldP  ldPr) rC     Nothing
+  assertState (five tN cN gN pN   trRN findUnambiguous' r    ldR    ldT ldC ldG ldP  ldPr) rC     Nothing
+  assertState (five cN gN pN trRN trN  findUnambiguous' t    ldT    ldC ldG ldP ldPr ldTr) tC     Nothing
+
+  assertState (six rN tN cN gN pN   sRN  find' root ldRoot ldR ldT ldC ldG ldP  ldPr) rootC []
+  assertState (six rN tN cN gN pN   tfRN find' root ldRoot ldR ldT ldC ldG ldP  ldPr) rootC []
+  assertState (six rN tN cN gN pN   trRN find' root ldRoot ldR ldT ldC ldG ldP  ldPr) rootC []
+  assertState (six tN cN gN pN trRN trN  find' r    ldR    ldT ldC ldG ldP ldPr ldTr) rC    []
+
+  assertState (six rN tN cN gN pN   sRN  findUnambiguous' root ldRoot ldR ldT ldC ldG ldP  ldPr) rootC Nothing
+  assertState (six rN tN cN gN pN   tfRN findUnambiguous' root ldRoot ldR ldT ldC ldG ldP  ldPr) rootC Nothing
+  assertState (six rN tN cN gN pN   trRN findUnambiguous' root ldRoot ldR ldT ldC ldG ldP  ldPr) rootC Nothing
+  assertState (six tN cN gN pN trRN trN  findUnambiguous' r    ldR    ldT ldC ldG ldP ldPr ldTr) rC    Nothing
+
+  assertState (seven rN tN cN gN pN trRN trN find'            root ldRoot ldR ldT ldC ldG ldP ldPr ldTr) rootC  []
+  assertState (seven rN tN cN gN pN trRN trN findUnambiguous' root ldRoot ldR ldT ldC ldG ldP ldPr ldTr) rootC  Nothing

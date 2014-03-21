@@ -13,7 +13,6 @@ import {-@ HTF_TESTS @-} Infrastructure.NodeUnitTest
 import {-@ HTF_TESTS @-} Infrastructure.CsvNodeUnitTest
 import {-@ HTF_TESTS @-} Infrastructure.DateUnitTest
 import {-@ HTF_TESTS @-} Infrastructure.PersisterUnitTest
-import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderCompileTest
 import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderUnitFindingTest
 import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderUnitNoFindingTest
 
