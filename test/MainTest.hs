@@ -15,6 +15,7 @@ import {-@ HTF_TESTS @-} Infrastructure.DateUnitTest
 import {-@ HTF_TESTS @-} Infrastructure.PersisterPropTest
 import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderPropFindingTest
 import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderPropNoFindingTest
+import {-@ HTF_TESTS @-} Infrastructure.Finder.FinderPropTest
 
 import {-@ HTF_TESTS @-} Domain.HierarchyUnitTest
 import {-@ HTF_TESTS @-} Domain.RootUnitTest

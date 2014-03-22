@@ -35,6 +35,14 @@ five  h1 h2 h3 h4 h5       func x a b c' d e f      = func x (ld5 f)  (sj h1 (ld
 six   h1 h2 h3 h4 h5 h6    func x a b c' d e f g'   = func x (ld6 g') (sj h1 (ld0 a) $ sj h2 (ld1 b) $ sj h3 (ld2 c') $ sj h4 (ld3 d) $ sj h5 (ld4 e) $ sj h6 (ld5 f) Z)
 seven h1 h2 h3 h4 h5 h6 h7 func x a b c' d e f g' h = func x (ld7 h)  (sj h1 (ld0 a) $ sj h2 (ld1 b) $ sj h3 (ld2 c') $ sj h4 (ld3 d) $ sj h5 (ld4 e) $ sj h6 (ld5 f) $ sj h7 (ld6 g') Z)
 
+oneP   h1                   func x a b               = func x (ld1 b)  (S h1 (ld0 a) Z)
+twoP   h1 h2                func x a b c'            = func x (ld2 c') (S h1 (ld0 a) $ S h2 (ld1 b) Z)
+threeP h1 h2 h3             func x a b c' d          = func x (ld3 d)  (S h1 (ld0 a) $ S h2 (ld1 b) $ S h3 (ld2 c') Z)
+fourP  h1 h2 h3 h4          func x a b c' d e        = func x (ld4 e)  (S h1 (ld0 a) $ S h2 (ld1 b) $ S h3 (ld2 c') $ S h4 (ld3 d) Z)
+fiveP  h1 h2 h3 h4 h5       func x a b c' d e f      = func x (ld5 f)  (S h1 (ld0 a) $ S h2 (ld1 b) $ S h3 (ld2 c') $ S h4 (ld3 d) $ S h5 (ld4 e) Z)
+sixP   h1 h2 h3 h4 h5 h6    func x a b c' d e f g'   = func x (ld6 g') (S h1 (ld0 a) $ S h2 (ld1 b) $ S h3 (ld2 c') $ S h4 (ld3 d) $ S h5 (ld4 e) $ S h6 (ld5 f) Z)
+sevenP h1 h2 h3 h4 h5 h6 h7 func x a b c' d e f g' h = func x (ld7 h)  (S h1 (ld0 a) $ S h2 (ld1 b) $ S h3 (ld2 c') $ S h4 (ld3 d) $ S h5 (ld4 e) $ S h6 (ld5 f) $ S h7 (ld6 g') Z)
+
 sn = S Nothing
 sj h = S (Just h)
 
@@ -48,32 +56,35 @@ sixK a b c' d e f      = K f  $ fiveK a b c' d e
 sevenK a b c' d e f g' = K g' $ sixK a b c' d e f
 
 (a0,a1,a2,a3,a4,a5,a6,a7) |+ (b0,b1,b2,b3,b4,b5,b6,b7) = (a0+b0,a1+b1,a2+b2,a3+b3,a4+b4,a5+b5,a6+b6,a7+b7)
-find' x f s = let (a,b) = runState (find s f x) noCalls in (b,a)
-findUnambiguous' x f s = let (a,b) = runState (findUnambiguous s f x) noCalls in (b,a)
+find' x f s = findP x f s noCalls
+findUnambiguous' x f s = findUnambiguousP x f s noCalls
+
+findP x f s z = let (a,b) = runState (find s f x) z in (b,a)
+findUnambiguousP x f s z = let (a,b) = runState (findUnambiguous s f x) z in (b,a) 
 
 type T = State (Int,Int,Int,Int,Int,Int,Int,Int)
-ld0 :: (Z -> a -> T a) -> Z -> a -> T a
+ld0 :: Monad m => (Z -> a -> m a) -> Z -> a -> m a
 ld0 f = f
 
-ld1 :: (K Z -> a -> T a) -> K Z -> a -> T a
+ld1 :: Monad m => (K Z -> a -> m a) -> K Z -> a -> m a
 ld1 f = f
 
-ld2 :: (K (K Z) -> a -> T a) -> K (K Z) -> a -> T a
+ld2 :: Monad m => (K (K Z) -> a -> m a) -> K (K Z) -> a -> m a
 ld2 f = f
 
-ld3 :: (K (K (K Z)) -> a -> T a) -> K (K (K Z)) -> a -> T a
+ld3 :: Monad m => (K (K (K Z)) -> a -> m a) -> K (K (K Z)) -> a -> m a
 ld3 f = f
 
-ld4 :: (K (K (K (K Z))) -> a -> T a) -> K (K (K (K Z))) -> a -> T a
+ld4 :: Monad m => (K (K (K (K Z))) -> a -> m a) -> K (K (K (K Z))) -> a -> m a
 ld4 f = f
 
-ld5 :: (K (K (K (K (K Z)))) -> a -> T a) -> K (K (K (K (K Z)))) -> a -> T a
+ld5 :: Monad m => (K (K (K (K (K Z)))) -> a -> m a) -> K (K (K (K (K Z)))) -> a -> m a
 ld5 f = f
 
-ld6 :: (K (K (K (K (K (K Z))))) -> a -> T a) -> K (K (K (K (K (K Z))))) -> a -> T a
+ld6 :: Monad m => (K (K (K (K (K (K Z))))) -> a -> m a) -> K (K (K (K (K (K Z))))) -> a -> m a
 ld6 f = f
 
-ld7 :: (K (K (K (K (K (K (K Z)))))) -> a -> T a) -> K (K (K (K (K (K (K Z)))))) -> a -> T a
+ld7 :: Monad m => (K (K (K (K (K (K (K Z)))))) -> a -> m a) -> K (K (K (K (K (K (K Z)))))) -> a -> m a
 ld7 f = f
 
 ldRoot :: k -> Root -> T Root
