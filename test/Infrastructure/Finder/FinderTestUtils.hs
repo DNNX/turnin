@@ -35,16 +35,18 @@ five  h1 h2 h3 h4 h5       func x a b c' d e f      = func x (ld5 f)  (sj h1 (ld
 six   h1 h2 h3 h4 h5 h6    func x a b c' d e f g'   = func x (ld6 g') (sj h1 (ld0 a) $ sj h2 (ld1 b) $ sj h3 (ld2 c') $ sj h4 (ld3 d) $ sj h5 (ld4 e) $ sj h6 (ld5 f) Z)
 seven h1 h2 h3 h4 h5 h6 h7 func x a b c' d e f g' h = func x (ld7 h)  (sj h1 (ld0 a) $ sj h2 (ld1 b) $ sj h3 (ld2 c') $ sj h4 (ld3 d) $ sj h5 (ld4 e) $ sj h6 (ld5 f) $ sj h7 (ld6 g') Z)
 
-oneP   h1                   func x a b               = func x (ld1 b)  (S h1 (ld0 a) Z)
-twoP   h1 h2                func x a b c'            = func x (ld2 c') (S h1 (ld0 a) $ S h2 (ld1 b) Z)
-threeP h1 h2 h3             func x a b c' d          = func x (ld3 d)  (S h1 (ld0 a) $ S h2 (ld1 b) $ S h3 (ld2 c') Z)
-fourP  h1 h2 h3 h4          func x a b c' d e        = func x (ld4 e)  (S h1 (ld0 a) $ S h2 (ld1 b) $ S h3 (ld2 c') $ S h4 (ld3 d) Z)
-fiveP  h1 h2 h3 h4 h5       func x a b c' d e f      = func x (ld5 f)  (S h1 (ld0 a) $ S h2 (ld1 b) $ S h3 (ld2 c') $ S h4 (ld3 d) $ S h5 (ld4 e) Z)
-sixP   h1 h2 h3 h4 h5 h6    func x a b c' d e f g'   = func x (ld6 g') (S h1 (ld0 a) $ S h2 (ld1 b) $ S h3 (ld2 c') $ S h4 (ld3 d) $ S h5 (ld4 e) $ S h6 (ld5 f) Z)
-sevenP h1 h2 h3 h4 h5 h6 h7 func x a b c' d e f g' h = func x (ld7 h)  (S h1 (ld0 a) $ S h2 (ld1 b) $ S h3 (ld2 c') $ S h4 (ld3 d) $ S h5 (ld4 e) $ S h6 (ld5 f) $ S h7 (ld6 g') Z)
+oneP   h1                   func x a b               = func x (ld1 b)  (S h1 nd (ld0 a) Z)
+twoP   h1 h2                func x a b c'            = func x (ld2 c') (S h1 nd (ld0 a) $ S h2 nd (ld1 b) Z)
+threeP h1 h2 h3             func x a b c' d          = func x (ld3 d)  (S h1 nd (ld0 a) $ S h2 nd (ld1 b) $ S h3 nd (ld2 c') Z)
+fourP  h1 h2 h3 h4          func x a b c' d e        = func x (ld4 e)  (S h1 nd (ld0 a) $ S h2 nd (ld1 b) $ S h3 nd (ld2 c') $ S h4 nd (ld3 d) Z)
+fiveP  h1 h2 h3 h4 h5       func x a b c' d e f      = func x (ld5 f)  (S h1 nd (ld0 a) $ S h2 nd (ld1 b) $ S h3 nd (ld2 c') $ S h4 nd (ld3 d) $ S h5 nd (ld4 e) Z)
+sixP   h1 h2 h3 h4 h5 h6    func x a b c' d e f g'   = func x (ld6 g') (S h1 nd (ld0 a) $ S h2 nd (ld1 b) $ S h3 nd (ld2 c') $ S h4 nd (ld3 d) $ S h5 nd (ld4 e) $ S h6 nd (ld5 f) Z)
+sevenP h1 h2 h3 h4 h5 h6 h7 func x a b c' d e f g' h = func x (ld7 h)  (S h1 nd (ld0 a) $ S h2 nd (ld1 b) $ S h3 nd (ld2 c') $ S h4 nd (ld3 d) $ S h5 nd (ld4 e) $ S h6 nd (ld5 f) $ S h7 nd (ld6 g') Z)
 
-sn = S Nothing
-sj h = S (Just h)
+sn = S Nothing nd
+sj h = S (Just h) nd
+
+nd = error "FinderTestUtils::nb: Should not be called"
 
 zeroK                  = Z
 oneK a                 = K a zeroK

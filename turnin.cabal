@@ -13,8 +13,7 @@ executable turnin
                    containers >=0.4.2 && <0.5,
                    split >=0.2.2 && <0.3,
                    text >=0.11.1 && <0.12,
-                   filepath >=1.3.0 && <1.4,
-                   deepseq >=1.3.0 && <1.4
+                   filepath >=1.3.0 && <1.4
   ghc-options:     -Wall -fno-warn-missing-signatures
   other-modules:   
                    Infrastructure.Persister,
@@ -35,8 +34,7 @@ test-suite turnin-tests
                    strict >=0.3.2 && <0.4,
                    random >=1.0.1 && <1.1,
                    filepath >=1.3.0 && <1.4,
-                   mtl >=2.0.1 && <2.1,
-                   deepseq >=1.3.0 && <1.4
+                   mtl >=2.0.1 && <2.1
   hs-source-dirs:
                  src,
                  test
