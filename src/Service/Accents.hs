@@ -1,7 +1,6 @@
 module Service.Accents where
 
 import qualified Data.Map as M
-import Data.Maybe (fromMaybe)
 
 accents :: M.Map Char Char
 accents = M.fromList
@@ -65,18 +64,10 @@ accents = M.fromList
 
 accentsByClear :: M.Map Char String
 accentsByClear = M.foldlWithKey f M.empty accents
- where f m k c = case M.lookup c m of
-                  Nothing -> M.insert c [k] m
-                  Just ks -> M.insert c (k:ks) m
+  where f m k c = M.insertWith (++) c [k] m
 
-toAccents c = case M.lookup c accentsByClear of
-               Nothing -> [c]
-               Just cs  -> c:cs
+toAccents :: Char -> String
+toAccents c = c : M.findWithDefault [] c accentsByClear
 
-
-fromAccent c = fromMaybe c $ M.lookup c accents
-
-
-
-
- 
+fromAccent :: Char -> Char
+fromAccent c = M.findWithDefault c c accents
